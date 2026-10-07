@@ -1240,8 +1240,7 @@ wc82d:: db
 wc82e:: db
 wc82f:: ds 3
 wc832:: db
-wc833:: db
-wc834:: db
+wMobileSDK_HTTPDateBuffer:: dw
 wc835:: db
 wc836:: ds 8
 wc83e:: ds 20

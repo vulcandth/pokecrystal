@@ -1139,7 +1139,7 @@ BattleTowerRoomMenu_PlacePickLevelMenu:
 	ld a, [wc31a]
 	and a
 	ret nz
-	ld hl, MenuHeader_119cf7
+	ld hl, BattleTowerPickLevelMenuHeader
 	call LoadMenuHeader
 	call MenuBox
 	call MenuBoxCoord2Tile
@@ -1155,16 +1155,18 @@ BattleTowerRoomMenu_PlacePickLevelMenu:
 	ldh [rWBK], a
 	ld a, [wStatusFlags]
 	bit STATUSFLAGS_HALL_OF_FAME_F, a
-	jr nz, .asm_11896b
-	ld hl, Strings_Ll0ToL40 ; Address to list of strings with the choosable levels
-	ld a, 5                 ; 4 levels to choose from, including 'Cancel'-option
-	jr .asm_118970
+	jr nz, .unlock_all_levels
+; Before entering the Hall of Fame, offer levels 10-40 and CANCEL.
+	ld hl, Strings_L10ToL40
+	ld a, 5
+	jr .store_menu_data
 
-.asm_11896b
-	ld hl, Strings_L10ToL100 ; Address to list of strings with the choosable levels
-	ld a, 11                 ; 10 levels to choose from, including 'Cancel'-option
+.unlock_all_levels
+; After entering the Hall of Fame, offer levels 10-100 and CANCEL.
+	ld hl, Strings_L10ToL100
+	ld a, 11
 
-.asm_118970
+.store_menu_data
 	ld [wcd4a], a
 	ld a, l
 	ld [wcd4b], a
@@ -2540,10 +2542,10 @@ Function119451:
 .asm_11945d
 	xor a
 	ld [wcd50], a
-	call Function119694
+	call Mobile_GetHTTPDateWeekday
 	ld a, b
 	ld [wcd49], a
-	call Function1196cd
+	call Mobile_GetHTTPDateTime
 	ld a, [wd002]
 	ld hl, wd003
 
@@ -2886,66 +2888,60 @@ Function119685:
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
-Function119694:
+Mobile_GetHTTPDateWeekday:
+; Read the weekday from the HTTP Date header copied to wc708 by the SDK.
+; Return b = 0 (Monday) through 6 (Sunday), or 7 if it is not recognized.
+; This ordering differs from the game's SUNDAY-based weekday constants.
 	ld b, 0
-	ld hl, Unknown_1196b8
-.asm_119699
+	ld hl, MobileHTTPWeekdays
+.loop
 	ld de, wc708
 	ld a, [de]
 	inc de
 	cp [hl]
 	inc hl
-	jr nz, .asm_1196af
+	jr nz, .skip_two_chars
 	ld a, [de]
 	inc de
 	cp [hl]
 	inc hl
-	jr nz, .asm_1196b0
+	jr nz, .skip_one_char
 	ld a, [de]
 	inc de
 	cp [hl]
 	inc hl
-	jr nz, .asm_1196b1
+	jr nz, .next_day
 	ret
-.asm_1196af
+.skip_two_chars
 	inc hl
-.asm_1196b0
+.skip_one_char
 	inc hl
-.asm_1196b1
+.next_day
 	inc b
 	ld a, b
-	cp $7
-	jr nz, .asm_119699
+	cp (MobileHTTPWeekdays.End - MobileHTTPWeekdays) / 3
+	jr nz, .loop
+	ret
+
+INCLUDE "data/mobile/http_weekdays.asm"
+
+Mobile_GetHTTPDateTime:
+; The hours and minutes start 17 bytes into "Mon, 01 Jan 2001 00:00:00 GMT".
+	ld de, wc719
+	call Mobile_ParseTwoDigitDecimal
+	ld [wcd4a], a
+	inc de
+	call Mobile_ParseTwoDigitDecimal
+	ld [wcd4b], a
 	ret
 
 pushc ascii
 
-Unknown_1196b8:
-	db "Mon"
-	db "Tue"
-	db "Wed"
-	db "Thu"
-	db "Fri"
-	db "Sat"
-	db "Sun"
-
-popc
-
-Function1196cd:
-	ld de, wc719
-	call Function1196de
-	ld [wcd4a], a
-	inc de
-	call Function1196de
-	ld [wcd4b], a
-	ret
-
-Function1196de:
+Mobile_ParseTwoDigitDecimal:
+; Read two ASCII digits from de and return their value in a.
 	ld a, [de]
 	inc de
-	; b = ([de] - 48) * 2
-	; c = ([de] - 48) * 10
-	sub $30
+	sub '0'
 	sla a
 	ld b, a
 	sla a
@@ -2955,9 +2951,11 @@ Function1196de:
 	add hl, bc
 	ld a, [de]
 	inc de
-	sub $30
+	sub '0'
 	add c
 	ret
+
+popc
 
 Function1196f2:
 	ld hl, wd002
@@ -3851,7 +3849,7 @@ BattleTowerRoomMenu_UpdateYesNoMenu:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
 
-MenuHeader_119cf7:
+BattleTowerPickLevelMenuHeader:
 	db MENU_BACKUP_TILES ; flags
 	menu_coords 12, 7, SCREEN_WIDTH - 1, TEXTBOX_Y - 1
 	dw NULL
@@ -3879,7 +3877,7 @@ Strings_L10ToL100:
 	db " L:100@@"
 	db "CANCEL@@"
 
-Strings_Ll0ToL40:
+Strings_L10ToL40:
 	db " L:10 @@"
 	db " L:20 @@"
 	db " L:30 @@"
@@ -4520,10 +4518,10 @@ BattleTowerRoomMenu2_PlaceYesNoMenu:
 	call MenuBoxCoord2Tile
 	call ApplyTilemap
 	hlcoord 16, 8
-	ld de, String_11a2cf
+	ld de, BattleTowerYesString
 	call PlaceString
 	hlcoord 16, 10
-	ld de, String_11a2d3
+	ld de, BattleTowerNoString
 	call PlaceString
 	hlcoord 15, 8
 	ld a, $ed
@@ -4620,10 +4618,10 @@ BattleTowerRoomMenu2_UpdateYesNoMenu:
 	and a
 	ret
 
-String_11a2cf:
+BattleTowerYesString:
 	db "YES@"
 
-String_11a2d3:
+BattleTowerNoString:
 	db "NO@"
 
 MenuHeader_11a2d6: ; unreferenced
@@ -5046,10 +5044,10 @@ Function11a5f5:
 	ld c, $4
 	call Function3eea
 	hlcoord 16, 7
-	ld de, String_11a2cf
+	ld de, BattleTowerYesString
 	call PlaceString
 	hlcoord 16, 9
-	ld de, String_11a2d3
+	ld de, BattleTowerNoString
 	call PlaceString
 	hlcoord 15, 7
 	ld a, $ed

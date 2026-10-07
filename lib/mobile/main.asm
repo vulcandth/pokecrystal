@@ -2120,9 +2120,9 @@ Function110ddd:
 	ld [wc98a], a
 	ld [wc993], a
 	ld a, [hli]
-	ld [wc833], a
+	ld [wMobileSDK_HTTPDateBuffer], a
 	ld a, [hli]
-	ld [wc834], a
+	ld [wMobileSDK_HTTPDateBuffer + 1], a
 	inc hl
 	inc hl
 	ld a, l
@@ -2278,7 +2278,7 @@ Function110ddd:
 	ld [wc994], a
 
 Function110f07:
-	ld hl, wc833
+	ld hl, wMobileSDK_HTTPDateBuffer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -2699,9 +2699,9 @@ rept 4
 	inc hl
 endr
 	ld a, [hli]
-	ld [wc833], a
+	ld [wMobileSDK_HTTPDateBuffer], a
 	ld a, [hli]
-	ld [wc834], a
+	ld [wMobileSDK_HTTPDateBuffer + 1], a
 	inc hl
 	inc hl
 	ld a, l
@@ -7213,7 +7213,7 @@ Function112f61:
 	ret
 
 .asm_112fa1
-	call Function112fd5
+	call MobileSDK_CopyHTTPDateHeader
 	call Function113008
 	call Function113026
 	call Function113054
@@ -7242,8 +7242,10 @@ Function112f61:
 	ld a, [wc990]
 	ret
 
-Function112fd5:
-	ld de, Unknown_113001
+MobileSDK_CopyHTTPDateHeader:
+; Copy the Date header value (including CRLF) to the caller's buffer.
+; A null buffer pointer disables the copy.
+	ld de, MobileSDK_HTTPDateHeader
 	push hl
 	call Function113281
 	jr nc, .asm_112fe0
@@ -7263,9 +7265,9 @@ Function112fd5:
 	jr nz, .asm_112fe6
 	pop hl
 	ld c, b
-	ld a, [wc833]
+	ld a, [wMobileSDK_HTTPDateBuffer]
 	ld e, a
-	ld a, [wc834]
+	ld a, [wMobileSDK_HTTPDateBuffer + 1]
 	ld d, a
 	or e
 	jr z, .asm_112ffe
@@ -7278,7 +7280,7 @@ Function112fd5:
 	pop bc
 	ret
 
-Unknown_113001:
+MobileSDK_HTTPDateHeader:
 	db "date: ", 0
 
 Function113008:
