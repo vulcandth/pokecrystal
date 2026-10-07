@@ -1251,7 +1251,7 @@ ValidateBattleDownload: ; unreferenced
 	ld a, b
 	ld [s5_b2fb], a
 	call CloseSRAM
-	farcall Function170be4
+	farcall BattleTower_ResetChallengeStats
 	farcall Function1700c4
 	jr .asm_118d78
 
@@ -2541,7 +2541,7 @@ DisplaySendToTradeCornerAnimation:
 	ld a, [wcd38]
 	and a
 	jr nz, .asm_1198a8
-	farcall Function170000
+	farcall MobileTrade_LoadOfferForSending
 	ld a, [wJumptableIndex]
 	push af
 	ld a, [wcf64]
@@ -2575,7 +2575,7 @@ DisplaySendToTradeCornerAnimation:
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 .asm_1198a8
-	farcall Function17005a
+	farcall MobileTrade_LoadOfferForRetrieval
 	ld a, [wJumptableIndex]
 	push af
 	ld a, [wcf64]

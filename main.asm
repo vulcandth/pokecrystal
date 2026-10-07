@@ -544,7 +544,10 @@ INCLUDE "engine/link/link_trade.asm"
 
 SECTION "mobile5C", ROMX
 
-INCLUDE "mobile/mobile_5c.asm"
+INCLUDE "mobile/trade_animation_data.asm"
+INCLUDE "engine/events/battle_tower/battle_tower.asm"
+INCLUDE "engine/events/battle_tower/records.asm"
+INCLUDE "engine/events/battle_tower/validate_moves.asm"
 INCLUDE "mobile/pichu_gfx.asm"
 INCLUDE "mobile/center_menu.asm"
 INCLUDE "mobile/input_screens.asm"

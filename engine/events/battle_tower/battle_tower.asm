@@ -51,24 +51,24 @@ Function1700c4:
 	ldh [rWBK], a
 	ret
 
-Function170114:
+BattleTower_UploadChallengeRecord:
 	call InitBattleTowerChallengeRAM
-	call .Function170121
+	call .load_record
 	farcall BattleTower_UploadRecord
 	ret
 
-.Function170121:
-	ld a, BANK(s5_a948)
+.load_record:
+	ld a, BANK(sBattleTowerChallengeRecord)
 	call OpenSRAM
-	ld hl, s5_a948
-	ld de, wc608
-	ld bc, 246
+	ld hl, sBattleTowerChallengeRecord
+	ld de, wBattleTowerRecord
+	ld bc, BATTLETOWER_RECORD_LENGTH
 	call CopyBytes
 	call CloseSRAM
-	call Function170c8b
+	call BattleTower_InvertRecordStats
 	ret
 
-Function170139: ; unreferenced
+BattleTower_BuildChallengeRecord: ; unreferenced
 ; Convert the 4-digit decimal number at s5_aa41 into binary
 	ld a, BANK(s5_aa41)
 	call OpenSRAM
@@ -86,11 +86,11 @@ Function170139: ; unreferenced
 	ld b, 0
 	add hl, bc
 	call CloseSRAM
-; Store that number in wc608
+; Store that number in wBattleTowerRecord
 	ld a, h
-	ld [wc608], a
+	ld [wBattleTowerRecord], a
 	ld a, l
-	ld [wc608 + 1], a
+	ld [wBattleTowerRecord + 1], a
 	ld hl, wBT_OTTempMon1DVs
 	ld a, [wPlayerID]
 	ld [hli], a
@@ -120,7 +120,7 @@ Function170139: ; unreferenced
 	ld [wcd4b], a
 	ld a, HIGH(wPartyMonNicknames)
 	ld [wcd4c], a
-	ld a, 3
+	ld a, BATTLETOWER_PARTY_LENGTH
 .CopyLoop:
 	push af
 	ld a, [wcd49]
@@ -154,14 +154,14 @@ Function170139: ; unreferenced
 	call CopyBytes
 	call CloseSRAM
 
-	ld a, BANK(s5_a894) ; aka BANK(s5_a948)
+	ld a, BANK(sBattleTowerChallengeStats)
 	call OpenSRAM
-	ld hl, s5_a894
-	ld bc, 6
+	ld hl, sBattleTowerChallengeStats
+	ld bc, BATTLETOWER_RECORD_STATS_LENGTH
 	call CopyBytes
-	ld hl, wc608
-	ld de, s5_a948
-	ld bc, 246
+	ld hl, wBattleTowerRecord
+	ld de, sBattleTowerChallengeRecord
+	ld bc, BATTLETOWER_RECORD_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ret
@@ -227,7 +227,7 @@ RunBattleTowerTrainer:
 	farcall StubbedTrainerRankings_Healings
 	farcall HealParty
 	call ReadBTTrainerParty
-	call Clears5_a89a
+	call BattleTower_ResetBattleTurns
 
 	predef StartBattle
 

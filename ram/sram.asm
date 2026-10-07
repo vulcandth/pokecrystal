@@ -305,12 +305,22 @@ s5_a890:: db
 s5_a891:: db
 s5_a892:: db
 s5_a893:: db
-s5_a894:: ds 6
+; Multi-byte Battle Tower statistics are stored big-endian.
+s5_a894::
+sBattleTowerChallengeStats::
+sBattleTowerChallengeWins:: db
+sBattleTowerChallengeTurns:: dw
+sBattleTowerChallengeHPLost:: dw
+sBattleTowerChallengeFainted:: db
+sBattleTowerChallengeStatsEnd::
+	assert sBattleTowerChallengeStatsEnd - sBattleTowerChallengeStats == BATTLETOWER_RECORD_STATS_LENGTH
+sBattleTowerBattleTurns::
 s5_a89a:: dw
 s5_a89c:: ds 22
 s5_a8b2:: ds 150
 
-s5_a948:: ds 246
+sBattleTowerChallengeRecord::
+s5_a948:: ds BATTLETOWER_RECORD_LENGTH
 
 	ds $3
 

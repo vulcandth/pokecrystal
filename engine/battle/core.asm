@@ -159,7 +159,7 @@ WildFled_EnemyFled_LinkBattleCanceled:
 
 BattleTurn:
 .loop
-	call Stubbed_Increments5_a89a
+	call Stubbed_BattleTowerIncrementTurnCount
 	call CheckContestBattleOver
 	jp c, .quit
 
@@ -229,11 +229,12 @@ BattleTurn:
 .quit
 	ret
 
-Stubbed_Increments5_a89a:
+Stubbed_BattleTowerIncrementTurnCount:
 	ret
-	ld a, BANK(s5_a89a) ; MBC30 bank used by JP Crystal; inaccessible by MBC3
+; MBC30 bank used by JP Crystal; inaccessible by MBC3.
+	ld a, BANK(sBattleTowerBattleTurns)
 	call OpenSRAM
-	ld hl, s5_a89a + 1 ; address of MBC30 bank
+	ld hl, sBattleTowerBattleTurns + 1
 	inc [hl]
 	jr nz, .finish
 	dec hl

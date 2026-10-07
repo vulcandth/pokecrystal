@@ -377,6 +377,19 @@ wBT_OTTemp:: battle_tower_struct wBT_OTTemp
 
 SECTION UNION "Miscellaneous", WRAM0
 
+wBattleTowerRecord::
+	ds BATTLETOWER_RECORD_LENGTH - BATTLETOWER_RECORD_STATS_LENGTH
+wBattleTowerRecordStats::
+wBattleTowerRecordWins:: db
+wBattleTowerRecordTurns:: dw
+wBattleTowerRecordHPLost:: dw
+wBattleTowerRecordFainted:: db
+wBattleTowerRecordEnd::
+	assert wBattleTowerRecordEnd - wBattleTowerRecord == BATTLETOWER_RECORD_LENGTH
+
+
+SECTION UNION "Miscellaneous", WRAM0
+
 ; battle data
 wBattle::
 wEnemyMoveStruct::  move_struct wEnemyMoveStruct
@@ -712,6 +725,7 @@ wMobileMonNick::   ds NAME_LENGTH_JAPANESE - 1
 wMobileMonMail::   mailmsg_jp wMobileMonMail
 
 NEXTU
+wMobileTradeRequest::
 wOfferEmail::      ds MOBILE_EMAIL_LENGTH
 wOfferTrainerID::  dw
 wOfferSecretID::   dw
@@ -3730,6 +3744,7 @@ w3_d742:: battle_tower_struct w3_d742
 
 NEXTU
 	ds $be
+wMobileTradeRequestBackup::
 w3_d800:: ds TILEMAP_WIDTH * SCREEN_HEIGHT
 
 NEXTU
