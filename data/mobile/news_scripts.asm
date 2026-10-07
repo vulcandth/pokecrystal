@@ -1,0 +1,101 @@
+NewsScriptPointers:
+	table_width 2
+NewsScript_NothingCommand:
+	dw NewsScript_Nothing
+NewsScript_LoadScreenCommand:
+	dw NewsScript_LoadScreen
+NewsScript_PlayMusicCommand:
+	dw NewsScript_PlayMusic
+NewsScript_PlaySoundCommand:
+	dw NewsScript_PlaySound
+NewsScript_PlayCryCommand:
+	dw NewsScript_PlayCry
+NewsScript_DrawBoxCommand:
+	dw NewsScript_DrawBox
+NewsScript_PlaceTextCommand:
+	dw NewsScript_PlaceText
+NewsScript_DrawEZChatMessageCommand:
+	dw NewsScript_DrawEZChatMessage
+NewsScript_HTTPPostCommand:
+	dw NewsScript_HTTPPost
+NewsScript_HTTPGetCommand:
+	dw NewsScript_HTTPGet
+NewsScript_PokemonPicCommand:
+	dw NewsScript_PokemonPic
+NewsScript_TrainerPicCommand:
+	dw NewsScript_TrainerPic
+NewsScript_CopyBytesCommand:
+	dw NewsScript_CopyBytes
+NewsScript_UpdateBitCommand:
+	dw NewsScript_UpdateBit
+NewsScript_MenuUpCommand:
+	dw NewsScript_MenuUp
+NewsScript_MenuDownCommand:
+	dw NewsScript_MenuDown
+NewsScript_MenuRightCommand:
+	dw NewsScript_MenuRight
+NewsScript_MenuLeftCommand:
+	dw NewsScript_MenuLeft
+NewsScript_MenuNextPageCommand:
+	dw NewsScript_MenuNextPage
+NewsScript_MenuPreviousPageCommand:
+	dw NewsScript_MenuPreviousPage
+NewsScript_YesNoCommand:
+	dw NewsScript_YesNo
+NewsScript_FadeOutCommand:
+	dw NewsScript_FadeOut
+NewsScript_FadeInCommand:
+	dw NewsScript_FadeIn
+NewsScript_MenuScriptCommand:
+	dw NewsScript_MenuScript
+NewsScript_PrintTextCommand:
+	dw NewsScript_PrintText
+NewsScript_ClearTextCommand:
+	dw NewsScript_ClearText
+NewsScript_CompareBytesCommand:
+	dw NewsScript_CompareBytes
+NewsScript_CheckBitCommand:
+	dw NewsScript_CheckBit
+NewsScript_CompareRankingCommand:
+	dw NewsScript_CompareRanking
+NewsScript_CheckRankingBitCommand:
+	dw NewsScript_CheckRankingBit
+NewsScript_GivePokemonCommand:
+	dw NewsScript_GivePokemon
+NewsScript_GiveItemCommand:
+	dw NewsScript_GiveItem
+NewsScript_CheckPokemonCommand:
+	dw NewsScript_CheckPokemon
+NewsScript_CheckItemCommand:
+	dw NewsScript_CheckItem
+NewsScript_CompareRAMCommand:
+	dw NewsScript_CompareRAM
+NewsScript_SetValueCommand:
+	dw NewsScript_SetValue
+NewsScript_AddValueCommand:
+	dw NewsScript_AddValue
+NewsScript_SubtractValueCommand:
+	dw NewsScript_SubtractValue
+NewsScript_AddRAMCommand:
+	dw NewsScript_AddRAM
+NewsScript_SubtractRAMCommand:
+	dw NewsScript_SubtractRAM
+NewsScript_UpdateRankingsCommand:
+	dw NewsScript_UpdateRankings
+NewsScript_SaveGameCommand:
+	dw NewsScript_SaveGame
+NewsScript_SaveAfterLinkTradeCommand:
+	dw NewsScript_SaveAfterLinkTrade
+NewsScript_SaveBoxCommand:
+	dw NewsScript_SaveBox
+NewsScript_SaveChecksumCommand:
+	dw NewsScript_SaveChecksum
+NewsScript_SaveTrainerRankingsCommand:
+	dw NewsScript_SaveTrainerRankings
+NewsScript_DelayCommand:
+	dw NewsScript_Delay
+NewsScript_WaitButtonCommand:
+	dw NewsScript_WaitButton
+NewsScript_ExitCommand:
+	dw NewsScript_Exit
+	assert_table_length NUM_NEWS_COMMANDS

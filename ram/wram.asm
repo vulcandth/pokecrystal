@@ -1404,6 +1404,54 @@ wMobileMonNicknamePointer:: dw
 wMobileMonMailPointer:: dw
 
 NEXTU
+; Pokémon News viewer (screen data is copied to WRAM bank 4).
+wNewsScreenPointer:: dw
+wNewsMenuX:: db
+wNewsMenuY:: db
+wNewsMenuColumns:: db
+wNewsMenuRows:: db
+wNewsMenuColumnSpacing:: db
+wNewsMenuRowSpacing:: db
+wNewsScrollArrowX:: db
+wNewsScrollArrowY:: db
+wNewsScrollArrowSpacing:: db
+wNewsMenuVisibleRows:: db
+wNewsMenuFlags:: db
+wNewsMenuPageSize:: db
+wNewsMenuCursor:: db
+wNewsMenuScrollOffset:: db
+wNewsMenuCursorColumn:: db
+wNewsMenuCursorRow:: db
+wNewsJoypadScripts:: ds 8 * 2
+wNewsMenuItems:: db
+wNewsDescriptionCoord:: dw
+wNewsDescriptionWidth:: db
+wNewsDescriptionHeight:: db
+wNewsRankingEntrySize:: dw
+wNewsMenuTextPointers:: dw
+wNewsMenuScriptPointers:: dw
+wNewsMenuDescriptionPointers:: dw
+	ds 15
+wNewsRankingPointer:: dw
+wNewsRankingTotal:: ds 4
+wNewsPlayerRanking:: ds 4
+wNewsRankingEntries:: dw
+wNewsRankingEntriesPointer:: dw
+wNewsMusic:: db
+	ds 1
+wNewsRanking:: db
+wNewsRankingCategory:: db
+wNewsRankingRegion:: db
+wNewsQuizPokemon:: db
+wNewsQuizAnswer:: db
+wNewsQuizQuestion:: db
+wNewsQuizScore:: db
+	ds 2
+wNewsJumptableIndex:: db
+	ds 2
+wNewsRankingsUpdateResult:: db
+
+NEXTU
 ; more mobile data
 wcd20:: ds 1
 wcd21:: ds 1
@@ -1516,7 +1564,7 @@ wcd74:: ds 1
 wOTMonSelection:: ds 2 ; ds BATTLETOWER_PARTY_LENGTH
 wcd77:: ds 1
 
-wMobileCrashCheckPointer:: dw
+wNewsScriptPointer:: dw
 wcd7a:: ds 2
 wcd7c:: ds 3
 wcd7f:: ds 1
@@ -3611,6 +3659,7 @@ ENDU
 
 SECTION "News Script RAM", WRAMX
 
+wNewsScreenBuffer::
 w4_d000:: ds $1000
 
 

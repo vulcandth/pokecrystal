@@ -291,7 +291,7 @@ ENDM
 MobileScriptChar::
 	ld c, l
 	ld b, h
-	farcall RunMobileScript
+	farcall PokemonNews_PlaceText
 	jp PlaceNextChar
 
 MACRO print_name

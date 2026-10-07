@@ -221,7 +221,7 @@ BattleTower_SaveHonorRoll:
 	ld [wScriptVar], a
 	jr .reset_banks
 
-Function1181da:
+Mobile_DownloadNews:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $2
 	ld [wcd38], a
@@ -707,7 +707,7 @@ Function1185c3:
 	dw Function119054
 	dw Function1190d0
 	dw MobileAdapterCommunication
-	dw Function1190ec
+	dw Mobile_SaveDownloadedNews
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
@@ -1972,14 +1972,15 @@ Function119054:
 	call CloseSRAM
 	ld a, $3 ; ???
 	ldh [rWBK], a
-	ld a, BANK(s5_b1b3) ; aka BANK(s5_b1b4) and BANK(s5_aa7f) and BANK(s5_b2f3) and BANK(s5_b2f4)
+; These news metadata fields are all in SRAM bank 5.
+	ld a, BANK(s5_b1b3)
 	call OpenSRAM
 	ld a, [wcd4f]
 	ld [s5_b1b3], a
 	ld a, [wcd50]
 	ld [s5_b1b4], a
 	ld hl, wcd20
-	ld de, s5_aa7f
+	ld de, sPokemonNewsRankingsID
 	ld bc, 12
 	call CopyBytes
 	ldh a, [rWBK]
@@ -2011,27 +2012,27 @@ Function1190d0:
 	ld bc, $1000
 	jp Mobile_HTTPGetIndex
 
-Function1190ec:
-	ld a, BANK(s5_aa73)
+Mobile_SaveDownloadedNews:
+	ld a, BANK(sPokemonNewsID)
 	call OpenSRAM
 	ld hl, wBGMapBuffer
-	ld de, s5_aa73
+	ld de, sPokemonNewsID
 	ld bc, 12
 	call CopyBytes
 	call CloseSRAM
-	ld a, BANK(s5_aa72)
+	ld a, BANK(sPokemonNewsDownloaded)
 	call OpenSRAM
 	ld a, $1
-	ld [s5_aa72], a
+	ld [sPokemonNewsDownloaded], a
 	call CloseSRAM
-	ld a, BANK(s6_a000)
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	ld a, [w3_d000]
 	ld c, a
 	ld a, [w3_d000 + 1]
 	ld b, a
 	ld hl, wd002
-	ld de, s6_a000
+	ld de, sPokemonNews
 	call Function119192
 	ret c
 	ld a, [wcd89]
@@ -2069,10 +2070,10 @@ Function11915d:
 	ld de, wcd20
 	ld bc, 12
 	call CopyBytes
-	ld a, BANK(s5_aa7f)
+	ld a, BANK(sPokemonNewsRankingsID)
 	call OpenSRAM
 	ld hl, wBGMapBuffer
-	ld de, s5_aa7f
+	ld de, sPokemonNewsRankingsID
 	ld c, 12
 .asm_119176
 	ld a, [de]
@@ -2308,9 +2309,9 @@ Function119223:
 	ret
 
 Function1192cc:
-	ld a, BANK(s5_aa73)
+	ld a, BANK(sPokemonNewsID)
 	call OpenSRAM
-	ld hl, s5_aa73
+	ld hl, sPokemonNewsID
 	ld de, wc608
 	ld bc, 12
 	call CopyBytes
@@ -4366,7 +4367,7 @@ Function11a0ca:
 	ld [wMenuBorderBottomCoord], a
 	call PushWindow
 	farcall Function11765d
-	farcall Function17d3f6
+	farcall PokemonNews_ClearScreen
 	farcall Stubbed_Function106462
 	farcall Function106464
 	call ExitMenu

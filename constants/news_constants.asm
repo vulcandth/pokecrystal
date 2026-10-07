@@ -1,0 +1,28 @@
+; PokemonNews_RunScriptCommand / NewsScriptPointers
+DEF NUM_NEWS_COMMANDS EQU $31
+DEF NEWS_END EQU $ff
+
+; PokemonNews_RunTextCommand / NewsTextPointers
+DEF NUM_NEWS_TEXT_COMMANDS EQU $0f
+
+; The embedded news samples contain Japanese WRAM addresses, $c bytes below
+; the corresponding English news fields. Preserve these operands verbatim.
+DEF NEWS_JP_RANKING_TOTAL               EQU $cd54
+DEF NEWS_JP_PLAYER_RANKING              EQU $cd58
+DEF NEWS_JP_RANKING                     EQU $cd62
+DEF NEWS_JP_RANKING_CATEGORY            EQU $cd63
+DEF NEWS_JP_RANKING_REGION              EQU $cd64
+DEF NEWS_JP_QUIZ_POKEMON                EQU $cd65
+DEF NEWS_JP_QUIZ_ANSWER                 EQU $cd66
+DEF NEWS_JP_QUIZ_QUESTION               EQU $cd67
+DEF NEWS_JP_QUIZ_SCORE                  EQU $cd68
+DEF NEWS_JP_RANKINGS_UPDATE_RESULT      EQU $cd6e
+
+; PokemonNewsStatePointers indexes
+	const_def
+	const NEWS_STATE_LOAD_SCREEN
+	const NEWS_STATE_SET_PALETTES
+	const NEWS_STATE_JOYPAD
+	const NEWS_STATE_RUN_SCRIPT
+	const NEWS_STATE_WAIT_BUTTON
+DEF NUM_NEWS_STATES EQU const_value

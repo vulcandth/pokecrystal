@@ -333,9 +333,9 @@ s5_aa5d:: ds MOBILE_LOGIN_PASSWORD_LENGTH
 
 	ds $4
 
-s5_aa72:: db
-s5_aa73:: ds 12
-s5_aa7f:: ds 12
+sPokemonNewsDownloaded:: db
+sPokemonNewsID:: ds 12
+sPokemonNewsRankingsID:: ds 12
 
 s5_aa8b:: db
 s5_aa8c:: db
@@ -384,13 +384,11 @@ s5_bfff:: db
 
 SECTION "SRAM Mobile 3", SRAM
 
-s6_a000:: db
-	db
-s6_a002:: db
-s6_a003:: db
-s6_a004:: db
-s6_a005:: db
-s6_a006:: ds $1000
+sPokemonNews::
+sPokemonNewsDestination:: dw
+sPokemonNewsChecksum:: dw
+sPokemonNewsLength:: dw
+sPokemonNewsData:: ds $1000
 
 SECTION "SRAM Mobile 4", SRAM
 
