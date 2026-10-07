@@ -304,7 +304,7 @@ Function10016f:
 
 Function10020b:
 	xor a
-	ld [wc303], a
+	ld [wMobileErrorJumptableIndex], a
 	farcall FadeOutToWhite
 	farcall Function106464
 	call HideSprites
@@ -767,7 +767,7 @@ Function100504:
 	ret
 
 Function100513:
-	call Function3f7c
+	call MobileHome_DrawMenuBox
 	call PlaceVerticalMenuItems
 	call InitVerticalMenuCursor
 	ld hl, w2DMenuFlags1
@@ -928,7 +928,7 @@ Mobile_CommunicationStandby:
 	hlcoord 3, 10
 	ld b, 1
 	ld c, 11
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	ld de, .String
 	hlcoord 4, 11
 	call PlaceString
@@ -6958,7 +6958,7 @@ Function103309:
 	ld [wd1ed], a
 	ld h, d
 	ld l, e
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	ld hl, wd1ec
 	ld a, [hli]
 	ld h, [hl]

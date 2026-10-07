@@ -625,8 +625,8 @@ Function171c41:
 	call ClearBGPalettes
 	farcall Stubbed_Function106462
 	farcall Function106464
-	ld a, $2
-	ld [wc303], a
+	ld a, MOBILE_ERROR_INIT_NO_FADE
+	ld [wMobileErrorJumptableIndex], a
 	farcall DisplayMobileError
 asm_171c60:
 	ld a, $80

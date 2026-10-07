@@ -5037,7 +5037,7 @@ Function11a5b9:
 	hlcoord 0, 0
 	ld b, $4
 	ld c, $12
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	call UpdateSprites
 	ld c, $0
@@ -5062,7 +5062,7 @@ Function11a5f5:
 	hlcoord 14, 6
 	ld b, $3
 	ld c, $4
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	hlcoord 16, 7
 	ld de, BattleTowerYesString
 	call PlaceString
@@ -5643,7 +5643,7 @@ Function11ad1b:
 	call ClearBGPalettes
 	call ClearSprites
 	call ClearTilemap
-	farcall Function17c000
+	farcall Mobile_LoadTradeCornerOfferBackground
 	ld a, [wMenuCursorY]
 	ld [wcd82], a
 	dec a
@@ -7350,7 +7350,7 @@ Function11b7e5:
 	call SpeechTextbox
 	call FadeToMenu
 	farcall MobileTradeAnimation_ReceiveGetmonFromGTS
-	farcall Function17d1f1
+	farcall Mobile_RegisterTradeMonInPokedex
 	ld a, $1
 	ld [wForceEvolution], a
 	ld a, LINK_TRADECENTER

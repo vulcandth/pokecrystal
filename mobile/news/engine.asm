@@ -2412,8 +2412,8 @@ NewsScript_UpdateRankings:
 	ret
 
 PokemonNews_DisplayError:
-	ld a, $2
-	ld [wc303], a
+	ld a, MOBILE_ERROR_INIT_NO_FADE
+	ld [wMobileErrorJumptableIndex], a
 	call PokemonNews_FadeIn
 	call ClearScreen
 	call PokemonNews_RestoreRAM

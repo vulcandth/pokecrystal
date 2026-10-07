@@ -220,7 +220,8 @@ NEXTU
 ; mobile data
 wMobileWRAM::
 wMobileErrorCodeBuffer:: ds 3
-wc303:: ds 2
+wMobileErrorJumptableIndex:: db
+	ds 1
 wc305:: ds 1
 wc306:: ds 1
 wc307:: ds 1

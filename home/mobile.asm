@@ -137,7 +137,9 @@ Function3ed7:: ; unreferenced
 	ld a, [$dc02]
 	ret
 
-Function3eea::
+MobileHome_PlaceBoxWithPalette::
+; Draw a box at hl with b rows and c columns inside the border.
+; Set its entire attribute rectangle to MOBILE_TEXTBOX_PALETTE.
 	push hl
 	push bc
 	ld de, wAttrmap - wTilemap
@@ -146,7 +148,7 @@ Function3eea::
 	inc b
 	inc c
 	inc c
-	call Function3f35
+	call MobileHome_FillBoxPalette
 	pop bc
 	pop hl
 	call MobileHome_PlaceBox
@@ -171,7 +173,7 @@ Function3efd:: ; unreferenced
 	inc b
 	inc c
 	inc c
-	call Function3f35
+	call MobileHome_FillBoxPalette
 	pop bc
 	pop hl
 	call TextboxBorder
@@ -181,15 +183,16 @@ Function3f20::
 	hlcoord 0, 0, wAttrmap
 	ld b,  6
 	ld c, 20
-	call Function3f35
+	call MobileHome_FillBoxPalette
 	hlcoord 0, 0
 	ld b,  4
 	ld c, 18
 	call MobileHome_PlaceBox
 	ret
 
-Function3f35::
-	ld a, 6
+MobileHome_FillBoxPalette::
+; Fill b rows of c attribute bytes starting at hl.
+	ld a, MOBILE_TEXTBOX_PALETTE
 	ld de, SCREEN_WIDTH
 .row
 	push bc
@@ -249,12 +252,12 @@ MobileHome_PlaceBox:
 	add hl, de
 	ret
 
-Function3f7c::
+MobileHome_DrawMenuBox::
 	call MenuBoxCoord2Tile
 	call GetMenuBoxDims
 	dec b
 	dec c
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	ret
 
 Function3f88::

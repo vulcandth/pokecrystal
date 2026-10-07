@@ -656,8 +656,8 @@ Function117bb6:
 	cp $a
 	jr z, .asm_117be1
 .asm_117bd0
-	ld a, $2
-	ld [wc303], a
+	ld a, MOBILE_ERROR_INIT_NO_FADE
+	ld [wMobileErrorJumptableIndex], a
 	farcall DisplayMobileError
 	ld a, JUMPTABLE_EXIT
 	ld [wJumptableIndex], a

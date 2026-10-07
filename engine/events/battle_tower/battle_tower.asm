@@ -1380,7 +1380,7 @@ BattleTowerAction_10:
 	ld [wcd31], a
 	call CloseSRAM
 	farcall Function11b6b4
-	farcall Function17d0f3
+	farcall Mobile_CompleteTrade
 	ld a, TRUE
 	ld [wScriptVar], a
 	ret

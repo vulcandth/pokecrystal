@@ -836,7 +836,7 @@ Function17ac46:
 	ret
 
 .bit_4_set
-	call Function3eea
+	call MobileHome_PlaceBoxWithPalette
 	ret
 
 Palette_17ac55:
