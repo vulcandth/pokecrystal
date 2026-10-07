@@ -120,7 +120,7 @@ MobileDialog_CheckAdapterReady:
 	jr z, .dialing
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	ld a, [wMobileConnectionEndState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ld a, MOBILE_RESULT_CANCELED
@@ -146,7 +146,7 @@ MobileDialog_CheckAdapterReady:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogCancelState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
@@ -196,11 +196,11 @@ MobileDialog_RequestPassword:
 	call CopyBytes
 	ld a, $1
 	ldh [rWBK], a
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
+	farcall MobilePhone_Init
+	ld c, MOBILE_PHONE_ANIM_DIALING
+	farcall MobilePhone_SetAnimation
 	ld a, $1
-	ld [wc305], a
+	ld [wMobilePhoneEnabled], a
 	ret
 
 .stadium
@@ -218,11 +218,11 @@ MobileDialog_RequestPassword:
 	farcall Function106464
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
+	farcall MobilePhone_Init
+	ld c, MOBILE_PHONE_ANIM_DIALING
+	farcall MobilePhone_SetAnimation
 	ld a, $1
-	ld [wc305], a
+	ld [wMobilePhoneEnabled], a
 	ret
 
 MobileDialog_RequestPasswordForNews:
@@ -240,17 +240,17 @@ MobileDialog_RequestPasswordForNews:
 	farcall Function106464
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
+	farcall MobilePhone_Init
+	ld c, MOBILE_PHONE_ANIM_DIALING
+	farcall MobilePhone_SetAnimation
 	ld a, $1
-	ld [wc305], a
+	ld [wMobilePhoneEnabled], a
 	ret
 
 MobileDialog_Connected:
 	call MobileDialog_ClearText
-	ld c, $1
-	farcall Function115e18
+	ld c, MOBILE_PHONE_ANIM_SIGNAL
+	farcall MobilePhone_SetAnimation
 	hlcoord 4, 2
 	ld de, MobileDialogConnectedString
 	call PlaceString
@@ -493,8 +493,8 @@ INCLUDE "data/mobile/connection_dialog_menus.asm"
 
 MobileDialog_ConnectionClosed:
 	call MobileDialog_ClearText
-	ld c, $2
-	farcall Function115e18
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	farcall MobilePhone_SetAnimation
 	hlcoord 4, 2
 	ld de, MobileDialogConnectionClosedString
 	call PlaceString
@@ -540,7 +540,7 @@ MobileDialog_Close:
 .close
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	and a
 	ret
 
@@ -876,10 +876,10 @@ MobileDialog_DrawBox:
 	call MobileHome_PlaceBoxWithPalette
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	call UpdateSprites
-	ld c, $0
-	farcall Function115e18
+	ld c, MOBILE_PHONE_ANIM_DIALING
+	farcall MobilePhone_SetAnimation
 	ld a, $1
-	ld [wc305], a
+	ld [wMobilePhoneEnabled], a
 	ret
 
 MobileDialog_DrawYesNoBox:

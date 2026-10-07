@@ -222,14 +222,14 @@ wMobileWRAM::
 wMobileErrorCodeBuffer:: ds 3
 wMobileErrorJumptableIndex:: db
 	ds 1
-wc305:: ds 1
+wMobilePhoneEnabled:: ds 1
 wc306:: ds 1
-wc307:: ds 1
-wc308:: ds 1
-wc309:: ds 1
-wc30a:: ds 1
-wc30b:: ds 1
-wc30c:: ds 1
+wMobilePhoneX:: ds 1
+wMobilePhoneY:: ds 1
+wMobilePhoneFrame:: ds 1
+wMobilePhoneAnimation:: ds 1
+wMobilePhoneAnimationStep:: ds 1
+wMobilePhoneFrameDuration:: ds 1
 wc30d:: ds 1
 wc30e:: ds 1
 wc30f:: ds 1

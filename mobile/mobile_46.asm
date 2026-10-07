@@ -31,7 +31,7 @@ asm_11800b:
 .skip
 	call Function1184a5
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -71,7 +71,7 @@ BattleTower_UploadRecord:
 .asm_118090
 	call Function11857c
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -116,7 +116,7 @@ Function1180b8:
 .asm_1180f2
 	call Function1184ec
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -160,7 +160,7 @@ Function118125:
 .skip
 	call BattleTowerRoomMenu_Jumptable
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -247,7 +247,7 @@ Mobile_DownloadNews:
 .asm_11820b
 	call Mobile_DownloadNewsJumptable
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -284,7 +284,7 @@ Mobile_UpdateNewsRankings:
 .asm_11825f
 	call Mobile_UpdateNewsRankingsJumptable
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -319,7 +319,7 @@ Function118284:
 .asm_1182b0
 	call Function1186f5
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -355,7 +355,7 @@ Function1182d5: ; unreferenced
 .asm_118301
 	call Function118746
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -392,7 +392,7 @@ Function118329:
 .asm_118355
 	call Function118671
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -428,7 +428,7 @@ Function11837a:
 .asm_1183a6
 	call Function1186b2
 	call Mobile_WriteMessage
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
@@ -475,7 +475,7 @@ BattleTowerRoomMenu_InitRAM:
 	ei
 	farcall Stubbed_Function106462
 	farcall Function106464
-	farcall Function115d99
+	farcall MobilePhone_Init
 	farcall Function11615a
 	ld a, BANK(s5_bfff)
 	call OpenSRAM
@@ -1110,8 +1110,8 @@ Function1188e7:
 StopPichuMobileAnimation:
 	ld a, [wc3f0]
 	ld [wc319], a
-	ld c, $1
-	farcall Function115e18
+	ld c, MOBILE_PHONE_ANIM_SIGNAL
+	farcall MobilePhone_SetAnimation
 	ld a, MOBILE_DIALOG_COMMUNICATING
 	ld [wMobileDialogJumptableIndex], a
 	call MobileConnectionDialog
@@ -3198,7 +3198,7 @@ Function119800:
 	ld [wcf64], a
 	pop af
 	ld [wJumptableIndex], a
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 DisplaySendToTradeCornerAnimation:
@@ -3233,7 +3233,7 @@ DisplaySendToTradeCornerAnimation:
 	ld [wcf64], a
 	pop af
 	ld [wJumptableIndex], a
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 .asm_1198a0
@@ -3267,7 +3267,7 @@ DisplaySendToTradeCornerAnimation:
 	ld [wcf64], a
 	pop af
 	ld [wJumptableIndex], a
-	farcall Function115dc3
+	farcall MobilePhone_Hide
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function1198ee:

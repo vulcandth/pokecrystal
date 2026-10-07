@@ -136,7 +136,7 @@ Function1000e8:
 	ld hl, wcd29
 	bit 7, [hl]
 	ret z
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	ld hl, wcd29
 	set 6, [hl]
 	ret
@@ -421,7 +421,7 @@ Function100301:
 	ret z
 	farcall Function106464
 	farcall Function10202c
-	farcall Function115dd3
+	farcall MobilePhone_Update
 	call Function100320
 	call JoyWaitAorB
 	ret
@@ -3027,10 +3027,10 @@ Function101418:
 	scf
 	ret
 
-Function10142c:
+MobilePhone_EnableAnimation:
 	ld a, $01
-	ld [wc305], a
-	farcall Function115e18
+	ld [wMobilePhoneEnabled], a
+	farcall MobilePhone_SetAnimation
 	ret
 
 Function101438:
@@ -3735,7 +3735,7 @@ Function101913:
 	ld hl, wcd29
 	res 4, [hl]
 	xor a
-	ld [wc305], a
+	ld [wMobilePhoneEnabled], a
 	ld hl, wcd29
 	res 7, [hl]
 	ld a, $90
@@ -3901,11 +3901,11 @@ CopyOtherPlayersBattleMonSelection:
 	ret
 
 Function101a97:
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld hl, wcd29
 	set 6, [hl]
 	ld a, [wMobileCommsJumptableIndex]
@@ -3924,11 +3924,11 @@ Function101ab4:
 	ret
 
 Function101ac6:
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld hl, wcd29
 	set 6, [hl]
 	xor a
@@ -3941,11 +3941,11 @@ Function101ac6:
 	ret
 
 Function101aed:
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld hl, wcd29
 	set 6, [hl]
 	ld a, $01
@@ -3956,8 +3956,8 @@ Function101aed:
 	ret
 
 Function101b0f:
-	ld c, 0
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_DIALING
+	call MobilePhone_EnableAnimation
 	ld e, $03
 	call Function101ee4
 	ld hl, wcd29
@@ -3993,8 +3993,8 @@ Function101b2b:
 	ret
 
 Function101b59:
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld e, $02
 	call Function101ee4
 	ld hl, wcd29
@@ -4005,8 +4005,8 @@ Function101b59:
 	ret
 
 Function101b70:
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld e, $04
 	call Function101ee4
 	ld hl, wcd29
@@ -4048,8 +4048,8 @@ Function101b8f:
 	ret
 
 Function101bc8:
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld e, $08
 	call Function101ee4
 	call Function102048
@@ -4127,11 +4127,11 @@ Function101c50:
 	ret
 
 Function101c62:
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
-	ld c, $01
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_SIGNAL
+	call MobilePhone_EnableAnimation
 	xor a
 	ld [wc30d], a
 	ld hl, wcd29
@@ -4155,8 +4155,8 @@ Function101c92:
 	ret
 
 Function101ca0:
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld e, $0c
 	call Function101ee4
 	ld hl, wcd29
@@ -4219,16 +4219,16 @@ Function101d03:
 	ret
 
 Function101d10:
-	ld c, $01
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_SIGNAL
+	call MobilePhone_EnableAnimation
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
 	jr Function101d2a
 
 Function101d1e:
-	ld c, $03
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_SIGNAL_REVERSE
+	call MobilePhone_EnableAnimation
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -4487,7 +4487,7 @@ Function101ecc:
 
 Function101ed3:
 	call Function1013aa
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
 	ret
@@ -4578,11 +4578,11 @@ String_102014:
 	next "せっていを　してください@"
 
 Function10202c:
-	farcall Function115d99
+	farcall MobilePhone_Init
 	ld hl, wcd29
 	set 7, [hl]
-	ld c, $02
-	call Function10142c
+	ld c, MOBILE_PHONE_ANIM_IDLE
+	call MobilePhone_EnableAnimation
 	ld e, $0d
 	call Function101ee4
 	hlcoord 4, 4
