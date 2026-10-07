@@ -2505,7 +2505,23 @@ SECTION "More WRAM 1", WRAMX
 wTMHMMoveNameBackup:: ds MOVE_NAME_LENGTH
 
 wStringBuffer1:: ds STRING_BUFFER_LENGTH
+UNION
 wStringBuffer2:: ds STRING_BUFFER_LENGTH
+
+NEXTU
+wMobileDialpadState::
+	ds 1
+wMobileDialpadJumptableIndex:: db
+wMobileDialpadFlags:: db
+wMobileDialpadCursor:: db
+wMobileDialpadSelectedKey:: db
+wMobileDialpadKeyDelay:: db
+wMobileDialpadLength:: db
+wMobileDialpadSpriteTile:: db
+wMobileDialpadSpriteAttributes:: db
+wMobileDialpadBlinkCounter:: db
+	assert @ - wMobileDialpadState == MOBILE_DIALPAD_STATE_SIZE
+ENDU
 wStringBuffer3:: ds STRING_BUFFER_LENGTH
 wStringBuffer4:: ds STRING_BUFFER_LENGTH
 wStringBuffer5:: ds STRING_BUFFER_LENGTH
@@ -2860,6 +2876,9 @@ wd1f1:: ds 1
 wd1f2:: ds 1
 wd1f3:: ds 1
 	ds 6
+
+NEXTU
+wMobileDialpadDigits:: ds MOBILE_PHONE_DIGITS_LENGTH
 
 NEXTU
 ; miscellaneous bytes

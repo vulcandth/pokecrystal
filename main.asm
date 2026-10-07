@@ -580,7 +580,9 @@ INCLUDE "engine/battle/update_battle_huds.asm"
 
 SECTION "mobile5E", ROMX
 
-INCLUDE "mobile/mobile_5e.asm"
+INCLUDE "data/mobile/card_gfx.asm"
+INCLUDE "mobile/phone_number.asm"
+INCLUDE "data/mobile/card_list_gfx.asm"
 
 
 SECTION "mobile5F", ROMX
