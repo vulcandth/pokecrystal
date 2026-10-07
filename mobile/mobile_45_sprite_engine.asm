@@ -1,5 +1,3 @@
-INCLUDE "mobile/phone_animation.asm"
-
 Function11615a:
 	xor a
 	ld [wc30d], a

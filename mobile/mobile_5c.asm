@@ -294,9 +294,3 @@ INCBIN "gfx/mobile/electro_ball.2bpp.lz"
 
 PichuBorderMobileGFX:
 INCBIN "gfx/mobile/pichu_border.2bpp"
-
-INCLUDE "mobile/center_menu.asm"
-
-INCLUDE "mobile/input_screens.asm"
-
-INCLUDE "mobile/stadium_screen.asm"

@@ -515,9 +515,12 @@ INCLUDE "engine/movie/title.asm"
 
 SECTION "mobile45", ROMX
 
+INCLUDE "mobile/phone_animation.asm"
 INCLUDE "mobile/mobile_45_sprite_engine.asm"
 INCLUDE "mobile/mobile_45_2.asm"
-INCLUDE "mobile/mobile_45_stadium.asm"
+INCLUDE "engine/events/give_odd_egg.asm"
+INCLUDE "mobile/password.asm"
+INCLUDE "mobile/stadium.asm"
 
 
 SECTION "mobile46", ROMX
@@ -539,6 +542,9 @@ INCLUDE "engine/link/link_trade.asm"
 SECTION "mobile5C", ROMX
 
 INCLUDE "mobile/mobile_5c.asm"
+INCLUDE "mobile/center_menu.asm"
+INCLUDE "mobile/input_screens.asm"
+INCLUDE "mobile/stadium_screen.asm"
 
 
 SECTION "Crystal Phone Text 2", ROMX
