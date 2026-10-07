@@ -1611,6 +1611,7 @@ wMobileConnectionTimeSeconds::
 wcd67:: ds 1
 wMobileConnectionTimeMinutes::
 wcd68:: ds 1
+wMobileStadiumDataID::
 wcd69:: ds 1
 wcd6a:: ds 1
 wcd6b:: ds 1
@@ -1634,6 +1635,7 @@ wMobileSavedStateFlags:: ds 1
 wcd80:: ds 1
 wcd81:: ds 1
 wcd82:: ds 1
+wMobileStadiumChecksum::
 wcd83:: ds 1
 wcd84:: ds 1
 wMobileDownloadFeeString:: ds MOBILE_DOWNLOAD_FEE_LENGTH + 1
@@ -1831,6 +1833,8 @@ wUnusedTradeAnimPlayEvolutionMusic:: db
 
 NEXTU
 ; mobile
+wMobileStadiumMenuSelection::
+wMobileStadiumMenuDelay::
 wcf64:: db
 wcf65:: db
 wcf66:: db

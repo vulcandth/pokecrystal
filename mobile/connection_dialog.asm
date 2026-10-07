@@ -213,7 +213,7 @@ MobileDialog_RequestPassword:
 	ld [wMenuBorderBottomCoord], a
 	call PushWindow
 	farcall MobilePassword
-	farcall Function117ab4
+	farcall MobileStadium_Redraw
 	farcall Stubbed_Function106462
 	farcall Function106464
 	call ExitMenu

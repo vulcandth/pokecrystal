@@ -606,7 +606,7 @@ Function4a492:
 	call _CrystalCGB_MobileLayout0
 	ret
 
-MainMenu_MobileStudium:
+MainMenu_MobileStadium:
 	ld a, [wStartDay]
 	ld b, a
 	ld a, [wStartHour]
@@ -617,7 +617,7 @@ MainMenu_MobileStudium:
 	ld e, a
 	push bc
 	push de
-	farcall MobileStudium
+	farcall MobileStadium
 	call ClearBGPalettes
 	pop de
 	pop bc

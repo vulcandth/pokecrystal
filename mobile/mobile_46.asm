@@ -296,7 +296,7 @@ Mobile_UpdateNewsRankings:
 	call Mobile_CleanupConnection
 	ret
 
-Function118284:
+Mobile_DownloadStadiumData:
 	call Mobile_InitConnection
 	ld a, $19
 	ld [wMobileConnectionEndState], a
@@ -2352,7 +2352,7 @@ Function119471:
 	ld [wc608], a
 	ld a, h
 	ld [wc608 + 1], a
-	ld de, wcd69
+	ld de, wMobileStadiumDataID
 	ld c, $10
 	ld b, $0
 .asm_119521
@@ -2383,10 +2383,10 @@ endr
 	ld c, a
 	ld a, [hli]
 	ld b, a
-	ld a, [wcd83]
+	ld a, [wMobileStadiumChecksum]
 	cp c
 	jr nz, .asm_119576
-	ld a, [wcd84]
+	ld a, [wMobileStadiumChecksum + 1]
 	cp b
 	jr nz, .asm_119576
 	jr .asm_11955b
@@ -2498,7 +2498,7 @@ Function1195c4:
 	ld l, a
 	ld a, [wc608 + 1]
 	ld h, a
-	ld de, wcd69
+	ld de, wMobileStadiumDataID
 	ld bc, $10
 	call CopyBytes
 	ret

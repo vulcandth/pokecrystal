@@ -401,4 +401,13 @@ s7_a001:: db
 
 sMobileAdapterStatus2:: db
 
+	ds $7ff
+
+sMobileStadiumData::
+	ds MOBILE_STADIUM_ID_OFFSET
+sMobileStadiumDataID:: ds MOBILE_STADIUM_ID_LENGTH
+	ds MOBILE_STADIUM_DATA_SIZE - (@ - sMobileStadiumData)
+sMobileStadiumDataEnd::
+	assert sMobileStadiumDataEnd - sMobileStadiumData == MOBILE_STADIUM_DATA_SIZE
+
 ENDSECTION

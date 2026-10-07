@@ -82,7 +82,7 @@ endc
 	dw MainMenu_Option
 	dw MainMenu_MysteryGift
 	dw MainMenu_Mobile
-	dw MainMenu_MobileStudium
+	dw MainMenu_MobileStadium
 if DEF(_DEBUG)
 	dw MainMenu_DebugRoom
 endc
