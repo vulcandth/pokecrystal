@@ -306,7 +306,7 @@ Function1719c8:
 	ret
 
 Function1719d6:
-	farcall BattleTowerRoomMenu_InitRAM
+	farcall Mobile_InitConnection
 	call Function1719ed
 	ldh a, [rWBK]
 	push af
@@ -384,7 +384,7 @@ Function171a5d:
 	push af
 	ld a, $1
 	ldh [rWBK], a
-	farcall BattleTowerRoomMenu_Cleanup
+	farcall Mobile_CleanupConnection
 	pop af
 	ldh [rWBK], a
 	ld a, $a
@@ -426,7 +426,7 @@ Function171aec:
 	push af
 	ld a, $1
 	ldh [rWBK], a
-	farcall BattleTowerRoomMenu_Cleanup
+	farcall Mobile_CleanupConnection
 	pop af
 	ldh [rWBK], a
 	hlcoord 2, 6
@@ -579,10 +579,10 @@ Function171bdc:
 	ret
 
 Function171beb:
-	ld a, BANK(s5_aa4a)
+	ld a, BANK(sMobilePhoneNumberIndex)
 	call OpenSRAM
 	ld a, [wcd4a]
-	ld [s5_aa4a], a
+	ld [sMobilePhoneNumberIndex], a
 	call CloseSRAM
 	ld hl, MenuHeader_171c6b
 	call LoadMenuHeader

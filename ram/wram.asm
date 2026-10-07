@@ -246,6 +246,7 @@ wMobileMessageDelay:: db
 ; Message text shares the phone/API parameter buffers.
 wMobileMessageBuffer::
 wc320:: ds 38
+wMobilePhoneNumberTable::
 wMobileDownloadFeeQuestion::
 wc346:: ds 102
 	assert @ - wMobileMessageBuffer == MOBILE_MESSAGE_BUFFER_LENGTH
@@ -1407,6 +1408,10 @@ wBGMapBufferPointers:: ds 20 * 2
 wBGMapBufferEnd::
 
 NEXTU
+	ds 2 * SCREEN_WIDTH
+wMobileDialogContext:: db
+
+NEXTU
 ; credits
 wCreditsPos:: dw
 wCreditsTimer:: db
@@ -1603,7 +1608,7 @@ wcd77:: ds 1
 wNewsScriptPointer:: dw
 wcd7a:: ds 2
 wcd7c:: ds 3
-wcd7f:: ds 1
+wMobileSavedStateFlags:: ds 1
 wcd80:: ds 1
 wcd81:: ds 1
 wcd82:: ds 1

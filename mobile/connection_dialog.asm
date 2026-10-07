@@ -169,7 +169,7 @@ MobileDialog_RequestPassword:
 
 .request_password
 	call CloseSRAM
-	ld a, [wBGMapPalBuffer]
+	ld a, [wMobileDialogContext]
 	and a
 	jr z, .overworld
 	dec a

@@ -8,7 +8,7 @@ Function118007:
 	ld [wcd38], a
 
 asm_11800b:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $18
 	ld [wMobileConnectionEndState], a
 	ld a, $19
@@ -40,7 +40,7 @@ asm_11800b:
 	jr nz, .loop
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 BattleTowerRoomMenu_DoNothing:
 	ret
@@ -48,7 +48,7 @@ BattleTowerRoomMenu_DoNothing:
 BattleTower_UploadRecord:
 	ld a, $1
 	ld [wcd38], a
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $18
 	ld [wMobileConnectionEndState], a
 	ld a, $19
@@ -80,12 +80,12 @@ BattleTower_UploadRecord:
 	jr nz, .asm_11807d
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 	ret
 
 Function1180b8:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $22
 	ld [wMobileConnectionEndState], a
 	ld a, $23
@@ -125,7 +125,7 @@ Function1180b8:
 	jr nz, .asm_1180d1
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 	ret
 
@@ -138,7 +138,7 @@ _BattleTowerRoomMenu:
 	xor a
 	ld [wcd38], a
 Function118125:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $3
 	ld [wMobileConnectionEndState], a
 	ld a, $d
@@ -171,7 +171,7 @@ Function118125:
 	ld [w3_d000], a
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call BattleTower_SaveHonorRoll
 	call ReturnToMapFromSubmenu
 	ret
@@ -222,7 +222,7 @@ BattleTower_SaveHonorRoll:
 	jr .reset_banks
 
 Mobile_DownloadNews:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $2
 	ld [wcd38], a
 	ld a, $21
@@ -256,12 +256,12 @@ Mobile_DownloadNews:
 	jr nz, .asm_1181f8
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 	ret
 
 Mobile_UpdateNewsRankings:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $1b
 	ld [wMobileConnectionEndState], a
 	ld a, $1c
@@ -293,11 +293,11 @@ Mobile_UpdateNewsRankings:
 	jr nz, .asm_11824c
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	ret
 
 Function118284:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $19
 	ld [wMobileConnectionEndState], a
 	ld a, $1e
@@ -328,11 +328,11 @@ Function118284:
 	jr nz, .asm_11829d
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	ret
 
 Function1182d5: ; unreferenced
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $18
 	ld [wMobileConnectionEndState], a
 	ld a, $19
@@ -364,12 +364,12 @@ Function1182d5: ; unreferenced
 	jr nz, .asm_1182ee
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 	ret
 
 Function118329:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $15
 	ld [wMobileConnectionEndState], a
 	ld a, $16
@@ -401,11 +401,11 @@ Function118329:
 	jr nz, .asm_118342
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	ret
 
 Function11837a:
-	call BattleTowerRoomMenu_InitRAM
+	call Mobile_InitConnection
 	ld a, $16
 	ld [wMobileConnectionEndState], a
 	ld a, $17
@@ -437,117 +437,16 @@ Function11837a:
 	jr nz, .asm_118393
 	pop af
 	ldh [rWBK], a
-	call BattleTowerRoomMenu_Cleanup
+	call Mobile_CleanupConnection
 	ret
 
-BattleTowerRoomMenu_InitRAM:
-	di
-	ldh a, [rIE]
-	ld [wMobileSavedIE], a
-	call DoubleSpeed
-	xor a
-	ldh [rIF], a
-	ld [wMobileErrorCodeBuffer], a
-	ld [wMobileErrorCodeBuffer + 1], a
-	ld [wMobileErrorCodeBuffer + 2], a
-	ld [wcd80], a
-	ld [wMobileConnectionTimerActive], a
-	ld [wMobileConnectionTimeFrames], a
-	ld [wMobileConnectionTimeSeconds], a
-	ld [wMobileConnectionTimeMinutes], a
-	ld [wMobileMessageJumptableIndex], a
-	ld [wMobileDownloadFlags], a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	ld [wc3ec], a
-	ld [wc3ed], a
-	ld [wc3ee], a
-	ld [wc3ef], a
-	ld hl, wStateFlags
-	ld a, [hl]
-	ld [wcd7f], a
-	set LAST_12_SPRITE_OAM_STRUCTS_RESERVED_F, [hl]
-	ld a, IE_SERIAL | IE_TIMER | IE_STAT | IE_VBLANK
-	ldh [rIE], a
-	ld a, $1
-	ldh [hMobileReceive], a
-	ldh [hMobile], a
-	ei
-	farcall Stubbed_Function106462
-	farcall Function106464
-	farcall MobilePhone_Init
-	farcall Function11615a
-	ld a, BANK(s5_bfff)
-	call OpenSRAM
-	xor a
-	ld [s5_bfff], a
-	call CloseSRAM
-	ret
-
-Function118440:
-	push af
-	ld a, BANK(s5_bfff)
-	call OpenSRAM
-	ld a, [s5_bfff]
-	inc a
-	ld [s5_bfff], a
-	call CloseSRAM
-	pop af
-	ret
-
-BattleTowerRoomMenu_Cleanup:
-	di
-	xor a
-	ldh [hMobileReceive], a
-	ldh [hMobile], a
-	ldh [hVBlank], a
-	call NormalSpeed
-	xor a
-	ldh [rIF], a
-	ld a, [wMobileSavedIE]
-	ldh [rIE], a
-	ei
-	ld a, [wcd7f]
-	ld [wStateFlags], a
-	ld a, [wMobileErrorCodeBuffer]
-	ld [wScriptVar], a
-	ret
-
-Mobile_UpdateConnectionTimer:
-	ld a, [wMobileConnectionTimerActive]
-	and a
-	ret z
-	ld a, [wMobileConnectionTimeFrames]
-	inc a
-	ld [wMobileConnectionTimeFrames], a
-	cp 60
-	ret nz
-	xor a
-	ld [wMobileConnectionTimeFrames], a
-	ld a, [wMobileConnectionTimeSeconds]
-	inc a
-	ld [wMobileConnectionTimeSeconds], a
-	cp 60
-	ret nz
-	ld a, [wMobileConnectionTimeMinutes]
-	inc a
-	ld [wMobileConnectionTimeMinutes], a
-	cp 99
-	jr z, .ninety_nine
-	xor a
-	ld [wMobileConnectionTimeSeconds], a
-	ret
-
-.ninety_nine
-	xor a
-	ld [wMobileConnectionTimerActive], a
-	ret
+INCLUDE "mobile/connection.asm"
 
 Function1184a5:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886e
+	dw Mobile_InitOverworldConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -568,19 +467,19 @@ Function1184a5:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw DisplaySendToTradeCornerAnimation
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Function1184ec:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886e
+	dw Mobile_InitOverworldConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -611,16 +510,16 @@ Function1184ec:
 	dw MobileAdapterCommunication
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
 	dw DeleteInvalidTradeEmail
 	dw MobileAdapterCommunication
 	dw Function119ac9
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 
 BattleTowerRoomMenu_Jumptable:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
@@ -639,15 +538,15 @@ BattleTowerRoomMenu_Jumptable:
 	dw BattleTowerRoomMenu_UberRestrictionMessage
 	dw BattleTowerRoomMenu_WaitForMessage
 	dw BattleTowerRoomMenu_DelayRestartMenu
-	dw Function118e76 ; mobile
-	dw BattleTowerRoomMenu_CallRoomMenu2 ; mobile
-	dw Function118e76 ; mobile
+	dw Mobile_StartDisconnectDialog ; mobile
+	dw Mobile_WaitForDisconnectDialog ; mobile
+	dw Mobile_StartDisconnectDialog ; mobile
 
 Function11857c:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886e
+	dw Mobile_InitOverworldConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -668,19 +567,19 @@ Function11857c:
 	dw Function119937
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Mobile_DownloadNewsJumptable:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886e
+	dw Mobile_InitOverworldConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -710,23 +609,23 @@ Mobile_DownloadNewsJumptable:
 	dw Mobile_SaveDownloadedNews
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
 	dw BattleTowerRoomMenu_QuitMessage
 	dw BattleTowerRoomMenu_PlaceYesNoMenu
 	dw BattleTowerRoomMenu_UpdateYesNoMenu
 	dw Function11914e
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 
 Mobile_UpdateNewsRankingsJumptable:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function118866
+	dw Mobile_InitNewsConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -750,19 +649,19 @@ Mobile_UpdateNewsRankingsJumptable:
 	dw Mobile_SaveDownloadedNewsRankings
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Function118671:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function118866
+	dw Mobile_InitNewsConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -780,19 +679,19 @@ Function118671:
 	dw MobileAdapterCommunication
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Function1186b2:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function118866
+	dw Mobile_InitNewsConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -811,19 +710,19 @@ Function1186b2:
 	dw Function119413
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Function1186f5:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886a
+	dw Mobile_InitStadiumConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -845,7 +744,7 @@ Function1186f5:
 	dw MobileAdapterCommunication
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
@@ -853,15 +752,15 @@ Function1186f5:
 	dw Function119685
 	dw Function119665
 	dw Function11966d
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 Function118746:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
-	dw Function11886e
+	dw Mobile_InitOverworldConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
 	dw Mobile_ReadPhoneNumber
@@ -882,13 +781,13 @@ Function118746:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function119800
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
-	dw Function118e76
-	dw BattleTowerRoomMenu_CallRoomMenu2
-	dw Function118e76
+	dw Mobile_StartDisconnectDialog
+	dw Mobile_WaitForDisconnectDialog
+	dw Mobile_StartDisconnectDialog
 
 MobileAdapterCommunication:
 	ld a, [wMobileSDK_Status]
@@ -1009,19 +908,19 @@ Mobile_CheckConnectionCancel:
 	and a
 	ret
 
-Function118866:
-	ld a, 2
-	jr asm_11886f
+Mobile_InitNewsConnectionDialog:
+	ld a, MOBILE_DIALOG_CONTEXT_NEWS
+	jr Mobile_InitConnectionDialog
 
-Function11886a:
-	ld a, 1
-	jr asm_11886f
+Mobile_InitStadiumConnectionDialog:
+	ld a, MOBILE_DIALOG_CONTEXT_STADIUM
+	jr Mobile_InitConnectionDialog
 
-Function11886e:
+Mobile_InitOverworldConnectionDialog:
 	xor a
 
-asm_11886f:
-	ld [wBGMapPalBuffer], a
+Mobile_InitConnectionDialog:
+	ld [wMobileDialogContext], a
 	ld a, MOBILE_DIALOG_INIT
 	ld [wMobileDialogJumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
@@ -1057,7 +956,7 @@ Mobile_StopPendingOperation: ; unreferenced
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Mobile_ReadPhoneNumber:
-	ld de, wc346
+	ld de, wMobilePhoneNumberTable
 	ld a, MOBILEAPI_READPHONENUMBERS
 	jp Mobile_CallAPIAndAdvanceState
 
@@ -1074,37 +973,39 @@ Mobile_ReadEmailAddress:
 Mobile_LoginToISP:
 	ld a, $1
 	ld [wMobileConnectionTimerActive], a
-	call Function1188e7
+	call Mobile_GetSelectedPhoneNumber
 	ld hl, wc708
-.asm_1188d3
+.copy_phone_number
 	ld a, [de]
 	inc de
 	ld [hli], a
 	and a
-	jr nz, .asm_1188d3
+	jr nz, .copy_phone_number
 	call Mobile_AppendLoginID
 	call Mobile_AppendLoginPassword
 	ld hl, wc708
 	ld a, MOBILEAPI_ISPLOGIN
 	jp Mobile_CallAPIAndAdvanceState
 
-Function1188e7:
-	ld de, wc346
-	ld a, BANK(s5_aa4a)
+Mobile_GetSelectedPhoneNumber:
+; Return de pointing to the selected phone number. Each table entry
+; contains two null-terminated strings: the number and its description.
+	ld de, wMobilePhoneNumberTable
+	ld a, BANK(sMobilePhoneNumberIndex)
 	call OpenSRAM
-	ld a, [s5_aa4a]
+	ld a, [sMobilePhoneNumberIndex]
 	call CloseSRAM
 	and a
 	ret z
 	sla a
 	ld c, a
-.asm_1188fa
+.skip_string
 	ld a, [de]
 	inc de
 	and a
-	jr nz, .asm_1188fa
+	jr nz, .skip_string
 	dec c
-	jr nz, .asm_1188fa
+	jr nz, .skip_string
 	ret
 
 StopPichuMobileAnimation:
@@ -1666,7 +1567,7 @@ Mobile_LogoutOfISP:
 	ld a, MOBILEAPI_HANGUP
 	jp Mobile_CallAPIAndAdvanceState
 
-Function118e76:
+Mobile_StartDisconnectDialog:
 	; Show the disconnect message and connection time.
 	ld a, MOBILE_DIALOG_CONNECTION_CLOSED
 	ld [wMobileDialogJumptableIndex], a
@@ -1678,7 +1579,7 @@ Mobile_EndConnection:
 	ld a, MOBILEAPI_END
 	jp Mobile_CallAPIAndAdvanceState
 
-BattleTowerRoomMenu_CallRoomMenu2:
+Mobile_WaitForDisconnectDialog:
 	call MobileConnectionDialog
 	ret c
 	ld a, [wMobileConnectionEndState]

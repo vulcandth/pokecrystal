@@ -323,7 +323,7 @@ s5_aa48:: db
 
 	ds $1
 
-s5_aa4a:: db
+sMobilePhoneNumberIndex:: db
 
 sMobileLoginPassword:: ds MOBILE_LOGIN_PASSWORD_LENGTH
 
