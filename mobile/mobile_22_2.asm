@@ -105,7 +105,7 @@ Function8b391:
 	pop bc
 	ret
 
-Function8b3a4:
+CardFolder_CheckPasscode:
 	; strcmp(hl, bc, 4)
 	push de
 	push bc
@@ -134,14 +134,14 @@ Function8b3b0:
 	ld a, [s4_a60b]
 	ret
 
-Function8b3cd:
+CardFolder_DisplayAllPINDigits:
 	push de
 	push bc
 	ld e, $4
 .asm_8b3d1
 	ld a, [bc]
 	inc bc
-	call Function8998b
+	call CardFolder_DisplayPINDigit
 	inc hl
 	dec e
 	jr nz, .asm_8b3d1
@@ -249,13 +249,13 @@ Function8b45c:
 	call Function8b385
 .asm_8b46e
 	call Mobile22_SetBGMapMode0
-	call Function8b493
-	call Function8b4cc
-	call Function8b518
-	call Function89b78
+	call CardFolder_DisplayPINCodeAndFrame
+	call CardFolder_GetPINTextBoxCoordsInHL
+	call CardFolder_NextPasscodeRow
+	call BlinkPINCodeDigit
 	push bc
-	call Function8b4fd
-	call Function89c44
+	call CardFolder_GetCursorInitialCoordsInBC
+	call CardFolder_MoveAndBlinkCursor
 	ld a, $1
 	ldh [hBGMapMode], a
 	pop bc
@@ -267,56 +267,56 @@ Function8b45c:
 	scf
 	ret
 
-Function8b493:
+CardFolder_DisplayPINCodeAndFrame:
 	push bc
 	call Mobile22_SetBGMapMode0
-	call Function8b521
-	ld hl, Jumptable_8b4a0
+	call CardFolder_GetPasscodeFrameStyle
+	ld hl, PINCodeDisplay_Jumptable
 	pop bc
 	rst JumpTable
 	ret
 
-Jumptable_8b4a0:
-	dw Function8b4a4
-	dw Function8b4b8
+PINCodeDisplay_Jumptable:
+	dw CardFolder_RegularPINTextbox
+	dw CardFolder_GoldenPINTextbox
 
-Function8b4a4:
+CardFolder_RegularPINTextbox:
 	push bc
 	push de
-	call Function8b4d8
+	call GetPINTextBoxParams
 	call Textbox
 	pop de
 	pop bc
-	call Function8b4cc
-	call Function8b518
-	call Function8b3cd
+	call CardFolder_GetPINTextBoxCoordsInHL
+	call CardFolder_NextPasscodeRow
+	call CardFolder_DisplayAllPINDigits
 	ret
 
-Function8b4b8:
+CardFolder_GoldenPINTextbox:
 	push bc
 	push de
 	call Function8b4ea
-	call Function89b3b
+	call SetBGAndDisplayBlankGoldenBox_DE
 	pop de
 	pop bc
-	call Function8b4cc
-	call Function8b518
-	call Function8b3cd
+	call CardFolder_GetPINTextBoxCoordsInHL
+	call CardFolder_NextPasscodeRow
+	call CardFolder_DisplayAllPINDigits
 	ret
 
-Function8b4cc:
+CardFolder_GetPINTextBoxCoordsInHL:
 	push bc
 	ld hl, Unknown_8b529
-	call Function8b50a
+	call CardFolder_GetPasscodeTileOffset
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	pop bc
 	ret
 
-Function8b4d8:
+GetPINTextBoxParams:
 	ld hl, Unknown_8b529
-	call Function8b50a
+	call CardFolder_GetPasscodeTileOffset
 	push hl
 	inc hl
 	inc hl
@@ -332,7 +332,7 @@ Function8b4d8:
 
 Function8b4ea:
 	ld hl, Unknown_8b529
-	call Function8b50a
+	call CardFolder_GetPasscodeTileOffset
 	push hl
 	inc hl
 	inc hl
@@ -347,9 +347,9 @@ Function8b4ea:
 	ld d, a
 	ret
 
-Function8b4fd:
+CardFolder_GetCursorInitialCoordsInBC:
 	ld hl, Unknown_8b529 + 4
-	call Function8b50a
+	call CardFolder_GetPasscodeTileOffset
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
@@ -358,7 +358,7 @@ Function8b4fd:
 	ld d, a
 	ret
 
-Function8b50a:
+CardFolder_GetPasscodeTileOffset:
 	ld a, [wd02e]
 	and a
 	ret z
@@ -370,7 +370,7 @@ Function8b50a:
 	jr nz, .asm_8b513
 	ret
 
-Function8b518:
+CardFolder_NextPasscodeRow:
 	push de
 	ld d, $0
 	ld e, $14
@@ -379,9 +379,9 @@ Function8b518:
 	pop de
 	ret
 
-Function8b521:
+CardFolder_GetPasscodeFrameStyle:
 	ld hl, Unknown_8b529 + 7
-	call Function8b50a
+	call CardFolder_GetPasscodeTileOffset
 	ld a, [hl]
 	ret
 
@@ -397,10 +397,10 @@ Function8b539:
 	xor a
 	ld [wd012], a
 	ld [wd02e], a
-	call Function8b493
-	call Function8b4fd
+	call CardFolder_DisplayPINCodeAndFrame
+	call CardFolder_GetCursorInitialCoordsInBC
 	ld e, $0
-	call Function89c44
+	call CardFolder_MoveAndBlinkCursor
 	call CGBOnly_CopyTilemapAtOnce
 	ret
 
@@ -411,9 +411,9 @@ Function8b555:
 	ld bc, wd017
 	call Function8b45c
 	jr c, .asm_8b5c8
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld bc, wd017
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	ld bc, wd017
 	call Function8b664
 	jr nz, .asm_8b57c
@@ -429,11 +429,11 @@ Function8b555:
 	jr c, .loop
 	ld bc, wd017
 	ld hl, wd013
-	call Function8b3a4
+	call CardFolder_CheckPasscode
 	jr z, .strings_equal
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld bc, wd013
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	ld hl, PasscodesNotSameText
 	call PrintText
 	jr .asm_8b57c
@@ -445,15 +445,15 @@ Function8b555:
 	ld bc, $4
 	call CopyBytes
 	call CloseSRAM
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld bc, wd013
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	ld hl, PasscodeSetText
 	call PrintText
 	and a
 .asm_8b5c8
 	push af
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	pop af
 	ret
 
@@ -483,23 +483,23 @@ Function8b5e7:
 	xor a
 	ld [wd012], a
 	ld [wd02e], a
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	call Function891ab
-	call Function8b4fd
+	call CardFolder_GetCursorInitialCoordsInBC
 	ld e, $0
-	call Function89c44
+	call CardFolder_MoveAndBlinkCursor
 .asm_8b602
 	ld hl, EnterPasscodeText
 	call PrintText
 	ld bc, wd013
 	call Function8b45c
 	jr c, .asm_8b63c
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld bc, wd013
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	call OpenSRAMBank4
 	ld hl, s4_a037
-	call Function8b3a4
+	call CardFolder_CheckPasscode
 	call CloseSRAM
 	jr z, .asm_8b635
 	ld hl, IncorrectPasscodeText
@@ -513,7 +513,7 @@ Function8b5e7:
 	and a
 .asm_8b63c
 	push af
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	pop af
 	ret
 
@@ -631,7 +631,7 @@ Function8b703:
 	ld a, $c
 	ld [hli], a
 	inc a
-	call Function8b73e
+	call CardFolder_FillRow
 	inc a
 	ld [hl], a
 	pop hl
@@ -644,7 +644,7 @@ Function8b703:
 	ld a, $f
 	ld [hli], a
 	ld a, $7f
-	call Function8b73e
+	call CardFolder_FillRow
 	ld a, $11
 	ld [hl], a
 	pop hl
@@ -652,21 +652,21 @@ Function8b703:
 	add hl, de
 	dec b
 	jr nz, .asm_8b717
-	call Function8b732
+	call DisplayDottedFrameTopLine
 	pop bc
 	pop hl
 	jr Function8b744
 
-Function8b732:
+DisplayDottedFrameTopLine:
 	ld a, $12
 	ld [hli], a
 	ld a, $13
-	call Function8b73e
+	call CardFolder_FillRow
 	ld a, $14
 	ld [hl], a
 	ret
 
-Function8b73e:
+CardFolder_FillRow:
 	ld d, c
 .asm_8b73f
 	ld [hli], a
@@ -767,7 +767,7 @@ Function8b79e:
 	jr nz, .asm_8b7a9
 	ret
 
-Function8b7bd:
+CardFolder_CardListNavigationLoop:
 	call Function8b855
 	ld hl, MenuHeader_0x8b867
 	call CopyMenuHeader
@@ -804,13 +804,13 @@ Function8b7bd:
 	jr z, .asm_8b823
 	cp PAD_LEFT
 	jr nz, .asm_8b813
-	call Function8b832
+	call CardFolder_ScrollOnePageUp
 	jr .asm_8b7ea
 
 .asm_8b813
 	cp PAD_RIGHT
 	jr nz, .asm_8b81c
-	call Function8b83e
+	call CardFolder_ScrollOnePageDown
 	jr .asm_8b7ea
 
 .asm_8b81c
@@ -829,7 +829,7 @@ Function8b7bd:
 	ld [wd031], a
 	ret
 
-Function8b832:
+CardFolder_ScrollOnePageUp:
 	ld a, [wMenuScrollPosition]
 	ld hl, wMenuDataItems
 	sub [hl]
@@ -837,7 +837,7 @@ Function8b832:
 	xor a
 	jr Function8b84b
 
-Function8b83e:
+CardFolder_ScrollOnePageDown:
 	ld a, [wMenuScrollPosition]
 	ld hl, wMenuDataItems
 	add [hl]
@@ -881,7 +881,7 @@ MenuData_0x8b870:
 	dbw 0, wd002
 	dba Function8b880
 	dba Function8b88c
-	dba Function8b8c8
+	dba CardFolder_DisplayCardListBottomTextBox
 
 Function8b880:
 	ld h, d
@@ -897,8 +897,8 @@ Function8b88c:
 	ld l, e
 	push hl
 	ld de, String_89116
-	call Function8931b
-	call Function8932d
+	call CardFolder_GetSelectedCardFolderEntryInBC
+	call CardFolder_CheckEmptyOrBlankPlayerNameInBC
 	jr c, .asm_8b8a3
 	ld hl, 0
 	add hl, bc
@@ -915,7 +915,7 @@ Function8b88c:
 	add hl, de
 	push hl
 	ld de, String_89116
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function8934a
 	jr c, .asm_8b8c0
 	ld hl, $0006
@@ -929,7 +929,7 @@ Function8b88c:
 	call CloseSRAM
 	ret
 
-Function8b8c8:
+CardFolder_DisplayCardListBottomTextBox:
 	hlcoord 0, 14
 	ld b, $2
 	ld c, $12
@@ -958,7 +958,7 @@ Function8b8c8:
 	ret c
 	hlcoord 0, 13
 	ld c, $12
-	call Function8b732
+	call DisplayDottedFrameTopLine
 	ret
 
 Unknown_8b903:
@@ -972,7 +972,7 @@ String_8b919: db "どの　めいしと　いれかえますか？@"    ; OK to 
 String_8b92a: db "あいてを　えらんでください@"        ; Please select an opponent.
 String_8b938: db "いれる　ところを　えらんでください@" ; Please select a location.
 
-Function8b94a:
+CardFolder_SetCardListNavigationAction:
 	ld [wd033], a
 	xor a
 	ld [wMenuScrollPosition], a
@@ -983,10 +983,10 @@ Function8b94a:
 	ld [wd030], a
 	ret
 
-Function8b960:
+CardFolder_CardListEntryMenu:
 	ld hl, MenuHeader_0x8b9ac
 	call LoadMenuHeader
-	call Function8b9e9
+	call CardFolder_CheckIfCardEntryIsFilled
 	jr c, .asm_8b97a
 	hlcoord 11, 0
 	ld b, $6
@@ -1060,19 +1060,19 @@ MenuData_0x8b9d2:
 	db "けす@"       ; ERASE
 	db "やめる@"     ; QUIT
 
-Function8b9e9:
+CardFolder_CheckIfCardEntryIsFilled:
 	call OpenSRAMBank4
-	call Function8931b
-	call Function8932d
+	call CardFolder_GetSelectedCardFolderEntryInBC
+	call CardFolder_CheckEmptyOrBlankPlayerNameInBC
 	jr nc, .asm_8b9f6
 	jr .asm_8b9ff
 .asm_8b9f6
 	ld hl, $11
 	add hl, bc
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	jr c, .asm_8ba08
 .asm_8b9ff
-	call Function892b4
+	call CardFolder_DeleteSelectedCard
 	and a
 	ld de, Unknown_8ba1c
 	jr .asm_8ba0c

@@ -1,7 +1,7 @@
 ; These functions seem to be related to the selection of preset phrases
 ; for use in mobile communications.  Annoyingly, they separate the
 ; Battle Tower function above from the data it references.
-Function11c05d:
+EZChat_LoadOneWord:
 	ld a, e
 	or d
 	jr z, .error
@@ -54,7 +54,7 @@ Function11c08f:
 	ld d, a
 	inc bc
 	push bc
-	call Function11c05d
+	call EZChat_LoadOneWord
 	jr c, .okay
 	inc bc
 
@@ -78,7 +78,7 @@ Function11c08f:
 	ld d, a
 	inc bc
 	push bc
-	call Function11c05d
+	call EZChat_LoadOneWord
 	jr c, .okay2
 	inc bc
 
@@ -390,25 +390,25 @@ EZChat_MasterLoop:
 	dw .InitRAM ; 01
 	dw Function11c35f ; 02
 	dw Function11c373 ; 03
-	dw Function11c3c2 ; 04
-	dw Function11c3ed ; 05
-	dw Function11c52c ; 06
-	dw Function11c53d ; 07
+	dw EZChat_DrawChatWords ; 04
+	dw EZChat_HandleChatWords ; 05
+	dw EZChat_DrawCategoryMenu ; 06
+	dw EZChat_HandleCategoryMenu ; 07
 	dw Function11c658 ; 08
 	dw Function11c675 ; 09
-	dw Function11c9bd ; 0a
-	dw Function11c9c3 ; 0b
-	dw Function11caad ; 0c
-	dw Function11cab3 ; 0d
-	dw Function11cb52 ; 0e
-	dw Function11cb66 ; 0f
+	dw EZChat_DrawEraseSubmenu ; 0a
+	dw EZChat_HandleEraseSubmenu ; 0b
+	dw EZChat_DrawExitSubmenu ; 0c
+	dw EZChat_HandleExitSubmenu ; 0d
+	dw EZChat_DrawMessageTypeMenu ; 0e
+	dw EZChat_HandleMessageTypeMenu ; 0f
 	dw Function11cbf5 ; 10
-	dw Function11ccef ; 11
+	dw EZChat_HandleWarnEmptyMessage ; 11
 	dw Function11cd04 ; 12
-	dw Function11cd20 ; 13
-	dw Function11cd54 ; 14
-	dw Function11ce0b ; 15
-	dw Function11ce2b ; 16
+	dw EZChat_DrawSortByMenu ; 13
+	dw EZChat_HandleSortByMenu ; 14
+	dw EZChat_DrawSortByCharacter ; 15
+	dw EZChat_HandleSortByCharacter ; 16
 
 .SpawnObjects:
 	depixel 3, 1, 2, 5
@@ -458,7 +458,7 @@ EZChat_MasterLoop:
 	ld hl, wcd23
 	set 1, [hl]
 	set 2, [hl]
-	jp Function11cfb5
+	jp EZChat_IncreaseJumptable
 
 .InitRAM:
 	ld a, $9
@@ -468,8 +468,8 @@ EZChat_MasterLoop:
 	ld [wcd2f], a
 	ld [wcd30], a
 	ld de, wcd2d
-	call Function11cfce
-	jp Function11cfb5
+	call EZChat_Textbox
+	jp EZChat_IncreaseJumptable
 
 Function11c35f:
 	ld hl, wcd2f
@@ -480,10 +480,10 @@ Function11c35f:
 	dec [hl]
 	push af
 	ld de, wcd2d
-	call Function11cfce
+	call EZChat_Textbox
 	pop af
 	ret nz
-	jp Function11cfb5
+	jp EZChat_IncreaseJumptable
 
 Function11c373:
 	ld hl, wcd30
@@ -494,11 +494,11 @@ Function11c373:
 	dec [hl]
 	push af
 	ld de, wcd2d
-	call Function11cfce
+	call EZChat_Textbox
 	pop af
 	ret nz
 	call Function11c38a
-	jp Function11cfb5
+	jp EZChat_IncreaseJumptable
 
 Function11c38a:
 	ld hl, Unknown_11c986
@@ -526,10 +526,10 @@ Function11c38a:
 	and d
 	cp $ff
 	jr z, .asm_11c3af
-	call Function11c05d
+	call EZChat_LoadOneWord
 	jr .asm_11c3b5
 .asm_11c3af
-	ld de, String_11c3bc
+	ld de, EZChatEmptyWordText
 	call PlaceString
 .asm_11c3b5
 	pop bc
@@ -539,27 +539,27 @@ Function11c38a:
 	jr nz, .asm_11c392
 	ret
 
-String_11c3bc:
+EZChatEmptyWordText:
 	db "ーーーーー@"
 
-Function11c3c2:
+EZChat_DrawChatWords:
 	call EZChat_ClearBottom12Rows
-	ld de, Unknown_11cfbe
-	call Function11d035
+	ld de, EZChatChatExplanationBox
+	call EZChat_TextboxWithTileOffset
 	hlcoord 1, 7
-	ld de, String_11c4db
+	ld de, EZChatChatExplanationText
 	call PlaceString
 	hlcoord 1, 16
-	ld de, String_11c51b
+	ld de, EZChatChatExplanationBottomText
 	call PlaceString
 	call Function11c4be
 	ld hl, wcd23
 	set 0, [hl]
 	ld hl, wcd24
 	res 0, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
-Function11c3ed:
+EZChat_HandleChatWords:
 	ld hl, wcd20
 	ld de, hJoypadPressed
 	ld a, [de]
@@ -616,8 +616,8 @@ Function11c3ed:
 	jr nz, .asm_11c440
 	and a
 	jr z, .asm_11c460
-	ld de, Unknown_11cfba
-	call Function11cfce
+	ld de, EZChatChatWordsBox
+	call EZChat_Textbox
 	decoord 1, 2
 	ld bc, wcd36
 	call Function11c08f
@@ -706,25 +706,25 @@ Function11c4be:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ret
 
-String_11c4db:
+EZChatChatExplanationText:
 	db   "６つのことば<WO>くみあわせます"
 	next "かえたいところ<WO>えらぶと　でてくる"
 	next "ことばのグループから　いれかえたい"
 	next "たんご<WO>えらんでください"
 	db   "@"
 
-String_11c51b:
+EZChatChatExplanationBottomText:
 	db "ぜんぶけす　やめる　　　けってい@"
 
-Function11c52c:
+EZChat_DrawCategoryMenu:
 	call EZChat_ClearBottom12Rows
 	call EZChat_PlaceCategoryNames
-	call Function11c618
+	call EZChat_SortMenuBackground
 	ld hl, wcd24
 	res 1, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
-Function11c53d:
+EZChat_HandleCategoryMenu:
 	ld hl, wcd21
 	ld de, hJoypadPressed
 
@@ -807,7 +807,7 @@ Function11c53d:
 
 .done
 	ld a, [wcd20]
-	call Function11ca6a
+	call EZChat_DrawEraseWordsLoop
 	call PlayClickSFX
 	ret
 
@@ -893,7 +893,7 @@ EZChat_PlaceCategoryNames:
 	call PlaceString
 	ret
 
-Function11c618:
+EZChat_SortMenuBackground:
 	ld a, $2
 	hlcoord 0, 6, wAttrmap
 	ld bc, $c8
@@ -923,15 +923,15 @@ Coords_11c63a:
 
 Function11c658:
 	call EZChat_ClearBottom12Rows
-	call Function11c770
-	ld de, Unknown_11cfc2
-	call Function11d035
-	call Function11c9ab
-	call Function11c7bc
-	call Function11c86e
+	call EZChat_DetermineWordCounts
+	ld de, EZChatWordSubmenuBox
+	call EZChat_TextboxWithTileOffset
+	call EZChat_WhiteOutLowerMenu
+	call EZChat_RenderWordChoices
+	call EZChat_HandleWordSubmenuBottom
 	ld hl, wcd24
 	res 3, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
 Function11c675:
 	ld hl, wMobileCommsJumptableIndex
@@ -982,8 +982,8 @@ Function11c675:
 	ld [wMobileCommsJumptableIndex], a
 .asm_11c6c4
 	call Function11c992
-	call Function11c7bc
-	call Function11c86e
+	call EZChat_RenderWordChoices
+	call EZChat_HandleWordSubmenuBottom
 	ret
 
 .select
@@ -1003,7 +1003,7 @@ Function11c675:
 	ret
 
 .a
-	call Function11c8f6
+	call EZChat_SetSelectedWord
 	ld a, $4
 	ld [wcd35], a
 	jr .asm_11c6fc
@@ -1092,7 +1092,7 @@ Function11c675:
 	ld [hl], a
 	ret
 
-Function11c770:
+EZChat_DetermineWordCounts:
 	xor a
 	ld [wMobileCommsJumptableIndex], a
 	ld [wcd26], a
@@ -1143,8 +1143,8 @@ Function11c770:
 	ld [wcd28], a
 	jr .div_12
 
-Function11c7bc:
-	ld bc, Unknown_11c854
+EZChat_RenderWordChoices:
+	ld bc, EZChatWordSubmenuCoords
 	ld a, [wcd2b]
 	and a
 	jr nz, .asm_11c814
@@ -1166,7 +1166,7 @@ Function11c7bc:
 	ret z
 	push bc
 	push de
-	call Function11c05d
+	call EZChat_LoadOneWord
 	pop de
 	pop bc
 	inc e
@@ -1196,7 +1196,7 @@ Function11c7bc:
 	cp $ff
 	jr z, .asm_11c811
 	push bc
-	call Function11c05d
+	call EZChat_LoadOneWord
 	pop bc
 	pop hl
 	pop de
@@ -1248,7 +1248,7 @@ Function11c7bc:
 	cp $ff
 	jr z, .asm_11c851
 	push bc
-	call Function11c05d
+	call EZChat_LoadOneWord
 	pop bc
 	pop hl
 	pop de
@@ -1263,7 +1263,7 @@ Function11c7bc:
 	pop de
 	ret
 
-Unknown_11c854:
+EZChatWordSubmenuCoords:
 	dwcoord  2,  8
 	dwcoord  8,  8
 	dwcoord 14,  8
@@ -1278,7 +1278,7 @@ Unknown_11c854:
 	dwcoord 14, 14
 	dw -1
 
-Function11c86e:
+EZChat_HandleWordSubmenuBottom:
 	ld a, [wcd26]
 	and a
 	jr z, .asm_11c88a
@@ -1365,7 +1365,7 @@ MobileString_Prev:
 MobileString_Next:
 	db "つぎ@"
 
-Function11c8f6:
+EZChat_SetSelectedWord:
 	ld a, [wcd20]
 	call Function11c95d
 	push hl
@@ -1384,7 +1384,7 @@ Function11c8f6:
 .asm_11c912
 	pop hl
 	push de
-	call Function11c05d
+	call EZChat_LoadOneWord
 	pop de
 	ld a, [wcd20]
 	ld c, a
@@ -1493,7 +1493,7 @@ Function11c992:
 	jr nz, .asm_11c997
 	ret
 
-Function11c9ab:
+EZChat_WhiteOutLowerMenu:
 	ld a, $7
 	hlcoord 0, 6, wAttrmap
 	ld bc, $c8
@@ -1501,11 +1501,11 @@ Function11c9ab:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ret
 
-Function11c9bd:
-	ld de, String_11ca38
-	call Function11ca7f
+EZChat_DrawEraseSubmenu:
+	ld de, EZChatEraseMenuText
+	call EZChat_DrawConfirmationSubmenu
 
-Function11c9c3:
+EZChat_HandleEraseSubmenu:
 	ld hl, wcd2a
 	ld de, hJoypadPressed
 	ld a, [de]
@@ -1526,7 +1526,7 @@ Function11c9c3:
 	ld a, [hl]
 	and a
 	jr nz, .asm_11c9e9
-	call Function11ca5e
+	call EZChat_HandleEraseWordsAccept
 	xor a
 	ld [wcd20], a
 .asm_11c9e9
@@ -1591,26 +1591,26 @@ Function11ca19:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ret
 
-String_11ca38:
+EZChatEraseMenuText:
 	db   "とうろくちゅう<NO>あいさつ<WO>ぜんぶ"
 	next "けしても　よろしいですか？@"
 
-String_11ca57:
+EZChatEraseConfirmationText:
 	db   "はい"
 	next "いいえ@"
 
-Function11ca5e:
+EZChat_HandleEraseWordsAccept:
 	xor a
 .loop
 	push af
-	call Function11ca6a
+	call EZChat_DrawEraseWordsLoop
 	pop af
 	inc a
 	cp $6
 	jr nz, .loop
 	ret
 
-Function11ca6a:
+EZChat_DrawEraseWordsLoop:
 	ld hl, wcd36
 	ld c, a
 	ld b, 0
@@ -1620,35 +1620,35 @@ Function11ca6a:
 	inc hl
 	ld [hl], b
 	call Function11c95d
-	ld de, String_11c3bc
+	ld de, EZChatEmptyWordText
 	call PlaceString
 	ret
 
-Function11ca7f:
+EZChat_DrawConfirmationSubmenu:
 	push de
-	ld de, Unknown_11cfc6
-	call Function11cfce
-	ld de, Unknown_11cfca
-	call Function11cfce
+	ld de, EZChatSortByBox
+	call EZChat_Textbox
+	ld de, EZChatSortByConfirmationBox
+	call EZChat_Textbox
 	hlcoord 1, 14
 	pop de
 	call PlaceString
 	hlcoord 16, 8
-	ld de, String_11ca57
+	ld de, EZChatEraseConfirmationText
 	call PlaceString
 	call Function11ca01
 	ld a, $1
 	ld [wcd2a], a
 	ld hl, wcd24
 	res 4, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 	ret
 
-Function11caad:
-	ld de, String_11cb1c
-	call Function11ca7f
+EZChat_DrawExitSubmenu:
+	ld de, EZChatExitPromptText
+	call EZChat_DrawConfirmationSubmenu
 
-Function11cab3:
+EZChat_HandleExitSubmenu:
 	ld hl, wcd2a
 	ld de, hJoypadPressed
 	ld a, [de]
@@ -1678,7 +1678,7 @@ Function11cab3:
 	ld a, $ff
 	ld [wcd35], a
 	hlcoord 1, 14
-	ld de, String_11cb31
+	ld de, EZChatExitConfirmationText
 	call PlaceString
 	ld a, $1
 	ld [wcd2a], a
@@ -1717,16 +1717,16 @@ Function11cab3:
 	inc [hl]
 	ret
 
-String_11cb1c:
+EZChatExitPromptText:
 	db   "あいさつ<NO>とうろく<WO>ちゅうし"
 	next "しますか？@"
 
-String_11cb31:
+EZChatExitConfirmationText:
 	db   "とうろくちゅう<NO>あいさつ<WA>ほぞん"
 	next "されません<GA>よろしい　ですか？@"
 
-Function11cb52:
-	ld hl, Unknown_11cc01
+EZChat_DrawMessageTypeMenu:
+	ld hl, EZChatMessageDescriptionPointers
 	ld a, [wMenuCursorY]
 .asm_11cb58
 	dec a
@@ -1739,9 +1739,9 @@ Function11cb52:
 	ld e, a
 	ld a, [hl]
 	ld d, a
-	call Function11ca7f
+	call EZChat_DrawConfirmationSubmenu
 
-Function11cb66:
+EZChat_HandleMessageTypeMenu:
 	ld hl, wcd2a
 	ld de, hJoypadPressed
 	ld a, [de]
@@ -1785,9 +1785,9 @@ Function11cb66:
 	jr nz, .asm_11cba2
 	call CloseSRAM
 	call PlayClickSFX
-	ld de, Unknown_11cfc6
-	call Function11cfce
-	ld hl, Unknown_11cc7e
+	ld de, EZChatSortByBox
+	call EZChat_Textbox
+	ld hl, EZChatMessageSetPointers
 	ld a, [wMenuCursorY]
 .asm_11cbba
 	dec a
@@ -1812,8 +1812,8 @@ Function11cb66:
 .asm_11cbd4
 	call PlayClickSFX
 .asm_11cbd7
-	ld de, Unknown_11cfba
-	call Function11cfce
+	ld de, EZChatChatWordsBox
+	call EZChat_Textbox
 	call Function11c38a
 	ld hl, wcd24
 	set 4, [hl]
@@ -1844,58 +1844,58 @@ Function11cbf5:
 	set 7, [hl]
 	ret
 
-Unknown_11cc01:
-	dw String_11cc09
-	dw String_11cc23
-	dw String_11cc42
-	dw String_11cc60
+EZChatMessageDescriptionPointers:
+	dw EZChatMessageIntroDescriptionText
+	dw EZChatMessageBattleStartDescriptionText
+	dw EZChatMessageBattleWinDescriptionText
+	dw EZChatMessageBattleLoseDescriptionText
 
-String_11cc09:
+EZChatMessageIntroDescriptionText:
 	db   "じこしょうかい　は"
 	next "この　あいさつで　いいですか？@"
 
-String_11cc23:
+EZChatMessageBattleStartDescriptionText:
 	db   "たいせん　<GA>はじまるとき　は"
 	next "この　あいさつで　いいですか？@"
 
-String_11cc42:
+EZChatMessageBattleWinDescriptionText:
 	db   "たいせん　<NI>かったとき　は"
 	next "この　あいさつで　いいですか？@"
 
-String_11cc60:
+EZChatMessageBattleLoseDescriptionText:
 	db   "たいせん　<NI>まけたとき　は"
 	next "この　あいさつで　いいですか？@"
 
-Unknown_11cc7e:
-	dw String_11cc86
-	dw String_11cc9d
-	dw String_11ccb9
-	dw String_11ccd4
+EZChatMessageSetPointers:
+	dw EZChatMessageIntroSetText
+	dw EZChatMessageBattleStartSetText
+	dw EZChatMessageBattleWinSetText
+	dw EZChatMessageBattleLoseSetText
 
-String_11cc86:
+EZChatMessageIntroSetText:
 	db   "じこしょうかい　の"
 	next "あいさつ<WO>とうろくした！@"
 
-String_11cc9d:
+EZChatMessageBattleStartSetText:
 	db   "たいせん　<GA>はじまるとき　の"
 	next "あいさつ<WO>とうろくした！@"
 
-String_11ccb9:
+EZChatMessageBattleWinSetText:
 	db   "たいせん　<NI>かったとき　の"
 	next "あいさつ<WO>とうろくした！@"
 
-String_11ccd4:
+EZChatMessageBattleLoseSetText:
 	db   "たいせん　<NI>まけたとき　の"
 	next "あいさつ<WO>とうろくした！@"
 
-Function11ccef:
-	ld de, Unknown_11cfc6
-	call Function11cfce
+EZChat_HandleWarnEmptyMessage:
+	ld de, EZChatSortByBox
+	call EZChat_Textbox
 	hlcoord 1, 14
-	ld de, String_11cd10
+	ld de, EZChatEnterSomeWordsText
 	call PlaceString
 	call Function11ca19
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
 Function11cd04:
 	ld de, hJoypadPressed
@@ -1906,33 +1906,33 @@ Function11cd04:
 	ld [wJumptableIndex], a
 	ret
 
-String_11cd10:
+EZChatEnterSomeWordsText:
 	db "なにか　ことば<WO>いれてください@"
 
-Function11cd20:
+EZChat_DrawSortByMenu:
 	call EZChat_ClearBottom12Rows
-	ld de, Unknown_11cfc6
-	call Function11cfce
+	ld de, EZChatSortByBox
+	call EZChat_Textbox
 	hlcoord 1, 14
 	ld a, [wcd2b]
 	ld [wcd2c], a
 	and a
 	jr nz, .asm_11cd3a
-	ld de, String_11cdc7
+	ld de, EZChatSortByCategoryText
 	jr .asm_11cd3d
 .asm_11cd3a
-	ld de, String_11cdd9
+	ld de, EZChatSortByAlphabeticalText
 .asm_11cd3d
 	call PlaceString
 	hlcoord 4, 8
-	ld de, String_11cdf5
+	ld de, EZChatSortByMenuText
 	call PlaceString
 	call Function11cdaa
 	ld hl, wcd24
 	res 5, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
-Function11cd54:
+EZChat_HandleSortByMenu:
 	ld hl, wcd2c
 	ld de, hJoypadPressed
 	ld a, [de]
@@ -1973,7 +1973,7 @@ Function11cd54:
 	and a
 	ret z
 	dec [hl]
-	ld de, String_11cdc7
+	ld de, EZChatSortByCategoryText
 	jr .asm_11cd9b
 
 .asm_11cd94
@@ -1981,11 +1981,11 @@ Function11cd54:
 	and a
 	ret nz
 	inc [hl]
-	ld de, String_11cdd9
+	ld de, EZChatSortByAlphabeticalText
 .asm_11cd9b
 	push de
-	ld de, Unknown_11cfc6
-	call Function11cfce
+	ld de, EZChatSortByBox
+	call EZChat_Textbox
 	pop de
 	hlcoord 1, 14
 	call PlaceString
@@ -2003,34 +2003,34 @@ Function11cdaa:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ret
 
-String_11cdc7:
+EZChatSortByCategoryText:
 ; Words will be displayed by category
 	db   "ことば<WO>しゅるいべつに"
 	next "えらべます@"
 
-String_11cdd9:
+EZChatSortByAlphabeticalText:
 ; Words will be displayed in alphabetical order
 	db   "ことば<WO>アイウエオ　の"
 	next "じゅんばんで　ひょうじ　します@"
 
-String_11cdf5:
+EZChatSortByMenuText:
 	db   "しゅるいべつ　モード"  ; Category mode
 	next "アイウエオ　　モード@" ; ABC mode
 
-Function11ce0b:
+EZChat_DrawSortByCharacter:
 	call EZChat_ClearBottom12Rows
 	hlcoord 1, 7
-	ld de, String_11cf79
+	ld de, EZChatCharacterTableText
 	call PlaceString
 	hlcoord 1, 17
 	ld de, EZChatString_Stop_Mode_Cancel
 	call PlaceString
-	call Function11c618
+	call EZChat_SortMenuBackground
 	ld hl, wcd24
 	res 2, [hl]
-	call Function11cfb5
+	call EZChat_IncreaseJumptable
 
-Function11ce2b:
+EZChat_HandleSortByCharacter:
 	ld a, [wcd22]
 	sla a
 	sla a
@@ -2110,7 +2110,7 @@ Function11ce2b:
 
 .done
 	ld a, [wcd20]
-	call Function11ca6a
+	call EZChat_DrawEraseWordsLoop
 	call PlayClickSFX
 	ret
 
@@ -2226,7 +2226,7 @@ Unknown_11ceb9:
 	db $2c, $ff
 	db $ff, $2e
 
-String_11cf79:
+EZChatCharacterTableText:
 ; Hiragana table
 	db   "あいうえお　なにぬねの　や　ゆ　よ"
 	next "かきくけこ　はひふへほ　わ"
@@ -2234,32 +2234,32 @@ String_11cf79:
 	next "たちつてと　らりるれろ"
 	db   "@"
 
-Function11cfb5:
+EZChat_IncreaseJumptable:
 	ld hl, wJumptableIndex
 	inc [hl]
 	ret
 
-Unknown_11cfba:
+EZChatChatWordsBox:
 	db  0,  0 ; start coords
 	db 20,  6 ; end coords
 
-Unknown_11cfbe:
+EZChatChatExplanationBox:
 	db  0, 14 ; start coords
 	db 20,  4 ; end coords
 
-Unknown_11cfc2:
+EZChatWordSubmenuBox:
 	db  0,  6 ; start coords
 	db 20, 10 ; end coords
 
-Unknown_11cfc6:
+EZChatSortByBox:
 	db  0, 12 ; start coords
 	db 20,  6 ; end coords
 
-Unknown_11cfca:
+EZChatSortByConfirmationBox:
 	db 14,  7 ; start coords
 	db  6,  5 ; end coords
 
-Function11cfce:
+EZChat_Textbox:
 	hlcoord 0, 0
 	ld bc, SCREEN_WIDTH
 	ld a, [de]
@@ -2346,7 +2346,7 @@ Function11cfce:
 	ld [hl], a
 	ret
 
-Function11d035:
+EZChat_TextboxWithTileOffset:
 	hlcoord 0, 0
 	ld bc, SCREEN_WIDTH
 	ld a, [de]

@@ -1,4 +1,4 @@
-Function16c000: ; unreferenced
+MobileAdapterCheck: ; unreferenced
 	; Only for CGB
 	ldh a, [hCGB]
 	and a

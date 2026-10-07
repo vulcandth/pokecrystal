@@ -1638,7 +1638,7 @@ DoNameCardSwap:
 	ld hl, .NameCardReceivedCardText
 	call PrintText
 	ld de, wNameCardData
-	farcall Function8ac70
+	farcall CardFolder_SelectCardEntryToOverride
 	ld a, c
 	ld [wTextDecimalByte], a
 	ld hl, .NameCardNotRegisteredCardText

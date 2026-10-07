@@ -60,7 +60,7 @@ Function89185:
 	pop de
 	ret
 
-Function89193:
+CardFolder_CopyCBytesFromHLToDE:
 ; copy(hl, de, 4)
 ; Copies c bytes from hl to de.
 ; Preserves hl and de.
@@ -120,7 +120,7 @@ Function891d3:
 	pop bc
 	ret
 
-Function891de:
+CardFolder_ClearScreen:
 	call Mobile22_SetBGMapMode0
 	call ClearPalettes
 	hlcoord 0, 0, wAttrmap
@@ -134,9 +134,9 @@ Function891de:
 	call Function891ab
 	ret
 
-Function891fe:
+CardFolder_ClearScreenThenDelay:
 	push bc
-	call Function891de
+	call CardFolder_ClearScreen
 	ld c, $10
 	call DelayFrames
 	pop bc
@@ -205,18 +205,18 @@ Function89245:
 	and a
 	ret
 
-Function89254:
+CardFolder_ConfirmationDialog_MiddleLeft:
 	ld bc, $d07
-	jr Function89261
+	jr CardFolder_ConfirmationDialog
 
-Function89259:
+CardFolder_ConfirmationDialog_MiddleRight:
 	ld bc, $0e07
-	jr Function89261
+	jr CardFolder_ConfirmationDialog
 
-Function8925e:
+CardFolder_ConfirmationDialog_BottomRight:
 	ld bc, $0e0c
 
-Function89261:
+CardFolder_ConfirmationDialog:
 	push af
 	push bc
 	ld hl, MenuHeader_0x892a3
@@ -268,10 +268,10 @@ MenuData_0x892ab:
 	db "はい@"
 	db "いいえ@"
 
-Function892b4:
-	call Function8931b
+CardFolder_DeleteSelectedCard:
+	call CardFolder_GetSelectedCardFolderEntryInBC
 
-Function892b7:
+CardFolder_DeleteCardInBC:
 	ld d, b
 	ld e, c
 	ld hl, 0
@@ -328,13 +328,13 @@ Function89305:
 	inc a
 	ld [wMenuSelection], a
 	push bc
-	call Function892b4
+	call CardFolder_DeleteSelectedCard
 	pop bc
 	dec c
 	jr nz, .loop
 	ret
 
-Function8931b:
+CardFolder_GetSelectedCardFolderEntryInBC:
 	push hl
 	ld hl, s4_a03b
 	ld a, [wMenuSelection]
@@ -346,11 +346,11 @@ Function8931b:
 	pop hl
 	ret
 
-Function8932d:
+CardFolder_CheckEmptyOrBlankPlayerNameInBC:
 	ld hl, 0
 	add hl, bc
 
-Function89331:
+CardFolder_CheckEmptyOrBlankPlayerNameInHL:
 ; Scans up to 5 characters starting at hl, looking for a nonspace character up to the next terminator.
 ; Sets carry if it does not find a nonspace character.
 ; Returns the location of the following character in hl.
@@ -442,7 +442,7 @@ Function89363:
 Function89381:
 	push bc
 	push de
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	jr c, .ok
 	push hl
 	ld a, -1
@@ -453,7 +453,7 @@ Function89381:
 .ok
 	pop de
 	ld c, 8
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	pop bc
 	ret
 
@@ -463,7 +463,7 @@ Function8939a:
 	add hl, bc
 	ld de, wd002
 	ld c, 6
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	pop bc
 	ld hl, 17
 	add hl, bc
@@ -476,8 +476,8 @@ Function893b3:
 	call ClearSprites
 	call LoadStandardFont
 	call LoadFontsExtra
-	call Function893ef
-	call Function8942b
+	call CardFolder_LoadCursorGFXIntoVRAM
+	call CardFolder_LoadMobileAdapterGFXIntoVRAM
 	call Function89455
 	call EnableLCD
 	ret
@@ -487,7 +487,7 @@ Function893cc:
 	call ClearSprites
 	call LoadStandardFont
 	call LoadFontsExtra
-	call Function893ef
+	call CardFolder_LoadCursorGFXIntoVRAM
 	call Function89464
 	call EnableLCD
 	ret
@@ -495,11 +495,11 @@ Function893cc:
 Function893e2:
 	call Function89b1e
 	call Function893b3
-	call Function8a5b6
+	call CardFolder_LoadCardFolderPals
 	call Function8949c
 	ret
 
-Function893ef:
+CardFolder_LoadCursorGFXIntoVRAM:
 	ld de, vTiles0
 	ld hl, EZChatCursorGFX
 	ld bc, $20
@@ -509,7 +509,7 @@ Function893ef:
 
 Function893fe: ; unreferenced
 	call DisableLCD
-	call Function893ef
+	call CardFolder_LoadCursorGFXIntoVRAM
 	call EnableLCD
 	call DelayFrame
 	ret
@@ -517,7 +517,7 @@ Function893fe: ; unreferenced
 EZChatCursorGFX:
 INCBIN "gfx/mobile/ez_chat_cursor.2bpp"
 
-Function8942b:
+CardFolder_LoadMobileAdapterGFXIntoVRAM:
 	ld de, vTiles0 tile $02
 	ld hl, CardLargeSpriteAndFolderGFX
 	ld bc, 8 tiles ; just the large card sprite
@@ -530,7 +530,7 @@ Function8942b:
 	call FarCopyBytes
 	ret
 
-Function89448:
+CardFolder_Clear24FirstOAM:
 ; Clears the sprite array
 	push af
 	ld hl, wShadowOAM
@@ -1293,7 +1293,7 @@ Function898be:
 	push bc
 	ld de, wd002
 	ld hl, wd002
-	call Function89331
+	call CardFolder_CheckEmptyOrBlankPlayerNameInHL
 	jr nc, .asm_898cd
 	ld de, String_89116
 
@@ -1427,11 +1427,11 @@ Function89975:
 .asm_89978
 	ld a, [bc]
 	ld d, a
-	call Function8998b
+	call CardFolder_DisplayPINDigit
 	swap d
 	inc hl
 	ld a, d
-	call Function8998b
+	call CardFolder_DisplayPINDigit
 	inc bc
 	inc hl
 	dec e
@@ -1439,7 +1439,7 @@ Function89975:
 	pop bc
 	ret
 
-Function8998b:
+CardFolder_DisplayPINDigit:
 	push bc
 	and $f
 	cp $a
@@ -1645,18 +1645,18 @@ Function89a57:
 
 .Function89ac7:
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call .Function89ad4
 	call CloseSRAM
 	ret
 
 .Function89ad4:
 	push de
-	call Function8932d ; find a non-space character within 5 bytes of bc
+	call CardFolder_CheckEmptyOrBlankPlayerNameInBC ; find a non-space character within 5 bytes of bc
 	jr c, .no_nonspace_character
 	ld hl, 17
 	add hl, bc
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	jr c, .finish_decode
 
 .no_nonspace_character
@@ -1693,7 +1693,7 @@ Function89b00:
 Function89b07:
 	call Mobile22_SetBGMapMode0
 	call DelayFrame
-	farcall Function4a3a7
+	farcall LoadTilesAndDisplayMobileMenuBackground
 	ret
 
 Function89b14: ; unreferenced
@@ -1703,12 +1703,12 @@ Function89b14: ; unreferenced
 	ret
 
 Function89b1e:
-	farcall Function4a485
+	farcall LoadMobileMenuUITiles
 	call Function89b00
 	ret
 
 Function89b28:
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893e2
 	call Call_ExitMenu
@@ -1716,12 +1716,12 @@ Function89b28:
 	call SetDefaultBGPAndOBP
 	ret
 
-Function89b3b:
+SetBGAndDisplayBlankGoldenBox_DE:
 	call Mobile22_SetBGMapMode0
 	farcall Function48cda
 	ret
 
-Function89b45:
+CardFolder_CheckPhoneNumberConformity:
 	; some sort of decoder?
 	; BCD?
 	push hl
@@ -1770,7 +1770,7 @@ Function89b45:
 	pop hl
 	ret
 
-Function89b78:
+BlinkPINCodeDigit:
 	push bc
 	ld a, [wd010]
 	cp $10
@@ -1795,9 +1795,9 @@ Function89b78:
 	ret
 
 Function89b97:
-	call Function89c34
+	call CardFolder_IncCursorFrameCounter
 	jr c, .asm_89ba0
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ret
 .asm_89ba0
 	ld a, [wd011]
@@ -1880,7 +1880,7 @@ Unknown_89c1f:
 	db $01, $80, $92, $01, 0 | OAM_XFLIP | OAM_YFLIP
 	db -1 ; end
 
-Function89c34:
+CardFolder_IncCursorFrameCounter:
 	push bc
 	ld a, [wd012]
 	ld c, a
@@ -1892,11 +1892,11 @@ Function89c34:
 	pop bc
 	ret
 
-Function89c44:
-	call Function89c34
+CardFolder_MoveAndBlinkCursor:
+	call CardFolder_IncCursorFrameCounter
 	jr c, .asm_89c4f
 	push de
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	pop de
 	ret
 .asm_89c4f
@@ -2158,7 +2158,7 @@ Function89dab:
 	and a
 	ret
 
-Function89de0:
+CardFolderMenu:
 	call ClearSprites
 	call Function89e0a
 	jr c, .asm_89e00
@@ -2176,7 +2176,7 @@ Function89de0:
 	pop bc
 	jr .asm_89dea
 .asm_89dfd
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 .asm_89e00
 	call Function8917a
 	ret
@@ -2237,20 +2237,20 @@ Jumptable_89e3c:
 Function89e58:
 	ld a, $1
 	call Function8a2fe
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function893e2
 	call Function89168
 	and a
 	ret
 
 Function89e68:
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	ld a, $1
 	scf
 	ret
 
 Function89e6f:
-	call Function891de
+	call CardFolder_ClearScreen
 	call Function89245
 	call Function89ee1
 	call Function89e9a
@@ -2286,7 +2286,7 @@ Palette_89eb1:
 	RGB 00, 00, 00
 
 Function89eb9:
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function89ee1
 	call Function89e9a
 	hlcoord 7, 4
@@ -2305,10 +2305,10 @@ Function89ee1:
 	call ClearBGPalettes
 	call Function893e2
 	call Mobile22_SetBGMapMode0
-	farcall Function4a3a7
+	farcall LoadTilesAndDisplayMobileMenuBackground
 	farcall MG_Mobile_Layout_CreatePalBoxes
 	hlcoord 1, 0
-	call Function8a53d
+	call DisplayCardFolderHeader
 	ret
 
 Function89efd:
@@ -2470,14 +2470,14 @@ Function89fa5:
 	ret
 
 Function89fce:
-	call Function8a5b6
+	call CardFolder_LoadCardFolderPals
 	ld a, $5
 	hlcoord 7, 4, wAttrmap
 	call Function8a5a3
 	ld a, $6
 	hlcoord 10, 4, wAttrmap
 	call Function8a5a3
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	call SetDefaultBGPAndOBP
 	call Function891ab
 	jp Function89e36
@@ -2488,7 +2488,7 @@ Function89fed:
 	jp Function89e36
 
 Function89ff6:
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call ClearBGPalettes
 	call Function893cc
 	call Function89807
@@ -2684,7 +2684,7 @@ Function8a116:
 	call DelayFrames
 .asm_8a15a
 	call ExitMenu
-	call Function891de
+	call CardFolder_ClearScreen
 	call Function893e2
 	call Function89245
 	call Function89168
@@ -2705,7 +2705,7 @@ Function8a17b:
 	decoord 14, 0
 	ld b, $5
 	ld c, $4
-	call Function89b3b
+	call SetBGAndDisplayBlankGoldenBox_DE
 	ld hl, MenuHeader_0x8a19a
 	ld a, [wd030]
 	call Function89d5e
@@ -2760,12 +2760,12 @@ Function8a20d:
 	ld hl, MobileCardFolderAskDeleteText
 	call PrintText
 	ld a, $2
-	call Function89259
+	call CardFolder_ConfirmationDialog_MiddleRight
 	ret c
 	ld hl, MobileCardFolderDeleteAreYouSureText
 	call PrintText
 	ld a, $2
-	call Function89259
+	call CardFolder_ConfirmationDialog_MiddleRight
 	ret c
 	xor a
 	call Function8a2fe
@@ -2789,18 +2789,18 @@ MobileCardFolderDeletedText:
 
 Function8a241:
 	call LoadStandardMenuHeader
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function8a262
 	jr nc, .asm_8a254
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function89b28
 	scf
 	ret
 .asm_8a254
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Call_ExitMenu
-	call Function891de
+	call CardFolder_ClearScreen
 	and a
 	ret
 
@@ -2808,10 +2808,10 @@ Function8a262:
 	call ClearBGPalettes
 	call Function893e2
 	call Mobile22_SetBGMapMode0
-	farcall Function4a3a7
+	farcall LoadTilesAndDisplayMobileMenuBackground
 	farcall MG_Mobile_Layout_CreatePalBoxes
 	hlcoord 1, 0
-	call Function8a53d
+	call DisplayCardFolderHeader
 	hlcoord 12, 4
 	call Function8a58d
 	ld a, $5
@@ -2824,7 +2824,7 @@ Function8a262:
 	ld [wd02e], a
 	ld bc, wd013
 	call Function8b36c
-	call Function8b493
+	call CardFolder_DisplayPINCodeAndFrame
 	call Function891ab
 	call SetDefaultBGPAndOBP
 	call Function8b5e7
@@ -2836,12 +2836,12 @@ Function8a2aa:
 	ld hl, MobileCardFolderAskOpenOldText
 	call PrintText
 	ld a, $1
-	call Function89259
+	call CardFolder_ConfirmationDialog_MiddleRight
 	jr nc, .asm_8a2cf
 	ld hl, MobileCardFolderAskDeleteOldText
 	call PrintText
 	ld a, $2
-	call Function89259
+	call CardFolder_ConfirmationDialog_MiddleRight
 	jr c, .asm_8a2ea
 	call Function8a20d
 	jr .asm_8a2ea
@@ -2852,7 +2852,7 @@ Function8a2aa:
 	ld a, $1
 	call Function8a313
 	call CloseSRAM
-	call Function891de
+	call CardFolder_ClearScreen
 	call Function89245
 	call Function89168
 	and a
@@ -2895,13 +2895,13 @@ Function8a313:
 Function8a31c:
 	push bc
 	call Mobile22_SetBGMapMode0
-	farcall Function4a3a7
+	farcall LoadTilesAndDisplayMobileMenuBackground
 	farcall MG_Mobile_Layout_CreatePalBoxes
 	hlcoord 1, 0
-	call Function8a53d
+	call DisplayCardFolderHeader
 	hlcoord 12, 4
 	call Function8a58d
-	call Function8a3b2
+	call DisplayCardFolderLayout
 	pop bc
 	ld a, c
 	ld [wMenuCursorPosition], a
@@ -2922,12 +2922,12 @@ Function8a31c:
 	jr c, .asm_8a370
 	jr z, .asm_8a34e
 .asm_8a36a
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	xor a
 	ld e, a
 	ret
 .asm_8a370
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	call PlaceHollowCursor
 	call Function8a3a2
 	ld a, [wMenuSelection]
@@ -2968,7 +2968,7 @@ Function8a3a2:
 	ld [wMenuSelection], a
 	ret
 
-Function8a3b2:
+DisplayCardFolderLayout:
 	ld a, $1
 	ld [wMenuSelection], a
 	call Function8a4fc
@@ -2977,14 +2977,14 @@ Function8a3b2:
 	decoord 0, 2
 	ld b, $6
 	ld c, $9
-	call Function89b3b
+	call SetBGAndDisplayBlankGoldenBox_DE
 	ld hl, MenuHeader_0x8a435
 	jr .asm_8a3db
 .asm_8a3ce
 	decoord 0, 2
 	ld b, $8
 	ld c, $9
-	call Function89b3b
+	call SetBGAndDisplayBlankGoldenBox_DE
 	ld hl, MenuHeader_0x8a40f
 .asm_8a3db
 	call CopyMenuHeader
@@ -2993,7 +2993,7 @@ Function8a3b2:
 Function8a3df:
 	call OpenSRAMBank4
 	ld hl, $a603
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	call CloseSRAM
 	ld hl, wd002
 	jr c, .asm_8a3f8
@@ -3138,7 +3138,7 @@ asm_8a529:
 	call ByteFill
 	ret
 
-Function8a53d:
+DisplayCardFolderHeader:
 	push hl
 	ld a, $15
 	ld c, $8
@@ -3226,7 +3226,7 @@ Function8a5a3:
 	jr nz, .asm_8a5a9
 	ret
 
-Function8a5b6:
+CardFolder_LoadCardFolderPals:
 	ldh a, [rWBK]
 	push af
 	ld a, $5
@@ -3296,16 +3296,16 @@ Palette_8a624:
 
 Function8a62c:
 	call LoadStandardMenuHeader
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	xor a
-	call Function8b94a
+	call CardFolder_SetCardListNavigationAction
 	call Function8b677
 .asm_8a639
 	xor a
 	ld [wd033], a
 	ld [wd032], a
 	ld [wd0e3], a
-	call Function8b7bd
+	call CardFolder_CardListNavigationLoop
 	ld a, c
 	and a
 	jr z, .asm_8a66a
@@ -3315,7 +3315,7 @@ Function8a62c:
 	inc a
 	ld [wd034], a
 	push bc
-	call Function8b960
+	call CardFolder_CardListEntryMenu
 	ld a, c
 	pop bc
 	jr z, .asm_8a639
@@ -3328,7 +3328,7 @@ Function8a62c:
 	rst JumpTable
 	jr .asm_8a639
 .asm_8a66a
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function89b28
 	ret
 
@@ -3336,14 +3336,14 @@ Jumptable_8a671:
 	dw Function8a679
 	dw Function8a6cd
 	dw Function8a8c3
-	dw Function8a930
+	dw CardFolder_SwapEntries
 
 Function8a679:
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89844
 	call CloseSRAM
 	call OpenSRAMBank4
@@ -3362,9 +3362,9 @@ Function8a679:
 	dec a
 	rst JumpTable
 	jr c, Function8a679
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function8b677
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ret
 
 Jumptable_8a6bc:
@@ -3383,17 +3383,17 @@ Function8a6c5:
 	ret
 
 Function8a6cd:
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89844
 	call Function8a757
 	call CloseSRAM
 .asm_8a6e5
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89856
 	call Function89a2e
 	call Function891ab
@@ -3408,7 +3408,7 @@ Function8a6cd:
 	and a
 	jr z, .asm_8a6fb
 	call PlayClickSFX
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld a, [wd011]
 	ld hl, Jumptable_8a74f
 	rst JumpTable
@@ -3420,20 +3420,20 @@ Function8a6cd:
 	call CloseSRAM
 	jr nc, .asm_8a73f
 	call Mobile22_SetBGMapMode0
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	call Function89a23
 	hlcoord 1, 13
 	ld de, String_89135
 	call PlaceString
 	call WaitBGMap
 	ld a, $2
-	call Function89254
+	call CardFolder_ConfirmationDialog_MiddleLeft
 	jr c, .asm_8a6e5
 .asm_8a73f
 	call CloseSRAM
 .asm_8a742
 	call ClearBGPalettes
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	call Function891d3
 	call Function8b677
 	ret
@@ -3453,7 +3453,7 @@ Function8a757:
 	ret
 
 Function8a765:
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	ld hl, $0
 	add hl, bc
@@ -3477,12 +3477,12 @@ Function8a765:
 	ret
 
 Function8a78c:
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	ld de, wd002
 	ld b, NAME_FRIEND
 	farcall NamingScreen
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	ld hl, $0
 	add hl, bc
@@ -3493,7 +3493,7 @@ Function8a78c:
 	call CloseSRAM
 	call DelayFrame
 	call JoyTextDelay
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
@@ -3506,10 +3506,10 @@ Function8a78c:
 Function8a7cb:
 	ld a, [wMenuSelection]
 	push af
-	call Function891de
+	call CardFolder_ClearScreen
 	ld de, wd008
 	ld c, $0
-	farcall Function17a68f
+	farcall MobilePhoneNumberEntry
 	jr c, .asm_8a7f4
 	ld hl, wd008
 	ld a, $ff
@@ -3519,15 +3519,15 @@ Function8a7cb:
 	ld l, e
 	ld de, wd008
 	ld c, $8
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 .asm_8a7f4
 	pop af
 	ld [wMenuSelection], a
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89844
 	call Function89856
 	call Function89a2e
@@ -3539,15 +3539,15 @@ Function8a7cb:
 Function8a818:
 	call Function89a23
 	ld hl, wd002
-	call Function89331
+	call CardFolder_CheckEmptyOrBlankPlayerNameInHL
 	jr c, .asm_8a875
 	ld hl, wd008
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	jr nc, .asm_8a87a
 	call OpenSRAMBank4
 	call Function8a765
 	jr nc, .asm_8a863
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	ld hl, $0
 	add hl, bc
@@ -3555,7 +3555,7 @@ Function8a818:
 	ld e, l
 	ld hl, wd002
 	ld c, $6
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	pop bc
 	ld hl, $11
 	add hl, bc
@@ -3563,7 +3563,7 @@ Function8a818:
 	ld e, l
 	ld hl, wd008
 	ld c, $8
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	hlcoord 1, 13
 	ld de, .string_8a868
 	call PlaceString
@@ -3604,7 +3604,7 @@ Function8a8a1:
 	ld de, String_89135
 	call PlaceString
 	ld a, $2
-	call Function89254
+	call CardFolder_ConfirmationDialog_MiddleLeft
 	jr c, .asm_8a8c1
 .asm_8a8bf
 	scf
@@ -3614,11 +3614,11 @@ Function8a8a1:
 	ret
 
 Function8a8c3:
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89844
 	call Function8939a
 	call Function89856
@@ -3628,10 +3628,10 @@ Function8a8c3:
 	ld de, String_8a919
 	call PlaceString
 	ld a, $2
-	call Function89254
+	call CardFolder_ConfirmationDialog_MiddleLeft
 	jr c, .asm_8a90f
 	call OpenSRAMBank4
-	call Function892b4
+	call CardFolder_DeleteSelectedCard
 	call CloseSRAM
 	call Function89a23
 	call Mobile22_SetBGMapMode0
@@ -3641,8 +3641,8 @@ Function8a8c3:
 	call WaitBGMap
 	call JoyWaitAorB
 .asm_8a90f
-	call Function89448
-	call Function891fe
+	call CardFolder_Clear24FirstOAM
+	call CardFolder_ClearScreenThenDelay
 	call Function8b677
 	ret
 
@@ -3652,7 +3652,7 @@ String_8a919:
 String_8a926:
 	db "データ<WO>けしまし<TA!>@"
 
-Function8a930:
+CardFolder_SwapEntries:
 	ld a, [wMenuSelection]
 	push af
 	xor a
@@ -3662,7 +3662,7 @@ Function8a930:
 	ld a, [wd034]
 	ld [wd0e3], a
 .asm_8a943
-	call Function8b7bd
+	call CardFolder_CardListNavigationLoop
 	ld a, [wMenuJoypad]
 	and PAD_A
 	jr nz, .asm_8a953
@@ -3678,7 +3678,7 @@ Function8a930:
 	jr z, .asm_8a995
 	push bc
 	ld [wMenuSelection], a
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	ld h, b
 	ld l, c
@@ -3689,7 +3689,7 @@ Function8a930:
 	pop bc
 	ld a, c
 	ld [wMenuSelection], a
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	ld h, b
 	ld l, c
@@ -3722,7 +3722,7 @@ Function8a999:
 	ld a, e
 	ld hl, Jumptable_8a9c5
 	rst JumpTable
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function89b28
 	pop bc
 	jr .asm_8a9a1
@@ -3745,7 +3745,7 @@ Function8a9ce:
 	decoord 11, 4
 	ld b, $6
 	ld c, $6
-	call Function89b3b
+	call SetBGAndDisplayBlankGoldenBox_DE
 	pop bc
 	ld a, c
 	ld hl, MenuHeader_0x8a9f2
@@ -3791,7 +3791,7 @@ Function8aa0a:
 	ld de, wd008
 	call Function89381
 	call CloseSRAM
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call ClearBGPalettes
 	call Function893cc
 	call Function89807
@@ -3809,7 +3809,7 @@ Function8aa0a:
 	and a
 	jr z, .asm_8aa43
 	call PlayClickSFX
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ld a, [wd011]
 	dec a
 	ld hl, Jumptable_8aa6d
@@ -3817,11 +3817,11 @@ Function8aa0a:
 	jr nc, .asm_8aa3a
 	jr .asm_8aa69
 .asm_8aa61
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	call Function8ab11
 	jr nc, .asm_8aa3a
 .asm_8aa69
-	call Function89448
+	call CardFolder_Clear24FirstOAM
 	ret
 
 Jumptable_8aa6d:
@@ -3833,10 +3833,10 @@ Function8aa73:
 	ld a, [wMenuSelection]
 	ld e, a
 	push de
-	call Function891de
+	call CardFolder_ClearScreen
 	ld de, wd008
 	ld c, $0
-	farcall Function17a68f
+	farcall MobilePhoneNumberEntry
 	jr c, .asm_8aa9d
 	ld hl, wd008
 	ld a, $ff
@@ -3846,9 +3846,9 @@ Function8aa73:
 	ld l, e
 	ld de, wd008
 	ld c, $8
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 .asm_8aa9d
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call ClearBGPalettes
 	call Function893cc
 	call Function89807
@@ -3863,7 +3863,7 @@ Function8aa73:
 Function8aab6:
 	call Function89a23
 	ld hl, wd008
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	jr nc, Function8ab00
 	call OpenSRAMBank4
 	ld de, wd008
@@ -3874,7 +3874,7 @@ Function8aab6:
 	ld hl, wd008
 	ld de, $a603
 	ld c, $8
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	hlcoord 1, 13
 	ld de, String_8aaf0
 	call PlaceString
@@ -3910,7 +3910,7 @@ Function8ab11:
 	ld de, String_89135
 	call PlaceString
 	ld a, $2
-	call Function89254
+	call CardFolder_ConfirmationDialog_MiddleLeft
 	jr c, .asm_8ab39
 .asm_8ab37
 	scf
@@ -3921,7 +3921,7 @@ Function8ab11:
 
 Function8ab3b:
 .pressed_start
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call ClearBGPalettes
 	call Function893cc
 	call Function89807
@@ -3966,28 +3966,28 @@ Function8ab93:
 	call LoadStandardMenuHeader
 	farcall DoNameCardSwap
 	call ClearSprites
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function89b28
 	ret
 
 Function8aba9:
 	ld a, $2
-	call Function8b94a
+	call CardFolder_SetCardListNavigationAction
 	ld a, $1
 	ld [wd032], a
 .asm_8abb3
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function8b677
 .asm_8abb9
-	call Function8b7bd
+	call CardFolder_CardListNavigationLoop
 	jr z, .asm_8abdf
 	ld a, c
 	ld [wMenuSelection], a
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	ld hl, $0011
 	add hl, bc
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	call CloseSRAM
 	jr c, .asm_8abe2
 	ld de, SFX_WRONG
@@ -4003,11 +4003,11 @@ Function8aba9:
 .asm_8abe2
 	call PlayClickSFX
 .asm_8abe5
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	call Function89844
 	call CloseSRAM
 	call OpenSRAMBank4
@@ -4032,7 +4032,7 @@ Function8aba9:
 	ld de, String_8ac3b
 	call PlaceString
 	ld a, $1
-	call Function8925e
+	call CardFolder_ConfirmationDialog_BottomRight
 	jp c, .asm_8abb3
 	ld a, [wMenuSelection]
 	ld c, a
@@ -4046,7 +4046,7 @@ Function8ac4e:
 	xor a
 	ld [wMenuSelection], a
 	push de
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	pop bc
@@ -4058,39 +4058,39 @@ Function8ac4e:
 	call Function891ab
 	ret
 
-Function8ac70:
+CardFolder_SelectCardEntryToOverride:
 	push de
 	ld a, $3
-	call Function8b94a
+	call CardFolder_SetCardListNavigationAction
 
 Function8ac76:
-	call Function891fe
+	call CardFolder_ClearScreenThenDelay
 	call Function8b677
 
 Function8ac7c:
-	call Function8b7bd
+	call CardFolder_CardListNavigationLoop
 	jr z, .asm_8acf0
 	ld a, c
 	ld [wd02f], a
 	ld [wMenuSelection], a
 	call OpenSRAMBank4
-	call Function8931b
-	call Function8932d
+	call CardFolder_GetSelectedCardFolderEntryInBC
+	call CardFolder_CheckEmptyOrBlankPlayerNameInBC
 	call CloseSRAM
 	jr nc, .asm_8acb0
 	call OpenSRAMBank4
 	ld hl, $0011
 	add hl, bc
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	call CloseSRAM
 	jr nc, .asm_8accc
 	call OpenSRAMBank4
-	call Function892b7
+	call CardFolder_DeleteCardInBC
 	call CloseSRAM
 	jr .asm_8accc
 
 .asm_8acb0
-	call Function8ad0b
+	call CardFolder_AskOverwriteCardEntry
 	jr c, Function8ac76
 	and a
 	jr nz, .asm_8accc
@@ -4104,7 +4104,7 @@ Function8ac7c:
 	ld e, l
 	pop hl
 	ld c, $1f
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	jr .asm_8ace4
 
 .asm_8accc
@@ -4113,7 +4113,7 @@ Function8ac7c:
 	ld d, b
 	ld e, c
 	ld c, $6
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 	ld a, $6
 	add e
 	ld e, a
@@ -4121,7 +4121,7 @@ Function8ac7c:
 	adc d
 	ld d, a
 	ld c, $1f
-	call Function89193
+	call CardFolder_CopyCBytesFromHLToDE
 
 .asm_8ace4
 	call CloseSRAM
@@ -4135,7 +4135,7 @@ Function8ac7c:
 	ld hl, MobileCardFolderFinishRegisteringCardsText
 	call PrintText
 	ld a, $2
-	call Function89259
+	call CardFolder_ConfirmationDialog_MiddleRight
 	jp c, Function8ac7c
 	call LoadStandardFont
 	pop de
@@ -4147,15 +4147,15 @@ MobileCardFolderFinishRegisteringCardsText:
 	text_far _MobileCardFolderFinishRegisteringCardsText
 	text_end
 
-Function8ad0b:
+CardFolder_AskOverwriteCardEntry:
 .asm_8ad0b
 	ld a, [wMenuSelection]
 	ld [wd02f], a
-	call Function891de
+	call CardFolder_ClearScreen
 	call ClearBGPalettes
 	call Function893cc
 	call OpenSRAMBank4
-	call Function8931b
+	call CardFolder_GetSelectedCardFolderEntryInBC
 	push bc
 	call Function89844
 	call Function8939a
@@ -4184,7 +4184,7 @@ Function8ad0b:
 	hlcoord 1, 14
 	call PlaceString
 	ld a, $2
-	call Function8925e
+	call CardFolder_ConfirmationDialog_BottomRight
 	jr c, .asm_8ad87
 	call Mobile22_SetBGMapMode0
 	hlcoord 0, 12
@@ -4195,7 +4195,7 @@ Function8ad0b:
 	hlcoord 1, 14
 	call PlaceString
 	ld a, $1
-	call Function8925e
+	call CardFolder_ConfirmationDialog_BottomRight
 	jr c, .asm_8ad84
 	ld a, $0
 	jr .asm_8ad86
@@ -4219,17 +4219,17 @@ String_8ad9c:
 	next "のこして　おきますか？@"
 
 Function8adb3:
-	call Function891de
+	call CardFolder_ClearScreen
 	call Function8a262
 	push af
-	call Function891de
+	call CardFolder_ClearScreen
 	pop af
 	ret
 
 Function8adbf: ; unreferenced
 	call OpenSRAMBank4
 	ld hl, $a603
-	call Function89b45
+	call CardFolder_CheckPhoneNumberConformity
 	call CloseSRAM
 	ret
 

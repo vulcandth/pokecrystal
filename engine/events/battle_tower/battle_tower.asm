@@ -54,7 +54,7 @@ Function1700c4:
 Function170114:
 	call InitBattleTowerChallengeRAM
 	call .Function170121
-	farcall Function11805f
+	farcall BattleTower_UploadRecord
 	ret
 
 .Function170121:

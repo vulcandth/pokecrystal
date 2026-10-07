@@ -4666,7 +4666,7 @@ Function1020a8:
 	call Function10209c
 	ld c, $01
 	ld de, wdc42
-	farcall Function17a68f
+	farcall MobilePhoneNumberEntry
 	ret c
 	call Function10208e
 	call Function102068
@@ -4813,7 +4813,7 @@ Function1021b8:
 	call FadeToMenu
 	call Function10218d
 	ld de, wPlayerMoveStruct
-	farcall Function8ac70
+	farcall CardFolder_SelectCardEntryToOverride
 	ld a, c
 	ld [wStringBuffer1], a
 	push af

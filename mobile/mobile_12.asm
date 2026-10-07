@@ -19,7 +19,7 @@ InitMobileProfile:
 	set 3, a
 	ld [wd003], a
 .not_yet_initialized
-	call Function486bf
+	call SetCursorParameters_MobileProfile
 	call LoadFontsExtra
 	ld de, MobileUpArrowGFX
 	ld hl, vTiles2 tile $10
@@ -29,12 +29,12 @@ InitMobileProfile:
 	ld hl, vTiles2 tile $11
 	lb bc, BANK(MobileDownArrowGFX), 1
 	call Request1bpp
-	call Function4a3a7
+	call LoadTilesAndDisplayMobileMenuBackground
 	call ClearBGPalettes
 	ld a, [wd002]
 	bit 6, a
 	jr z, .asm_4808a
-	call Function48689
+	call DisplayInitializedMobileProfileLayout
 	jr .asm_480d7
 .asm_4808a
 	ld a, $5
@@ -64,7 +64,7 @@ InitMobileProfile:
 	hlcoord 0, 2
 	ld b, $a
 	ld c, $12
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	hlcoord 2, 4
 	ld de, MobileString_Gender
 	call PlaceString
@@ -103,7 +103,7 @@ InitMobileProfile:
 	hlcoord 11, 8
 	call PlaceString
 	hlcoord 11, 10
-	call Function489ea
+	call MobileProfile_DisplayPostalCode
 	hlcoord 0, 14
 	ld b, $2
 	ld c, $12
@@ -111,7 +111,7 @@ InitMobileProfile:
 	hlcoord 1, 16
 	ld de, MobileString_PersonalInfo
 	call PlaceString
-	call Function48187
+	call MobileProfile_ClearBlankUserParameters
 	call WaitBGMap2
 	call SetDefaultBGPAndOBP
 	call StaticMenuJoypad
@@ -127,7 +127,7 @@ Function48157:
 	push bc
 asm_4815f:
 	bit B_PAD_A, a
-	jp nz, Function4820d
+	jp nz, MobileProfile_EditField
 	ld b, a
 	ld a, [wd002]
 	bit 6, a
@@ -148,13 +148,13 @@ asm_4815f:
 	ld a, $ff
 	ret
 
-Function48187:
+MobileProfile_ClearBlankUserParameters:
 	ld a, [wCrystalFlags]
 	bit 1, a
 	jr nz, .asm_481f1
 	ld a, [wd003]
 	ld d, a
-	call Function48725
+	call CheckIfAllProfileParametersHaveBeenFilled
 	jr c, .asm_481a2
 	lb bc, 1, 4
 	hlcoord 2, 12
@@ -211,7 +211,7 @@ Function48187:
 .String_TellLater:
 	db "Tell Later@"
 
-Function4820d:
+MobileProfile_EditField:
 	call PlaceHollowCursor
 	ld hl, wMenuCursorY
 	ld a, [hl]
@@ -225,13 +225,13 @@ Function4820d:
 .asm_4821f
 	pop af
 	cp $1
-	jr z, asm_4828d
+	jr z, MobileProfile_EditGender
 	cp $2
-	jp z, Function4876f
+	jp z, MobileProfile_EditAge
 	cp $3
-	jp z, Function48304
+	jp z, MobileProfile_EditPrefecture
 	cp $4
-	jp z, Function488d3
+	jp z, MobileProfile_EditPostalCode
 	ld a, $2
 	call MenuClickSound
 	ld a, [wd002]
@@ -263,29 +263,29 @@ Function4820d:
 	ret
 
 Function48272:
-	jp Function4840c
+	jp ReturnToMobileProfileMenu
 
 MobileString_PersonalInfo:
 	db "Personal Info@"
 
-Function48283:
+ClearMobileProfileBottomTextBox:
 	lb bc, 2, 18
 	hlcoord 1, 15
 	call ClearBox
 	ret
 
-asm_4828d:
-	call Function48283
+MobileProfile_EditGender:
+	call ClearMobileProfileBottomTextBox
 	hlcoord 1, 16
 	ld de, MobileDesc_Gender
 	call PlaceString
 	ld hl, MenuHeader_0x484f1
 	call LoadMenuHeader
-	call Function4873c
+	call SetCursorParameters_Gender
 	hlcoord 11, 2
 	ld b, $4
 	ld c, $7
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	hlcoord 13, 4
 	ld de, String_484fb
 	call PlaceString
@@ -300,7 +300,7 @@ asm_4828d:
 	call PlayClickSFX
 	call ExitMenu
 	bit 0, a
-	jp z, Function4840c
+	jp z, ReturnToMobileProfileMenu
 	ld hl, wMenuCursorY
 	ld a, [hl]
 	ld hl, Strings_484fb
@@ -324,10 +324,10 @@ asm_4828d:
 	ld a, [wd003]
 	set 0, a
 	ld [wd003], a
-	jp Function4840c
+	jp ReturnToMobileProfileMenu
 
-Function48304:
-	call Function48283
+MobileProfile_EditPrefecture:
+	call ClearMobileProfileBottomTextBox
 	hlcoord 1, 16
 	ld de, MobileDesc_Address
 	call PlaceString
@@ -338,7 +338,7 @@ Function48304:
 	hlcoord 10, 0
 	ld b, $c
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	ld a, [wMenuCursorPosition]
 	ld b, a
 	ld a, [wMenuScrollPosition]
@@ -358,7 +358,7 @@ Function48304:
 .asm_48348
 	call ScrollingMenu
 	ld de, $629
-	call Function48383
+	call MobileProfile_UpdatePrefecture
 	jr c, .asm_48348
 	ld d, a
 	pop bc
@@ -374,16 +374,16 @@ Function48304:
 	ldh a, [hJoyPressed]
 	bit 0, a
 	jr z, .asm_48377
-	call Function483bb
+	call MobileProfile_SavePrefecture
 	ld a, [wd003]
 	set 2, a
 	ld [wd003], a
 .asm_48377
-	call Function48187
+	call MobileProfile_ClearBlankUserParameters
 	farcall Mobile_HDMATransferTilemapAndAttrmap_Menu
-	jp Function4840c
+	jp ReturnToMobileProfileMenu
 
-Function48383:
+MobileProfile_UpdatePrefecture:
 	push bc
 	push af
 	bit 5, a
@@ -420,7 +420,7 @@ Function48383:
 	pop bc
 	ret
 
-Function483bb:
+MobileProfile_SavePrefecture:
 	ld hl, wScrollingMenuCursorPosition
 	ld a, [hl]
 	inc a
@@ -478,13 +478,13 @@ Function483e8:
 	call PlaceString
 	ret
 
-Function4840c:
-	call Function48187
-	call Function48283
+ReturnToMobileProfileMenu:
+	call MobileProfile_ClearBlankUserParameters
+	call ClearMobileProfileBottomTextBox
 	hlcoord 1, 16
 	ld de, MobileString_PersonalInfo
 	call PlaceString
-	call Function486bf
+	call SetCursorParameters_MobileProfile
 	pop bc
 	ld hl, wMenuCursorY
 	ld [hl], b
@@ -647,7 +647,7 @@ Yamaguchi: db "やまぐちけん@" ; Yamaguchi
 Yamanashi: db "やまなしけん@" ; Yamanashi
 Wakayama:  db "わかやまけん@" ; Wakayama
 
-Function48689:
+DisplayInitializedMobileProfileLayout:
 	ld c, 7
 	call DelayFrames
 	ld b, CRYSTAL_CGB_MOBILE_1
@@ -669,10 +669,10 @@ Function48689:
 	hlcoord 0, 4
 	ld b, $8
 	ld c, $12
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	ret
 
-Function486bf:
+SetCursorParameters_MobileProfile:
 	ld hl, w2DMenuCursorInitY
 	ld a, [wd002]
 	bit 6, a
@@ -690,7 +690,7 @@ Function486bf:
 	ld a, [wd002]
 	bit 6, a
 	jr nz, .check_flags
-	call Function48725
+	call CheckIfAllProfileParametersHaveBeenFilled
 	ld a, 4
 	jr nc, .got_num_rows_1
 	ld a, 5
@@ -702,7 +702,7 @@ Function486bf:
 	ld a, [wCrystalFlags]
 	bit 1, a
 	jr nz, .four_rows
-	call Function48725
+	call CheckIfAllProfileParametersHaveBeenFilled
 	jr c, .four_rows
 	ld a, 3
 	ld [hli], a
@@ -743,7 +743,7 @@ Function486bf:
 	ld [hli], a ; cursor tile + 1
 	ret
 
-Function48725:
+CheckIfAllProfileParametersHaveBeenFilled:
 ;	 ld a, [wd003]
 ;	 and $f
 ;	 cp $f
@@ -770,7 +770,7 @@ Function48725:
 	and a
 	ret
 
-Function4873c:
+SetCursorParameters_Gender:
 	ld hl, w2DMenuCursorInitY
 	ld a, 4
 	ld [hli], a
@@ -811,8 +811,8 @@ Function4873c:
 	ld [hli], a ; cursor tile + 1
 	ret
 
-Function4876f:
-	call Function48283
+MobileProfile_EditAge:
+	call ClearMobileProfileBottomTextBox
 	hlcoord 1, 16
 	ld de, MobileDesc_Age
 	call PlaceString
@@ -825,7 +825,7 @@ Function4876f:
 	hlcoord 10, 5
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	call WaitBGMap
 	ld a, [wPlayerAge]
 	and a
@@ -868,7 +868,7 @@ Function4876f:
 	call Function487ec
 	pop af
 	ldh [hInMenu], a
-	jp Function4840c
+	jp ReturnToMobileProfileMenu
 
 Function487ec:
 	push hl
@@ -971,7 +971,7 @@ Function4880e:
 	hlcoord 10, 5
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	hlcoord 12, 5
 	ld [hl], $10
 	jr .asm_488a7
@@ -979,7 +979,7 @@ Function4880e:
 	hlcoord 10, 5
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	hlcoord 12, 7
 	ld [hl], $11
 .asm_488a7
@@ -1009,13 +1009,13 @@ INCBIN "gfx/mobile/up_arrow.1bpp"
 MobileDownArrowGFX:
 INCBIN "gfx/mobile/down_arrow.1bpp"
 
-Function488d3:
-	call Function48283
+MobileProfile_EditPostalCode:
+	call ClearMobileProfileBottomTextBox
 	hlcoord 1, 16
 	ld de, MobileDesc_ZipCode
 	call PlaceString
-	call Function48a3a
-	jp c, Function4840c
+	call TellNowTellLaterMenu
+	jp c, ReturnToMobileProfileMenu
 	ld hl, MenuHeader_0x4850e
 	call LoadMenuHeader
 	ldh a, [hInMenu]
@@ -1025,12 +1025,12 @@ Function488d3:
 	hlcoord 10, 9
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	ld a, [wPlayerPostalCode]
 	and $f
 	ld d, $0
 	hlcoord 11, 10
-	call Function489ea
+	call MobileProfile_DisplayPostalCode
 	call WaitBGMap
 	ld a, [wPlayerPostalCode]
 	ld b, a
@@ -1045,7 +1045,7 @@ Function488d3:
 	ld d, $0
 	ld b, $0
 
-asm_48922:
+MobileProfile_PostalCodeLoop:
 	push bc
 	call JoyTextDelay
 	ldh a, [hJoyDown]
@@ -1102,7 +1102,7 @@ Function4896e:
 	push bc
 
 asm_48972:
-	call Function48ab5
+	call MobileProfile_HandlePostalCodeInput
 	push af
 	cp $f0
 	jr z, .asm_48994
@@ -1118,12 +1118,12 @@ asm_48972:
 	ld c, d
 	add hl, bc
 	ld b, $3
-	call Function48c11
+	call MobileProfile_BlinkPostalCodeDigit
 .asm_48994
 	call WaitBGMap
 	pop af
 	pop bc
-	jr nc, asm_48922
+	jr nc, MobileProfile_PostalCodeLoop
 	jr nz, .asm_489b1
 	pop bc
 	ld a, b
@@ -1160,15 +1160,15 @@ asm_48972:
 	pop af
 	call ExitMenu
 	hlcoord 11, 10
-	call Function489ea
+	call MobileProfile_DisplayPostalCode
 	hlcoord 11, 9
 	lb bc, 1, 8
 	call ClearBox
 	pop af
 	ldh [hInMenu], a
-	jp Function4840c
+	jp ReturnToMobileProfileMenu
 
-Function489ea:
+MobileProfile_DisplayPostalCode:
 	push de
 	ld a, [wPlayerPostalCode]
 	and $f
@@ -1209,10 +1209,10 @@ Function489ea:
 String_48a38:
 	db "-@"
 
-Function48a3a:
+TellNowTellLaterMenu:
 	ld hl, MenuHeader_0x48a9c
 	call LoadMenuHeader
-	call Function4873c
+	call SetCursorParameters_Gender
 	ld a, $a
 	ld [w2DMenuCursorInitY], a
 	ld a, $b
@@ -1222,9 +1222,9 @@ Function48a3a:
 	hlcoord 10, 8
 	ld b, $4
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	hlcoord 12, 10
-	ld de, String_48aa1
+	ld de, TellNowLaterStrings
 	call PlaceString
 	call StaticMenuJoypad
 	push af
@@ -1259,17 +1259,17 @@ MenuHeader_0x48a9c:
 	db MENU_BACKUP_TILES ; flags
 	menu_coords 10, 8, SCREEN_WIDTH - 1, 13
 
-String_48aa1:
+TellNowLaterStrings:
 	db   "Tell Now"
 	next "Tell Later@"
 
-Function48ab5:
+MobileProfile_HandlePostalCodeInput:
 	ldh a, [hJoyPressed]
 	and PAD_A
-	jp nz, Function48c0f
+	jp nz, MobileProfile_SavePostalCode
 	ldh a, [hJoyPressed]
 	and PAD_B
-	jp nz, Function48c0d
+	jp nz, MobileProfile_CancelPostalCode
 	ld a, d
 	and a
 	jr z, .asm_48adf
@@ -1350,7 +1350,7 @@ Function48ab5:
 	and PAD_RIGHT
 	jr nz, .asm_48b9d
 	hlcoord 11, 10
-	call Function489ea
+	call MobileProfile_DisplayPostalCode
 	ld a, [wd002]
 	bit 7, a
 	jr nz, .asm_48b51
@@ -1376,7 +1376,7 @@ Function48ab5:
 	hlcoord 10, 9
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	pop af
 	pop de
 	hlcoord 11, 10
@@ -1414,7 +1414,7 @@ Function48ab5:
 	hlcoord 10, 9
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	pop de
 	ld a, d
 	cp $6
@@ -1457,7 +1457,7 @@ Function48bd7:
 	hlcoord 10, 9
 	ld b, $1
 	ld c, $8
-	call Function48cdc
+	call DisplayBlankGoldenBox
 	pop de
 	ld a, d
 	and a
@@ -1486,22 +1486,22 @@ Function48bd7:
 Function48c00:
 	push af
 	hlcoord 11, 10
-	call Function489ea
+	call MobileProfile_DisplayPostalCode
 	ld a, $1
 	and a
 	pop bc
 	ld a, b
 	ret
 
-Function48c0d:
+MobileProfile_CancelPostalCode:
 	xor a
 	and a
 
-Function48c0f:
+MobileProfile_SavePostalCode:
 	scf
 	ret
 
-Function48c11:
+MobileProfile_BlinkPostalCodeDigit:
 	ld a, [wd002]
 	bit 7, a
 	jr z, .asm_48c20
@@ -1654,10 +1654,10 @@ Function48cda:
 	ld h, d
 	ld l, e
 
-Function48cdc:
+DisplayBlankGoldenBox:
 	push bc
 	push hl
-	call Function48cfd
+	call DisplayGoldenBoxBorders
 	pop hl
 	pop bc
 	ld de, wAttrmap - wTilemap
@@ -1682,12 +1682,12 @@ Function48cdc:
 	jr nz, .asm_48ced
 	ret
 
-Function48cfd:
+DisplayGoldenBoxBorders:
 	push hl
 	ld a, $4
 	ld [hli], a
 	inc a
-	call Function48d2a
+	call MobileProfile_FillRow
 	inc a
 	ld [hl], a
 	pop hl
@@ -1698,7 +1698,7 @@ Function48cfd:
 	ld a, $7
 	ld [hli], a
 	ld a, $7f
-	call Function48d2a
+	call MobileProfile_FillRow
 	ld [hl], $8
 	pop hl
 	ld de, $14
@@ -1708,11 +1708,11 @@ Function48cfd:
 	ld a, $9
 	ld [hli], a
 	ld a, $a
-	call Function48d2a
+	call MobileProfile_FillRow
 	ld [hl], $b
 	ret
 
-Function48d2a:
+MobileProfile_FillRow:
 	ld d, c
 .asm_48d2b
 	ld [hli], a

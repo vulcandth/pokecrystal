@@ -17,7 +17,7 @@ INCBIN "gfx/mobile/card_folder.2bpp"
 CardSpriteGFX::
 INCBIN "gfx/mobile/card_sprite.2bpp"
 
-Function17a68f::
+MobilePhoneNumberEntry::
 	call Function17a6a8
 	call Function17a751
 	ld hl, $d088
