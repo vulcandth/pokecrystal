@@ -1516,6 +1516,7 @@ wcd38:: db ; secs
 wcd39:: ds 1
 wcd3a:: ds 1
 wcd3b:: ds 1
+wMobileDialogJumptableIndex::
 wBattleTowerRoomMenu2JumptableIndex:: ds 1
 wcd3d:: ds 1
 wcd3e:: ds 1
@@ -1525,11 +1526,16 @@ wcd41:: ds 1
 wcd42:: ds 1
 wcd43:: ds 1
 
-; some sort of timer in link battles
+; Link battle timer; shared with the connection dialog state.
+; The dialog reuses the delay byte as its yes/no selection (0/1).
+wMobileDialogDelay::
+wMobileDialogSelection::
 wMobileInactivityTimerMinutes:: db ; mins
+wMobileDialogCancelState::
 wMobileInactivityTimerSeconds:: db ; secs
+wMobileDialogResumeState::
 wMobileInactivityTimerFrames:: db ; frames
-wcd47:: ds 1
+wMobileDialogCancelConfirmState:: ds 1
 
 	ds 1
 
@@ -1601,7 +1607,7 @@ wcd81:: ds 1
 wcd82:: ds 1
 wcd83:: ds 1
 wcd84:: ds 1
-wcd85:: ds 4
+wMobileDownloadFeeString:: ds 4
 wMobileDownloadFlags:: ds 1
 wMobileLegacyInactivityCounter::
 wcd8a:: ds 1

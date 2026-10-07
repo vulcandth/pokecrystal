@@ -1022,14 +1022,14 @@ Function11886e:
 
 asm_11886f:
 	ld [wBGMapPalBuffer], a
-	ld a, $0
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_INIT
+	ld [wMobileDialogJumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
 	ld a, [wMobileConnectionEndState]
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 
 InitMobileAdapter:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	xor a
 	ld [wcf64], a
@@ -1112,9 +1112,9 @@ StopPichuMobileAnimation:
 	ld [wc319], a
 	ld c, $1
 	farcall Function115e18
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 BattleTower_ParseIndex:
@@ -1301,7 +1301,7 @@ BattleTowerRoomMenu_UpdatePickLevelMenu:
 	ld a, $7
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ld a, $0
-	ld [wMobileInactivityTimerFrames], a
+	ld [wMobileDialogResumeState], a
 	ret
 
 BattleTower_DownloadRoomCount: ; unreferenced
@@ -1373,9 +1373,9 @@ Mobile_HTTPGet:
 	push bc
 	push de
 	push hl
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	pop hl
 	ld c, $0
 	ld de, wcc60
@@ -1402,9 +1402,9 @@ Mobile_HTTPGet:
 Mobile_HTTPGetIndex:
 	push de
 	push bc
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	call Mobile_BuildHTTPGetParameters
 	pop bc
 	pop de
@@ -1556,14 +1556,14 @@ Function118d80:
 	jr asm_118d9f
 
 .asm_118d8e
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $12
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Mobile_HTTPPostTradeRequest:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 
 asm_118d9f:
@@ -1670,7 +1670,7 @@ asm_118e3e:
 	jr nz, asm_118e3e
 	inc hl
 	inc hl
-	ld de, wcd85
+	ld de, wMobileDownloadFeeString
 	ld c, $4
 .asm_118e4a
 	ld a, [hli]
@@ -1686,7 +1686,7 @@ asm_118e3e:
 	inc de
 	dec c
 	jr nz, .asm_118e4a
-	ld de, wcd85
+	ld de, wMobileDownloadFeeString
 .asm_118e63
 	ld a, $50
 	ld [de], a
@@ -1704,19 +1704,19 @@ Mobile_LogoutOfISP:
 	jp Mobile_CallAPIAndAdvanceState
 
 Function118e76:
-	; Call $c in BattleTowerRoomMenu2
-	ld a, $c
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	; Show the disconnect message and connection time.
+	ld a, MOBILE_DIALOG_CONNECTION_CLOSED
+	ld [wMobileDialogJumptableIndex], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Mobile_EndConnection:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	ld a, MOBILEAPI_END
 	jp Mobile_CallAPIAndAdvanceState
 
 BattleTowerRoomMenu_CallRoomMenu2:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	ld a, [wMobileConnectionEndState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
@@ -1766,18 +1766,18 @@ Function118ec6:
 	ld [wc31e], a
 	ld a, $2
 	ld [wc31a], a
-	ld a, $1d
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_NEWS
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $24
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	ld a, $11
-	ld [wMobileInactivityTimerFrames], a
+	ld [wMobileDialogResumeState], a
 	ld a, $1c
-	ld [wcd47], a
+	ld [wMobileDialogCancelConfirmState], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function118f0d:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call Function118440
 
@@ -1806,18 +1806,18 @@ Function118f14:
 	ret c
 	ld hl, wcc60
 	call Function118e39
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $24
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	ld a, $13
-	ld [wMobileInactivityTimerFrames], a
+	ld [wMobileDialogResumeState], a
 	ld a, $1c
-	ld [wcd47], a
+	ld [wMobileDialogCancelConfirmState], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function118f5e:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call Function118440
 	call DelayFrame
@@ -2059,7 +2059,7 @@ Mobile_SaveDownloadedNews:
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function11914e:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	ld a, $1c
 	ld [wBattleTowerRoomMenuJumptableIndex], a
@@ -2336,8 +2336,8 @@ Mobile_CheckNewsAlreadyDownloaded:
 	jr nz, .asm_1192fe
 	dec c
 	jr nz, .asm_1192e8
-	ld a, $1f
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_NO_NEWS
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $27
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	scf
@@ -2450,19 +2450,19 @@ Function119388:
 	ret nz
 	ld hl, wcc60
 	call Function118e39
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $10
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function1193a0:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call DelayFrame
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	ld hl, wc346
 	ld a, LOW(w3_d000)
 	ld [hli], a
@@ -2496,19 +2496,19 @@ Function1193e3:
 	ret nz
 	ld hl, wcc60
 	call Function118e39
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $11
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function1193fb:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call DelayFrame
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	ld de, w3_d000
 	ld bc, $1000
 	jp Mobile_HTTPGetIndex
@@ -2824,51 +2824,51 @@ Function1195c4:
 	jp SetMobileErrorCode
 
 Function1195f8:
-	ld a, $11
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_NEW_DATA
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $1c
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	ld a, $f
-	ld [wMobileInactivityTimerFrames], a
+	ld [wMobileDialogResumeState], a
 	ld a, $14
-	ld [wcd47], a
+	ld [wMobileDialogCancelConfirmState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function119612:
-	ld a, $14
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_PREVIOUSLY_DOWNLOADED
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $1c
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	ld a, $10
-	ld [wMobileInactivityTimerFrames], a
+	ld [wMobileDialogResumeState], a
 	ld a, $14
-	ld [wcd47], a
+	ld [wMobileDialogCancelConfirmState], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function119629:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	ld a, LOW(wcc60)
 	ld l, a
 	ld a, HIGH(wcc60)
 	ld h, a
 	call Function118e39
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $1c
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	ld a, $14
-	ld [wcd47], a
+	ld [wMobileDialogCancelConfirmState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function119648:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call DelayFrame
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	call Mobile_BuildHTTPGetParameters
 	ld de, w3_d000
 	ld bc, $1000
@@ -2876,26 +2876,26 @@ Function119648:
 	jp Mobile_CallAPIAndAdvanceState
 
 Function119665:
-	ld a, $1a
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_CANCEL_DOWNLOAD
+	ld [wMobileDialogJumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function11966d:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
-	ld a, [wcd47]
+	ld a, [wMobileDialogCancelConfirmState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
 Function11967d:
-	ld a, $18
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_NO_NEW_DATA
+	ld [wMobileDialogJumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function119685:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	ld a, $14
 	ld [wBattleTowerRoomMenuJumptableIndex], a
@@ -3145,14 +3145,14 @@ popc
 Function1197c9:
 	ld hl, wd002
 	call Function118e39
-	ld a, $9
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
+	ld [wMobileDialogJumptableIndex], a
 	ld a, $12
-	ld [wMobileInactivityTimerSeconds], a
+	ld [wMobileDialogCancelState], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 Function1197dc:
-	call BattleTowerRoomMenu2
+	call MobileConnectionDialog
 	ret c
 	call DelayFrame
 	ld hl, wd002
@@ -3186,7 +3186,7 @@ Function119800:
 	ldh [rWBK], a
 	call FadeToMenu
 	farcall Function10803d
-	call Function11a9ce
+	call MobileDialog_ReloadOverworld
 	call RestartMapMusic
 	ld a, BANK("Battle Tower RAM")
 	ldh [rWBK], a
@@ -3221,7 +3221,7 @@ DisplaySendToTradeCornerAnimation:
 	ldh [rWBK], a
 	call FadeToMenu
 	farcall MobileTradeAnimation_SendGivemonToGTS
-	call Function11a9ce
+	call MobileDialog_ReloadOverworld
 	call RestartMapMusic
 	ld a, BANK("Battle Tower RAM")
 	ldh [rWBK], a
@@ -3255,7 +3255,7 @@ DisplaySendToTradeCornerAnimation:
 	ldh [rWBK], a
 	call FadeToMenu
 	farcall MobileTradeAnimation_RetrieveGivemonFromGTS
-	call Function11a9ce
+	call MobileDialog_ReloadOverworld
 	call RestartMapMusic
 	ld a, BANK("Battle Tower RAM")
 	ldh [rWBK], a
@@ -3333,9 +3333,9 @@ Function119940:
 	ret
 
 Mobile_LoginToPOP3:
-	ld a, $1c
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING_WITH_CANCEL
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	ld hl, wc608
 	ld de, wEmailAddress
 .asm_119962
@@ -3553,9 +3553,9 @@ XGameResult: ; unreferenced
 popc
 
 Function119b0d:
-	ld a, $8
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	call BattleTowerRoomMenu2
+	ld a, MOBILE_DIALOG_COMMUNICATING
+	ld [wMobileDialogJumptableIndex], a
+	call MobileConnectionDialog
 	ld a, [w3_d090]
 	cp $1
 	jr z, .asm_119b23
@@ -3859,15 +3859,15 @@ BattleTowerRoomMenu_PlaceYesNoMenu:
 	ld a, [wc31a]
 	and a
 	ret nz
-	ld a, $f
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
+	ld a, MOBILE_DIALOG_PLACE_CANCEL_MENU
+	ld [wMobileDialogJumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
 
 BattleTowerRoomMenu_UpdateYesNoMenu:
-	; Only ever called when [wBattleTowerRoomMenu2JumptableIndex] is $10
-	call BattleTowerRoomMenu2
+	; The dialog is in MOBILE_DIALOG_UPDATE_CANCEL_MENU here.
+	call MobileConnectionDialog
 	ret c
-	ld a, [wMobileInactivityTimerFrames]
+	ld a, [wMobileDialogResumeState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
 
@@ -4168,1026 +4168,7 @@ Mobile_AppendLoginPassword:
 	call CloseSRAM
 	ret
 
-BattleTowerRoomMenu2:
-	ldh a, [rWBK]
-	ld [wMobileMenuSavedWRAMBank], a
-	ld a, $1
-	ldh [rWBK], a
-
-	call .RunJumptable
-
-	ld a, [wMobileMenuSavedWRAMBank]
-	ldh [rWBK], a
-	ld a, $1
-	ldh [hBGMapMode], a
-	ret
-
-.RunJumptable:
-	jumptable .Jumptable, wBattleTowerRoomMenu2JumptableIndex
-
-.Jumptable:
-	dw Function119f3f
-	dw Function119f45
-	dw Function119f56
-	dw Function119f76
-	dw Function119f98
-	dw Function11a113
-	dw Function11a129
-	dw Function11a131
-	dw Function11a13d
-	dw Function11a14b
-	dw Function11a16d
-	dw Function11a192
-	dw Function11a2e6
-	dw Function11a302
-	dw Function11a33a
-	dw BattleTowerRoomMenu2_PlaceYesNoMenu
-	dw BattleTowerRoomMenu2_UpdateYesNoMenu
-	dw Function11a357
-	dw Function11a36b
-	dw Function11a38d
-	dw Function11a3c5
-	dw Function11a3d9
-	dw Function11a3f9
-	dw Function11a41b
-	dw Function11a452
-	dw Function11a47a
-	dw Function11a488
-	dw Function11a49e
-	dw Function11a4db
-	dw Function11a4e8
-	dw Function11a4fe
-	dw Function11a466
-	dw Function11a47a
-
-Function119f3f:
-	call Function11a5b9
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function119f45:
-	hlcoord 4, 2
-	ld de, String_11a661
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function119f56:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_119f62
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_119f62
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6aa
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function119f76:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_119f82
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_119f82
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a679
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function119f98:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_119fef
-	call ExitMenu
-	call Function11a63c
-	xor a
-	ld [wScriptVar], a
-	call Function11a00e
-	ld a, [wScriptVar]
-	and a
-	jr z, .asm_119fd4
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115dc3
-	ld a, [wMobileConnectionEndState]
-	ld [wcf66], a
-	ld a, MOBILE_RESULT_CANCELED
-	ld [wMobileErrorCodeBuffer], a
-	scf
-	ret
-
-.asm_119fd4
-	hlcoord 4, 2
-	ld de, String_11a692
-	call PlaceString
-	ld a, $1
-	ld [wc30d], a
-	ld a, $1
-	ld [wc314], a
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	and a
-	ret
-
-.asm_119fef
-	call ExitMenu
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerSeconds]
-	ld [wcf66], a
-	farcall Function115dc3
-	ld a, MOBILE_RESULT_CANCELED
-	ld [wMobileErrorCodeBuffer], a
-	scf
-	ret
-
-Function11a00e:
-	ld a, BANK(sMobileLoginPassword)
-	call OpenSRAM
-	ld a, [sMobileLoginPassword]
-	and a
-	jr z, .asm_11a02a
-	ld a, [sMobileLoginPassword + 1]
-	call CloseSRAM
-	and a
-	ret nz
-	ld a, BANK(sMobileLoginPassword)
-	call OpenSRAM
-	xor a
-	ld [sMobileLoginPassword], a
-
-.asm_11a02a
-	call CloseSRAM
-	ld a, [wBGMapPalBuffer]
-	and a
-	jr z, .asm_11a039
-	dec a
-	jr z, .asm_11a081
-	jp Function11a0ca
-
-.asm_11a039
-	ld a, BANK(w3_d800)
-	ldh [rWBK], a
-	ld hl, wc608
-	ld de, w3_d800
-	ld bc, 246
-	call CopyBytes
-	ld a, $1
-	ldh [rWBK], a
-	call FadeToMenu
-	farcall Function11765d
-	call Function11a9ce
-	ld a, BANK(w3_d800)
-	ldh [rWBK], a
-	ld hl, w3_d800
-	ld de, wc608
-	ld bc, 246
-	call CopyBytes
-	ld a, $1
-	ldh [rWBK], a
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
-	ld a, $1
-	ld [wc305], a
-	ret
-
-.asm_11a081
-	xor a
-	ld [wMenuBorderLeftCoord], a
-	ld [wMenuBorderTopCoord], a
-	ld a, $13
-	ld [wMenuBorderRightCoord], a
-	ld a, $5
-	ld [wMenuBorderBottomCoord], a
-	call PushWindow
-	farcall Function11765d
-	farcall Function117ab4
-	farcall Stubbed_Function106462
-	farcall Function106464
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
-	ld a, $1
-	ld [wc305], a
-	ret
-
-Function11a0ca:
-	xor a
-	ld [wMenuBorderLeftCoord], a
-	ld [wMenuBorderTopCoord], a
-	ld a, $13
-	ld [wMenuBorderRightCoord], a
-	ld a, $11
-	ld [wMenuBorderBottomCoord], a
-	call PushWindow
-	farcall Function11765d
-	farcall PokemonNews_ClearScreen
-	farcall Stubbed_Function106462
-	farcall Function106464
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115d99
-	ld c, $0
-	farcall Function115e18
-	ld a, $1
-	ld [wc305], a
-	ret
-
-Function11a113:
-	call Function11a63c
-	ld c, $1
-	farcall Function115e18
-	hlcoord 4, 2
-	ld de, String_11a6c8
-	call PlaceString
-	and a
-	ret
-
-Function11a129:
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a131:
-	ld hl, wMobileInactivityTimerMinutes
-	dec [hl]
-	ret nz
-	ld a, [wBattleTowerRoomMenu2JumptableIndex]
-	inc a
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-
-Function11a13d:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	and a
-	ret
-
-Function11a14b:
-	ld hl, wcd85
-	ld a, [hl]
-	cp $f3
-	jr nz, .asm_11a155
-	and a
-	ret
-
-.asm_11a155
-	call Function11a1d6
-	ret c
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6f1
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a16d:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a179
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a179
-	call Function11a63c
-	call Function11a1e6
-	hlcoord 4, 2
-	ld de, wc346
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a192:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a1b6
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	and a
-	ret
-
-.asm_11a1b6
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerSeconds]
-	ld [wcf66], a
-	ld [wcd80], a
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	scf
-	ret
-
-Function11a1d6:
-	ld a, [wcd85]
-	cp $50
-	jr nz, .asm_11a1e4
-	ld a, $d3
-	call SetMobileErrorCode
-	scf
-	ret
-
-.asm_11a1e4
-	and a
-	ret
-
-Function11a1e6:
-	ld hl, String_11a706
-	ld de, wc346
-	call Function11a1ff
-	ld hl, wcd85
-	call Function11a1ff
-	ld hl, String_11a70b
-	call Function11a1ff
-	ld a, $50
-	ld [de], a
-	ret
-
-Function11a1ff:
-.asm_11a1ff
-	ld a, [hli]
-	cp $50
-	ret z
-	ld [de], a
-	inc de
-	jr .asm_11a1ff
-
-BattleTowerRoomMenu2_PlaceYesNoMenu:
-	ld hl, MenuHeader_11a2de
-	call LoadMenuHeader
-	call MenuBox
-	call MenuBoxCoord2Tile
-	call ApplyTilemap
-	hlcoord 16, 8
-	ld de, BattleTowerYesString
-	call PlaceString
-	hlcoord 16, 10
-	ld de, BattleTowerNoString
-	call PlaceString
-	hlcoord 15, 8
-	ld a, $ed
-	ld [hl], a
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-BattleTowerRoomMenu2_UpdateYesNoMenu:
-	ld hl, hJoyPressed
-	ld a, [hl]
-	and PAD_A
-	jr nz, .a_button
-	ld a, [hl]
-	and PAD_B
-	jr nz, .b_button
-	ld a, [hl]
-	and PAD_UP
-	jr nz, .d_up
-	ld a, [hl]
-	and PAD_DOWN
-	jr nz, .d_down
-.asm_11a24c
-	call Function11a9f0
-	scf
-	ret
-
-.d_up
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a24c
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	hlcoord 15, 8
-	ld a, $ed
-	ld [hl], a
-	hlcoord 15, 10
-	ld a, $7f
-	ld [hl], a
-	jr .asm_11a24c
-
-.d_down
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a24c
-	inc a
-	ld [wMobileInactivityTimerMinutes], a
-	hlcoord 15, 8
-	ld a, $7f
-	ld [hl], a
-	hlcoord 15, 10
-	ld a, $ed
-	ld [hl], a
-	jr .asm_11a24c
-
-.a_button
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .exit_no_carry
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerFrames]
-	cp $0
-	jr z, .asm_11a2b4
-	ld a, [wcd47]
-	jr .exit_carry
-
-.asm_11a2b4
-	ld a, [wMobileConnectionEndState]
-
-.exit_carry
-	ld [wcf66], a
-	ld a, MOBILE_RESULT_CANCELED
-	ld [wMobileErrorCodeBuffer], a
-	scf
-	ret
-
-.b_button
-	call PlayClickSFX
-
-.exit_no_carry
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	and a
-	ret
-
-BattleTowerYesString:
-	db "YES@"
-
-BattleTowerNoString:
-	db "NO@"
-
-MenuHeader_11a2d6: ; unreferenced
-	db MENU_BACKUP_TILES ; flags
-	menu_coords 14, 6, SCREEN_WIDTH - 1, 10
-	dw NULL
-	db 0 ; default option
-
-MenuHeader_11a2de:
-	db MENU_BACKUP_TILES ; flags
-	menu_coords 14, 7, SCREEN_WIDTH - 1, TEXTBOX_Y - 1
-	dw NULL
-	db 0 ; default option
-
-Function11a2e6:
-	call Function11a63c
-	ld c, $2
-	farcall Function115e18
-	hlcoord 4, 2
-	ld de, String_11a71e
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a302:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a30e
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a30e
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a72a
-	call PlaceString
-	hlcoord 9, 4
-	ld de, wMobileConnectionTimeMinutes
-	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
-	call PrintNum
-	hlcoord 14, 4
-	ld de, wMobileConnectionTimeSeconds
-	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
-	call PrintNum
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a33a:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a346
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a346
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	farcall Function115dc3
-	and a
-	ret
-
-Function11a357:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a743
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a36b:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a377
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a377
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a755
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a38d:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a3b1
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	and a
-	ret
-
-.asm_11a3b1
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerSeconds]
-	ld [wcf66], a
-	ld [wcd80], a
-	scf
-	ret
-
-Function11a3c5:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a762
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a3d9:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a3e5
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a3e5
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a779
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a3f9:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a405
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a405
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a755
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a41b:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a43f
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	and a
-	ret
-
-.asm_11a43f
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, $1c
-	ld [wcf66], a
-	ld [wcd80], a
-	scf
-	ret
-
-Function11a452:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a791
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a466:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a7c1
-	call PlaceString
-	ld a, $80
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a47a:
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a486
-	dec a
-	ld [wMobileInactivityTimerMinutes], a
-	scf
-	ret
-
-.asm_11a486
-	and a
-	ret
-
-Function11a488:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a7ac
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a49e:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a4c7
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	ld a, $14
-	ld [wcf66], a
-	and a
-	ret
-
-.asm_11a4c7
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerFrames]
-	ld [wcf66], a
-	ld [wcd80], a
-	scf
-	ret
-
-Function11a4db:
-	call Function11a63c
-	ld de, String_11a6db
-	hlcoord 4, 2
-	call PlaceString
-	ret
-
-Function11a4e8:
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a7d7
-	call PlaceString
-	call Function11a5f5
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	jp BattleTowerRoomMenu2_IncrementJumptable
-
-Function11a4fe:
-	call Function11a536
-	ret c
-	call PlayClickSFX
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a522
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call Function11a63c
-	hlcoord 4, 2
-	ld de, String_11a6d2
-	call PlaceString
-	and a
-	ret
-
-.asm_11a522
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, [wMobileInactivityTimerSeconds]
-	ld [wcf66], a
-	ld [wcd80], a
-	scf
-	ret
-
-Function11a536:
-	ld hl, hJoyPressed
-	ld a, [hl]
-	and PAD_A
-	jr nz, .asm_11a5a7
-	ld a, [hl]
-	and PAD_B
-	jr nz, .asm_11a5a2
-	ld a, [hl]
-	and PAD_UP
-	jr nz, .asm_11a564
-	ld a, [hl]
-	and PAD_DOWN
-	jr nz, .asm_11a583
-.asm_11a54d
-	ld a, [wBattleTowerRoomMenu2JumptableIndex]
-	cp $4
-	jr z, .asm_11a562
-	call Function11a9f0
-	jr nz, .asm_11a562
-	call ExitMenu
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-
-.asm_11a562
-	scf
-	ret
-
-.asm_11a564
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr z, .asm_11a54d
-	xor a
-	ld [wMobileInactivityTimerMinutes], a
-	hlcoord 15, 7
-	ld a, $ed
-	ld [hl], a
-	hlcoord 15, 9
-	ld a, $7f
-	ld [hl], a
-	jr .asm_11a54d
-
-.asm_11a583
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	ld a, [wMobileInactivityTimerMinutes]
-	and a
-	jr nz, .asm_11a54d
-	inc a
-	ld [wMobileInactivityTimerMinutes], a
-	hlcoord 15, 7
-	ld a, $7f
-	ld [hl], a
-	hlcoord 15, 9
-	ld a, $ed
-	ld [hl], a
-	jr .asm_11a54d
-
-.asm_11a5a2
-	ld a, $1
-	ld [wMobileInactivityTimerMinutes], a
-
-.asm_11a5a7
-	xor a
-	ld [wMobileLegacyInactivityCounter], a
-	ld [wMobileLegacyInactivityCounter + 1], a
-	and a
-	ret
-
-BattleTowerRoomMenu2_IncrementJumptable:
-	ld a, [wBattleTowerRoomMenu2JumptableIndex]
-	inc a
-	ld [wBattleTowerRoomMenu2JumptableIndex], a
-	scf
-	ret
-
-Function11a5b9:
-	xor a
-	ld [wMenuBorderLeftCoord], a
-	ld [wMenuBorderTopCoord], a
-	ld a, $13
-	ld [wMenuBorderRightCoord], a
-	ld a, $5
-	ld [wMenuBorderBottomCoord], a
-	call PushWindow
-	hlcoord 0, 0, wAttrmap
-	ld b, $6
-	ld c, $14
-	hlcoord 0, 0
-	ld b, $4
-	ld c, $12
-	call MobileHome_PlaceBoxWithPalette
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	call UpdateSprites
-	ld c, $0
-	farcall Function115e18
-	ld a, $1
-	ld [wc305], a
-	ret
-
-Function11a5f5:
-	ld a, $e
-	ld [wMenuBorderLeftCoord], a
-	ld a, $13
-	ld [wMenuBorderRightCoord], a
-	ld a, $6
-	ld [wMenuBorderTopCoord], a
-	ld a, $a
-	ld [wMenuBorderBottomCoord], a
-	call PushWindow
-	hlcoord 14, 6, wAttrmap
-	ld b, $5
-	ld c, $6
-	hlcoord 14, 6
-	ld b, $3
-	ld c, $4
-	call MobileHome_PlaceBoxWithPalette
-	hlcoord 16, 7
-	ld de, BattleTowerYesString
-	call PlaceString
-	hlcoord 16, 9
-	ld de, BattleTowerNoString
-	call PlaceString
-	hlcoord 15, 7
-	ld a, $ed
-	ld [hl], a
-	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ret
-
-Function11a63c:
-	hlcoord 4, 1
-	ld de, String_11a7f4
-	call PlaceString
-	hlcoord 4, 2
-	ld de, String_11a7f4
-	call PlaceString
-	hlcoord 4, 3
-	ld de, String_11a7f4
-	call PlaceString
-	hlcoord 4, 4
-	ld de, String_11a7f4
-	call PlaceString
-	ret
-
-String_11a661:
-	db   "これから　モバイルセンターに"
-	next "でんわ<WO>かけます@"
-
-String_11a679:
-	db   "モバイルアダプタ<NO>じゅんびは"
-	next "できて　いますか？@"
-
-String_11a692:
-	db   "でんわ<WO>かけています"
-	next "しばらく　おまちください@"
-
-String_11a6aa:
-	db   "でんわをかけると　つうわりょう"
-	next "せつぞくりょう<GA>かかります@"
-
-String_11a6c8:
-	db   "せつぞく　しました@"
-
-String_11a6d2:
-	db   "つうしん　ちゅう@"
-
-String_11a6db:
-	db   "つうしん　ちゅう"
-	next "セレクト　エーでちゅうし@"
-
-String_11a6f1:
-	db   "この　サービスには"
-	next "つうわりょう<NO>ほかに@"
-
-String_11a706:
-	db   "おかね<GA>@"
-
-String_11a70b:
-	db   "えん"
-	next "かかります　よろしい　ですか？@"
-
-String_11a71e:
-	db   "つうしん　しゅうりょう@"
-
-String_11a72a:
-	db   "つないだ　じかん"
-	next "　　やく　　　ふん　　　びょう@"
-
-String_11a743:
-	db   "もっていない　データが"
-	next "あります！@"
-
-String_11a755:
-	db   "データ<WO>よみこみますか？@"
-
-String_11a762:
-	db   "おなじ　データ<WO>よみこんだ"
-	next "こと<GA>ありますが@"
-
-String_11a779:
-	db   "そのデータ<WA>なくなっているか"
-	next "こわれて　います@"
-
-String_11a791:
-	db   "もっている　データと"
-	next "おなじデータしか　ありません！@"
-
-String_11a7ac:
-	db   "データ<NO>よみこみを"
-	next "ちゅうし　しますか？@"
-
-String_11a7c1:
-	db   "あたらしい　ニュースは"
-	next "ありません　でした@"
-
-String_11a7d7:
-	db   "あたらしいニュース<GA>あります"
-	next "ニュース<WO>よみこみますか？@"
-
-String_11a7f4:
-	db   "　　　　　　　　　　　　　　　@"
-
-MenuHeader_11a804: ; unreferenced
-	db MENU_BACKUP_TILES ; flags
-	menu_coords 0, 0, SCREEN_WIDTH - 1, 5
-	dw NULL
-	db 0 ; default option
+INCLUDE "mobile/connection_dialog.asm"
 
 Function11a80c:
 	ld de, hDivisor
@@ -5412,7 +4393,7 @@ BattleTowerRoomMenu_SetMessage:
 	ld [wc31a], a
 	ret
 
-Function11a9ce:
+MobileDialog_ReloadOverworld:
 	call ClearBGPalettes
 	call ReloadTilesetAndPalettes
 	call Call_ExitMenu
@@ -5423,7 +4404,8 @@ Function11a9ce:
 	call UpdateSprites
 	ret
 
-Function11a9f0:
+MobileDialog_CheckLegacyInactivityTimeout:
+; Stubbed out: always report that the dialog has not timed out.
 	ld a, $1
 	and a
 	ret
