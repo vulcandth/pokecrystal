@@ -587,7 +587,16 @@ INCLUDE "data/mobile/card_list_gfx.asm"
 
 SECTION "mobile5F", ROMX
 
-INCLUDE "mobile/mobile_5f.asm"
+INCLUDE "mobile/trade_corner_offer.asm"
+INCLUDE "engine/strings/validate.asm"
+INCLUDE "mobile/complete_trade.asm"
+INCLUDE "engine/strings/check_line_count.asm"
+INCLUDE "mobile/register_trade_mon.asm"
+INCLUDE "engine/menus/challenge_explanation.asm"
+INCLUDE "data/mobile/news_menu.asm"
+INCLUDE "data/battle_tower/challenge_menu.asm"
+INCLUDE "mobile/news/engine.asm"
+INCLUDE "mobile/error.asm"
 
 
 SECTION "Phone Text 2", ROMX
