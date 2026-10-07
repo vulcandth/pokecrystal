@@ -281,7 +281,7 @@ MobileDialog_Communicating:
 MobileDialog_DownloadFeeIntro:
 	ld hl, wMobileDownloadFeeString
 	ld a, [hl]
-	cp "/"
+	cp MOBILE_DOWNLOAD_FEE_NONDIGIT
 	jr nz, .check_fee
 	and a
 	ret

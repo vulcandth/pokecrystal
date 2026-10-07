@@ -69,6 +69,8 @@ DEF MOBILE_PHONE_NUMBER_LENGTH EQU 20
 DEF MOBILE_LOGIN_ID_LENGTH EQU 32
 DEF MOBILE_URL_MAX_LENGTH EQU 165
 DEF MOBILE_RECEIVE_BUFFER_SIZE EQU $1000
+DEF MOBILE_DOWNLOAD_FEE_LENGTH EQU 3
+DEF MOBILE_DOWNLOAD_FEE_NONDIGIT EQU "/"
 
 ; wMobileDownloadFlags: bit 0 selects the second receive buffer; the high
 ; bits identify the API to resume when the first receive buffer fills.

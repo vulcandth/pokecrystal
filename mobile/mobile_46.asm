@@ -1656,46 +1656,9 @@ Function118e06:
 	xor a
 	ld [hld], a
 	ld [hl], a
-	jr asm_118e3e
+	jr Mobile_ParseDownloadFeeFromEnd
 
-Function118e39:
-	ld a, [hli]
-	and a
-	jr nz, Function118e39
-	dec hl
-
-asm_118e3e:
-	ld a, [hld]
-	cp $2f
-	jr nz, asm_118e3e
-	inc hl
-	inc hl
-	ld de, wMobileDownloadFeeString
-	ld c, $4
-.asm_118e4a
-	ld a, [hli]
-	cp $2e
-	jr z, .asm_118e63
-	cp $30
-	jr c, .asm_118e67
-	cp $3a
-	jr nc, .asm_118e67
-	sub $30
-	add $f6
-	ld [de], a
-	inc de
-	dec c
-	jr nz, .asm_118e4a
-	ld de, wMobileDownloadFeeString
-.asm_118e63
-	ld a, $50
-	ld [de], a
-	ret
-.asm_118e67
-	ld a, $f3
-	ld [de], a
-	inc de
-	jr .asm_118e63
+INCLUDE "mobile/download_fee.asm"
 
 Mobile_LogoutOfISP:
 	xor a
@@ -1805,7 +1768,7 @@ Function118f14:
 	call Mobile_CopyNewsURL
 	ret c
 	ld hl, wcc60
-	call Function118e39
+	call Mobile_ParseDownloadFee
 	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $24
@@ -2449,7 +2412,7 @@ Function119388:
 	dec [hl]
 	ret nz
 	ld hl, wcc60
-	call Function118e39
+	call Mobile_ParseDownloadFee
 	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $10
@@ -2495,7 +2458,7 @@ Function1193e3:
 	dec [hl]
 	ret nz
 	ld hl, wcc60
-	call Function118e39
+	call Mobile_ParseDownloadFee
 	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $11
@@ -2853,7 +2816,7 @@ Function119629:
 	ld l, a
 	ld a, HIGH(wcc60)
 	ld h, a
-	call Function118e39
+	call Mobile_ParseDownloadFee
 	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $1c
@@ -3144,7 +3107,7 @@ popc
 
 Function1197c9:
 	ld hl, wd002
-	call Function118e39
+	call Mobile_ParseDownloadFee
 	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $12

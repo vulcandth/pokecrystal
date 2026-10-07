@@ -1609,7 +1609,7 @@ wcd81:: ds 1
 wcd82:: ds 1
 wcd83:: ds 1
 wcd84:: ds 1
-wMobileDownloadFeeString:: ds 4
+wMobileDownloadFeeString:: ds MOBILE_DOWNLOAD_FEE_LENGTH + 1
 wMobileDownloadFlags:: ds 1
 wMobileLegacyInactivityCounter::
 wcd8a:: ds 1
