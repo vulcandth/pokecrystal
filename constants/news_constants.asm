@@ -19,7 +19,6 @@ DEF NEWS_RANKING_COUNT_OFFSET EQU 10
 DEF NEWS_METADATA_DELIMITER EQU $50
 DEF NEWS_UPLOAD_LITERAL EQU $fe
 DEF NEWS_UPLOAD_END EQU $ff
-DEF NEWS_URL_MAX_LENGTH EQU 165
 
 ; The embedded news samples contain Japanese WRAM addresses, $c bytes below
 ; the corresponding English news fields. Preserve these operands verbatim.

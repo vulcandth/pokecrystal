@@ -247,6 +247,8 @@ wc31e:: db
 wc31f:: db
 wc320:: ds 38
 wc346:: ds 102
+; The login ID spans the following sprite fields through wc3cc.
+wMobileLoginID::
 wc3ac:: ds 8
 ENDU
 
@@ -276,6 +278,7 @@ wSpriteAnimDataEnd::
 
 ; mobile data
 wc3cc:: ds 1
+	assert wc3cc == wMobileLoginID + MOBILE_LOGIN_ID_LENGTH
 wEmailAddress:: ds MOBILE_EMAIL_LENGTH
 	ds 1
 wc3ec:: ds 1
@@ -1496,8 +1499,11 @@ wcd2e:: ds 1
 wcd2f:: ds 1
 wcd30:: ds 1
 wcd31:: ds 1
+wMobileSavedIE::
 wcd32:: ds 1
+wMobileConnectionEndState::
 wcd33:: ds 1
+wMobileConnectionErrorState::
 wcd34:: ds 1
 wcd35:: ds 1
 ENDU
@@ -1562,9 +1568,13 @@ wcd60:: ds 2
 wcd62:: ds 1
 wcd63:: ds 1
 wcd64:: ds 1
+wMobileConnectionTimerActive::
 wcd65:: ds 1
+wMobileConnectionTimeFrames::
 wcd66:: ds 1
+wMobileConnectionTimeSeconds::
 wcd67:: ds 1
+wMobileConnectionTimeMinutes::
 wcd68:: ds 1
 wcd69:: ds 1
 wcd6a:: ds 1
@@ -1592,10 +1602,11 @@ wcd82:: ds 1
 wcd83:: ds 1
 wcd84:: ds 1
 wcd85:: ds 4
-wcd89:: ds 1
+wMobileDownloadFlags:: ds 1
+wMobileLegacyInactivityCounter::
 wcd8a:: ds 1
 wcd8b:: ds 1
-wcd8c:: ds 1
+wMobileMenuSavedWRAMBank:: ds 1
 wcd8d:: ds 11
 ENDU
 
@@ -3607,8 +3618,11 @@ wPokeAnimStructEnd::
 
 SECTION "Battle Tower RAM", WRAMX
 
+wMobileReceiveBuffer::
+wMobileReceiveBufferLength::
 w3_d000:: ds 1
 w3_d001:: ds 1
+wMobileReceiveBufferData::
 w3_d002:: ds 16
 w3_d012:: ds $6e
 w3_d080:: ds 1
@@ -3811,6 +3825,12 @@ wScratchAttrmap:: ds TILEMAP_AREA
 NEXTU
 wDecompressScratch:: ds $80 tiles
 wDecompressEnemyFrontpic:: ds $80 tiles
+
+NEXTU
+; Continuation buffer for HTTP GET/POST and POP3 RETR/TOP downloads.
+wMobileReceiveBuffer2::
+wMobileReceiveBuffer2Length:: dw
+wMobileReceiveBuffer2Data:: ds MOBILE_RECEIVE_BUFFER_SIZE - 2
 
 NEXTU
 ; unidentified uses

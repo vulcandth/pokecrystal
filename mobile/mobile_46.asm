@@ -10,9 +10,9 @@ Function118007:
 asm_11800b:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $18
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $19
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -25,7 +25,7 @@ asm_11800b:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $1b
 	jr c, .skip
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .skip
@@ -35,7 +35,7 @@ asm_11800b:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .loop
 	pop af
@@ -50,9 +50,9 @@ BattleTower_UploadRecord:
 	ld [wcd38], a
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $18
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $19
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -65,7 +65,7 @@ BattleTower_UploadRecord:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $1b
 	jr c, .asm_118090
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_118090
@@ -75,7 +75,7 @@ BattleTower_UploadRecord:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_11807d
 	pop af
@@ -87,9 +87,9 @@ BattleTower_UploadRecord:
 Function1180b8:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $22
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $23
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -102,7 +102,7 @@ Function1180b8:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $28
 	jr c, .asm_1180e4
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_1180e4
@@ -111,7 +111,7 @@ Function1180b8:
 	jr c, .asm_1180f2
 	cp $16
 	jr nc, .asm_1180f2
-	call Function11884c
+	call Mobile_CheckConnectionCancel
 
 .asm_1180f2
 	call Function1184ec
@@ -120,7 +120,7 @@ Function1180b8:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_1180d1
 	pop af
@@ -140,9 +140,9 @@ _BattleTowerRoomMenu:
 Function118125:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $3
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $d
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -155,7 +155,7 @@ Function118125:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $f
 	jr c, .skip
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 .skip
 	call BattleTowerRoomMenu_Jumptable
@@ -164,7 +164,7 @@ Function118125:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .loop
 	xor a
@@ -226,9 +226,9 @@ Mobile_DownloadNews:
 	ld a, $2
 	ld [wcd38], a
 	ld a, $21
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $22
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -241,7 +241,7 @@ Mobile_DownloadNews:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $28
 	jr c, .asm_11820b
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_11820b
@@ -251,7 +251,7 @@ Mobile_DownloadNews:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_1181f8
 	pop af
@@ -263,9 +263,9 @@ Mobile_DownloadNews:
 Mobile_UpdateNewsRankings:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $1b
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $1c
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $6
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -278,7 +278,7 @@ Mobile_UpdateNewsRankings:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $1e
 	jr c, .asm_11825f
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_11825f
@@ -288,7 +288,7 @@ Mobile_UpdateNewsRankings:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_11824c
 	pop af
@@ -299,9 +299,9 @@ Mobile_UpdateNewsRankings:
 Function118284:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $19
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $1e
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $5
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -314,7 +314,7 @@ Function118284:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $20
 	jr c, .asm_1182b0
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 .asm_1182b0
 	call Function1186f5
@@ -323,7 +323,7 @@ Function118284:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_11829d
 	pop af
@@ -334,9 +334,9 @@ Function118284:
 Function1182d5: ; unreferenced
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $18
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $19
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $4
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -349,7 +349,7 @@ Function1182d5: ; unreferenced
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $1b
 	jr c, .asm_118301
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_118301
@@ -359,7 +359,7 @@ Function1182d5: ; unreferenced
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_1182ee
 	pop af
@@ -371,9 +371,9 @@ Function1182d5: ; unreferenced
 Function118329:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $15
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $16
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $6
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -386,7 +386,7 @@ Function118329:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $18
 	jr c, .asm_118355
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_118355
@@ -396,7 +396,7 @@ Function118329:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_118342
 	pop af
@@ -407,9 +407,9 @@ Function118329:
 Function11837a:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $16
-	ld [wcd33], a
+	ld [wMobileConnectionEndState], a
 	ld a, $17
-	ld [wcd34], a
+	ld [wMobileConnectionErrorState], a
 	ld a, $6
 	ld [wc3f0], a
 	ldh a, [rWBK]
@@ -422,7 +422,7 @@ Function11837a:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $19
 	jr c, .asm_1183a6
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_1183a6
@@ -432,7 +432,7 @@ Function11837a:
 	farcall Function11619d
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	ld hl, wcd33
+	ld hl, wMobileConnectionEndState
 	cp [hl]
 	jr nz, .asm_118393
 	pop af
@@ -443,7 +443,7 @@ Function11837a:
 BattleTowerRoomMenu_InitRAM:
 	di
 	ldh a, [rIE]
-	ld [wcd32], a
+	ld [wMobileSavedIE], a
 	call DoubleSpeed
 	xor a
 	ldh [rIF], a
@@ -451,14 +451,14 @@ BattleTowerRoomMenu_InitRAM:
 	ld [wMobileErrorCodeBuffer + 1], a
 	ld [wMobileErrorCodeBuffer + 2], a
 	ld [wcd80], a
-	ld [wcd65], a
-	ld [wcd66], a
-	ld [wcd67], a
-	ld [wcd68], a
+	ld [wMobileConnectionTimerActive], a
+	ld [wMobileConnectionTimeFrames], a
+	ld [wMobileConnectionTimeSeconds], a
+	ld [wMobileConnectionTimeMinutes], a
 	ld [wc31a], a
-	ld [wcd89], a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileDownloadFlags], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	ld [wc3ec], a
 	ld [wc3ed], a
 	ld [wc3ee], a
@@ -504,7 +504,7 @@ BattleTowerRoomMenu_Cleanup:
 	call NormalSpeed
 	xor a
 	ldh [rIF], a
-	ld a, [wcd32]
+	ld a, [wMobileSavedIE]
 	ldh [rIE], a
 	ei
 	ld a, [wcd7f]
@@ -514,33 +514,33 @@ BattleTowerRoomMenu_Cleanup:
 	ret
 
 Mobile_UpdateConnectionTimer:
-	ld a, [wcd65]
+	ld a, [wMobileConnectionTimerActive]
 	and a
 	ret z
-	ld a, [wcd66]
+	ld a, [wMobileConnectionTimeFrames]
 	inc a
-	ld [wcd66], a
+	ld [wMobileConnectionTimeFrames], a
 	cp 60
 	ret nz
 	xor a
-	ld [wcd66], a
-	ld a, [wcd67]
+	ld [wMobileConnectionTimeFrames], a
+	ld a, [wMobileConnectionTimeSeconds]
 	inc a
-	ld [wcd67], a
+	ld [wMobileConnectionTimeSeconds], a
 	cp 60
 	ret nz
-	ld a, [wcd68]
+	ld a, [wMobileConnectionTimeMinutes]
 	inc a
-	ld [wcd68], a
+	ld [wMobileConnectionTimeMinutes], a
 	cp 99
 	jr z, .ninety_nine
 	xor a
-	ld [wcd67], a
+	ld [wMobileConnectionTimeSeconds], a
 	ret
 
 .ninety_nine
 	xor a
-	ld [wcd65], a
+	ld [wMobileConnectionTimerActive], a
 	ret
 
 Function1184a5:
@@ -569,7 +569,7 @@ Function1184a5:
 	dw MobileAdapterCommunication
 	dw DisplaySendToTradeCornerAnimation
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -612,7 +612,7 @@ Function1184ec:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -669,7 +669,7 @@ Function11857c:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -711,7 +711,7 @@ Mobile_DownloadNewsJumptable:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -751,7 +751,7 @@ Mobile_UpdateNewsRankingsJumptable:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -781,7 +781,7 @@ Function118671:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -812,7 +812,7 @@ Function1186b2:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -846,7 +846,7 @@ Function1186f5:
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function11967d
@@ -883,7 +883,7 @@ Function118746:
 	dw MobileAdapterCommunication
 	dw Function119800
 	dw Function118e76
-	dw Function118e7e
+	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
 	dw BattleTowerRoomMenu_DoNothing
 	dw Function118e76
@@ -893,23 +893,23 @@ Function118746:
 MobileAdapterCommunication:
 	ld a, [wMobileSDK_Status]
 	bit MOBILE_SDK_ERROR_F, a
-	jr nz, .asm_1187af
+	jr nz, .error
 	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
-	jr nz, .asm_1187d1
+	jr nz, .buffer_full
 	bit MOBILE_SDK_BUSY_F, a
-	jr nz, .asm_1187aa
-	ld a, [wcd89]
-	and $1
-	jr z, .asm_1187a7
-	ld a, $3
+	jr nz, .busy
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
+	jr z, .advance_state
+	ld a, BANK(wMobileReceiveBuffer)
 	ldh [rWBK], a
-.asm_1187a7
+.advance_state
 	jp BattleTowerRoomMenu_IncrementJumptable
-.asm_1187aa
-	call Function118821
+.busy
+	call Mobile_CheckCancelableConnection
 	ret c
 	ret
-.asm_1187af
+.error
 	ld a, MOBILEAPI_ERRORCHECK
 	call MobileAPI
 	ld [wMobileErrorCodeBuffer], a
@@ -921,40 +921,40 @@ MobileAdapterCommunication:
 	call MobileAPI
 	ld a, [wc3f0]
 	ld [wc319], a
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
-.asm_1187d1
-	ld hl, wcd89
-	bit 0, [hl]
-	jr nz, .asm_118803
-	set 0, [hl]
-	ld a, BANK(w6_d000)
+.buffer_full
+	ld hl, wMobileDownloadFlags
+	bit MOBILE_DOWNLOAD_OVERFLOW_F, [hl]
+	jr nz, .overflow
+	set MOBILE_DOWNLOAD_OVERFLOW_F, [hl]
+	ld a, BANK(wMobileReceiveBuffer2)
 	ldh [rWBK], a
-	ld de, w6_d000
-	ld bc, $1000
+	ld de, wMobileReceiveBuffer2
+	ld bc, MOBILE_RECEIVE_BUFFER_SIZE
 	ld a, [hl]
 	sla a
-	jr c, .asm_1187f9
+	jr c, .http_get
 	sla a
-	jr c, .asm_1187fd
+	jr c, .http_post
 	sla a
-	jr c, .asm_1187f5
+	jr c, .pop3_head
 	ld a, MOBILEAPI_POP3RETR
-	jr .asm_1187ff
-.asm_1187f5
+	jr .resume_download
+.pop3_head
 	ld a, MOBILEAPI_POP3HEAD
-	jr .asm_1187ff
-.asm_1187f9
+	jr .resume_download
+.http_get
 	ld a, MOBILEAPI_HTTPGET
-	jr .asm_1187ff
-.asm_1187fd
+	jr .resume_download
+.http_post
 	ld a, MOBILEAPI_HTTPPOST
-.asm_1187ff
+.resume_download
 	call MobileAPI
 	ret
-.asm_118803
-	ld a, $d3
+.overflow
+	ld a, MOBILE_ERROR_INVALID_DOWNLOAD
 
 SetMobileErrorCode:
 	ld [wMobileErrorCodeBuffer], a
@@ -965,47 +965,47 @@ SetMobileErrorCode:
 	call MobileAPI
 	ld a, [wc3f0]
 	ld [wc319], a
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
 
-Function118821:
+Mobile_CheckCancelableConnection:
 	ld a, [wc319]
 	cp $3
-	jr c, .asm_11884a
+	jr c, .not_canceled
 	cp $4
-	jr z, .asm_11884a
+	jr z, .not_canceled
 	ldh a, [hJoyDown]
-	cp $5
-	jr nz, .asm_11884a
+	cp A_BUTTON | SELECT
+	jr nz, .not_canceled
 	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ld a, [wc3f0]
 	ld [wc319], a
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	scf
 	ret
-.asm_11884a
+.not_canceled
 	and a
 	ret
 
-Function11884c:
+Mobile_CheckConnectionCancel:
 	ldh a, [hJoyDown]
-	cp $5
-	jr nz, .asm_118864
+	cp A_BUTTON | SELECT
+	jr nz, .not_canceled
 	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
-	ld a, [wcd34]
+	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	scf
 	ret
 
-.asm_118864
+.not_canceled
 	and a
 	ret
 
@@ -1025,7 +1025,7 @@ asm_11886f:
 	ld a, $0
 	ld [wBattleTowerRoomMenu2JumptableIndex], a
 	call BattleTowerRoomMenu_IncrementJumptable
-	ld a, [wcd33]
+	ld a, [wMobileConnectionEndState]
 	ld [wMobileInactivityTimerSeconds], a
 
 InitMobileAdapter:
@@ -1037,9 +1037,9 @@ InitMobileAdapter:
 	ld de, wcd81
 	ld hl, $46
 	ld a, MOBILEAPI_INIT
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
-Function118896: ; unreferenced
+Mobile_StopPendingOperation: ; unreferenced
 	ld a, [wMobileSDK_Status]
 	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_1188a5
@@ -1050,7 +1050,7 @@ Function118896: ; unreferenced
 
 .asm_1188a5
 	ld a, MOBILEAPI_STOP
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 .asm_1188aa
 	call BattleTowerRoomMenu_IncrementJumptable
@@ -1059,21 +1059,21 @@ Function118896: ; unreferenced
 Mobile_ReadPhoneNumber:
 	ld de, wc346
 	ld a, MOBILEAPI_READPHONENUMBERS
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_ReadLoginID:
-	ld de, wc3ac
+	ld de, wMobileLoginID
 	ld a, MOBILEAPI_READUSERID
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_ReadEmailAddress:
 	ld de, wEmailAddress
 	ld a, MOBILEAPI_READEMAIL
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_LoginToISP:
 	ld a, $1
-	ld [wcd65], a
+	ld [wMobileConnectionTimerActive], a
 	call Function1188e7
 	ld hl, wc708
 .asm_1188d3
@@ -1082,11 +1082,11 @@ Mobile_LoginToISP:
 	ld [hli], a
 	and a
 	jr nz, .asm_1188d3
-	call Function119eb4
-	call Function119ec2
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
 	ld hl, wc708
 	ld a, MOBILEAPI_ISPLOGIN
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function1188e7:
 	ld de, wc346
@@ -1387,17 +1387,17 @@ Mobile_HTTPGet:
 	jr z, .asm_118b06
 	inc c
 	ld a, c
-	cp $a6
+	cp MOBILE_URL_MAX_LENGTH + 1
 	jr c, .asm_118af5
-	ld a, $da
+	ld a, MOBILE_ERROR_URL_TOO_LONG
 	jp SetMobileErrorCode
 
 .asm_118b06
-	call Function118b24
+	call Mobile_BuildHTTPGetParameters
 	pop de
 	pop bc
 	ld a, MOBILEAPI_HTTPGET
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_HTTPGetIndex:
 	push de
@@ -1405,13 +1405,14 @@ Mobile_HTTPGetIndex:
 	ld a, $8
 	ld [wBattleTowerRoomMenu2JumptableIndex], a
 	call BattleTowerRoomMenu2
-	call Function118b24
+	call Mobile_BuildHTTPGetParameters
 	pop bc
 	pop de
 	ld a, MOBILEAPI_HTTPGET
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
-Function118b24:
+Mobile_BuildHTTPGetParameters:
+; Build Date/URL pointers and null-terminated credentials at wc346.
 	ld hl, wc346
 	ld a, LOW(wc708)
 	ld [hli], a
@@ -1421,10 +1422,10 @@ Function118b24:
 	ld [hli], a
 	ld a, HIGH(wcc60)
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $80
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_GET
+	ld [wMobileDownloadFlags], a
 	ld hl, wc346
 	ret
 
@@ -1434,37 +1435,37 @@ Mobile_ParseIndexURLs:
 	ld [wcd51], a
 	ld a, h
 	ld [wcd52], a
-	call Function118b8c
+	call Mobile_TerminateIndexLine
 	ld a, l
 	ld [wcd55], a
 	ld [wcd59], a
 	ld a, h
 	ld [wcd56], a
 	ld [wcd5a], a
-	call Function118b8c
+	call Mobile_TerminateIndexLine
 	ld a, l
 	ld [wcd53], a
 	ld [wcd5d], a
 	ld a, h
 	ld [wcd54], a
 	ld [wcd5e], a
-	call Function118b8c
+	call Mobile_TerminateIndexLine
 	ld a, l
 	ld [wcd57], a
 	ld [wcd5b], a
 	ld a, h
 	ld [wcd58], a
 	ld [wcd5c], a
-	call Function118b8c
+	call Mobile_TerminateIndexLine
 	ld a, l
 	ld [wcd5f], a
 	ld a, h
 	ld [wcd60], a
 	ret
 
-Function118b8c:
+Mobile_TerminateIndexLine:
 .asm_118b8c
-	call Function118b9a
+	call Mobile_CheckDownloadPointer
 	ret nc
 	ld a, [hli]
 	cp $d
@@ -1475,11 +1476,12 @@ Function118b8c:
 	ld [hli], a
 	ret
 
-Function118b9a:
+Mobile_CheckDownloadPointer:
+; Carry means hl is below the end of the switchable WRAM download buffer.
 	ld a, h
-	cp $e0
+	cp HIGH(wMobileReceiveBuffer + MOBILE_RECEIVE_BUFFER_SIZE)
 	ret c
-	ld a, $d3
+	ld a, MOBILE_ERROR_INVALID_DOWNLOAD
 	call SetMobileErrorCode
 	and a
 	ret
@@ -1596,15 +1598,15 @@ asm_118d9f:
 	ld [hli], a
 	ld a, [wcd3a]
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $40
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_POST
+	ld [wMobileDownloadFlags], a
 	ld hl, w3_d800
 	ld de, w3_de00
 	ld bc, $200
 	ld a, MOBILEAPI_HTTPPOST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function118ded:
 	ld a, [wcd38]
@@ -1627,7 +1629,7 @@ Function118e06:
 	and a
 	jr z, .asm_118e1d
 .asm_118e0f
-	call Function118b9a
+	call Mobile_CheckDownloadPointer
 	ret nc
 	ld a, [hli]
 	cp $d
@@ -1642,7 +1644,7 @@ Function118e06:
 	ld a, h
 	ld [wcd3a], a
 .asm_118e25
-	call Function118b9a
+	call Mobile_CheckDownloadPointer
 	ret nc
 	ld a, [hli]
 	cp $d
@@ -1697,9 +1699,9 @@ asm_118e3e:
 
 Mobile_LogoutOfISP:
 	xor a
-	ld [wcd65], a
+	ld [wMobileConnectionTimerActive], a
 	ld a, MOBILEAPI_HANGUP
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function118e76:
 	; Call $c in BattleTowerRoomMenu2
@@ -1707,16 +1709,16 @@ Function118e76:
 	ld [wBattleTowerRoomMenu2JumptableIndex], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function118e7e:
+Mobile_EndConnection:
 	call BattleTowerRoomMenu2
 	ret c
 	ld a, MOBILEAPI_END
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 BattleTowerRoomMenu_CallRoomMenu2:
 	call BattleTowerRoomMenu2
 	ret c
-	ld a, [wcd33]
+	ld a, [wMobileConnectionEndState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
 
@@ -1851,15 +1853,15 @@ Function118f68:
 	ld [hli], a
 	ld a, HIGH(wcc60)
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $40
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_POST
+	ld [wMobileDownloadFlags], a
 	ld hl, wc346
 	ld de, w3_de00
 	ld bc, $200
 	ld a, MOBILEAPI_HTTPPOST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 .asm_118fba
 	call BattleTowerRoomMenu_IncrementJumptable
@@ -1931,46 +1933,46 @@ Mobile_HTTPPostNewsRankings:
 	ld [hli], a
 	ld a, HIGH(wcc60)
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $40
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_POST
+	ld [wMobileDownloadFlags], a
 	ld hl, wc346
 	ld de, w3_d000
 	ld bc, $1000
 	ld a, MOBILEAPI_HTTPPOST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_SaveDownloadedNewsRankings:
 	ld a, BANK(sPokemonNews)
 	call OpenSRAM
-	ld hl, wd002
+	ld hl, wMobileReceiveBufferData
 	ld a, [wcd4f]
 	ld e, a
 	ld a, [wcd50]
 	ld d, a
-	ld a, [w3_d000]
+	ld a, [wMobileReceiveBufferLength]
 	ld c, a
-	ld a, [w3_d000 + 1]
+	ld a, [wMobileReceiveBufferLength + 1]
 	ld b, a
 	call Mobile_CopyDataToSRAM
 	ret c
-	ld a, [wcd89]
-	and $1
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
 	jr z, .save_metadata
-	ld a, BANK(w6_d000)
+	ld a, BANK(wMobileReceiveBuffer2)
 	ldh [rWBK], a
-	ld hl, wd002
-	ld a, [w3_d000]
+	ld hl, wMobileReceiveBuffer2Data
+	ld a, [wMobileReceiveBuffer2Length]
 	ld c, a
-	ld a, [w3_d000 + 1]
+	ld a, [wMobileReceiveBuffer2Length + 1]
 	ld b, a
 	call Mobile_CopyDataToSRAM
 	ret c
 
 .save_metadata
 	call CloseSRAM
-	ld a, BANK(w3_d000)
+	ld a, BANK(wMobileReceiveBuffer)
 	ldh [rWBK], a
 ; These news metadata fields are all in SRAM bank 5.
 	ld a, BANK(sNewsRankingPointers)
@@ -1999,7 +2001,7 @@ Mobile_SaveDownloadedNewsRankings:
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Mobile_DownloadNewsData:
-	ld a, BANK(w3_d000)
+	ld a, BANK(wMobileReceiveBuffer)
 	ldh [rWBK], a
 	ld a, [wcd57]
 	ld l, a
@@ -2008,8 +2010,8 @@ Mobile_DownloadNewsData:
 	ld de, wcc60
 	call Mobile_CopyNewsURL
 	ret c
-	ld de, w3_d000
-	ld bc, $1000
+	ld de, wMobileReceiveBuffer
+	ld bc, MOBILE_RECEIVE_BUFFER_SIZE
 	jp Mobile_HTTPGetIndex
 
 Mobile_SaveDownloadedNews:
@@ -2027,24 +2029,24 @@ Mobile_SaveDownloadedNews:
 	call CloseSRAM
 	ld a, BANK(sPokemonNews)
 	call OpenSRAM
-	ld a, [w3_d000]
+	ld a, [wMobileReceiveBufferLength]
 	ld c, a
-	ld a, [w3_d000 + 1]
+	ld a, [wMobileReceiveBufferLength + 1]
 	ld b, a
-	ld hl, wd002
+	ld hl, wMobileReceiveBufferData
 	ld de, sPokemonNews
 	call Mobile_CopyDataToSRAM
 	ret c
-	ld a, [wcd89]
-	and $1
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
 	jr z, .asm_11913e
-	ld a, BANK(w6_d000)
+	ld a, BANK(wMobileReceiveBuffer2)
 	ldh [rWBK], a
-	ld a, [w6_d000]
+	ld a, [wMobileReceiveBuffer2Length]
 	ld c, a
-	ld a, [w6_d000 + 1]
+	ld a, [wMobileReceiveBuffer2Length + 1]
 	ld b, a
-	ld hl, w6_d000 + 2
+	ld hl, wMobileReceiveBuffer2Data
 	call Mobile_CopyDataToSRAM
 	ret c
 
@@ -2061,7 +2063,7 @@ Function11914e:
 	ret c
 	ld a, $1c
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
@@ -2127,7 +2129,7 @@ Mobile_CopyDataToSRAM:
 
 Mobile_CopyNewsURL:
 ; Copy a null-terminated URL from bank 5 at hl to de.
-; URLs longer than NEWS_URL_MAX_LENGTH bytes set carry and a mobile error.
+; URLs longer than MOBILE_URL_MAX_LENGTH bytes set carry and a mobile error.
 	push bc
 	ld c, $0
 	ld a, $5
@@ -2140,9 +2142,9 @@ Mobile_CopyNewsURL:
 	jr z, .done
 	inc c
 	ld a, c
-	cp NEWS_URL_MAX_LENGTH + 1
+	cp MOBILE_URL_MAX_LENGTH + 1
 	jr c, .copy
-	ld a, $da
+	ld a, MOBILE_ERROR_URL_TOO_LONG
 	call SetMobileErrorCode
 	ld a, BANK("Battle Tower RAM")
 	ldh [rWBK], a
@@ -2187,7 +2189,7 @@ Mobile_ParseRankingIndexURLs:
 
 Mobile_TerminateIndexURL:
 .asm_11920f
-	call Function118b9a
+	call Mobile_CheckDownloadPointer
 	ret nc
 	ld a, [hli]
 	cp $d
@@ -2478,15 +2480,15 @@ Function1193a0:
 	ld [hli], a
 	ld a, HIGH(wcc60)
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $40
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_POST
+	ld [wMobileDownloadFlags], a
 	ld hl, wc346
 	ld de, w3_de00
 	ld bc, $200
 	ld a, MOBILEAPI_HTTPPOST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function1193e3:
 	ld hl, wcd49
@@ -2514,29 +2516,29 @@ Function1193fb:
 Function119413:
 	ld a, $6 ; ???
 	call OpenSRAM
-	ld a, [w3_d000]
+	ld a, [wMobileReceiveBufferLength]
 	ld c, a
-	ld a, [w3_d000 + 1]
+	ld a, [wMobileReceiveBufferLength + 1]
 	ld b, a
 	dec bc
 	dec bc
-	ld hl, wd002
+	ld hl, wMobileReceiveBufferData
 	ld a, [hli]
 	ld e, a
 	ld a, [hli]
 	ld d, a
 	call Mobile_CopyDataToSRAM
 	ret c
-	ld a, [wcd89]
-	and $1
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
 	jr z, .asm_119447
-	ld a, BANK(w6_d000)
+	ld a, BANK(wMobileReceiveBuffer2)
 	ldh [rWBK], a
-	ld a, [w6_d000]
+	ld a, [wMobileReceiveBuffer2Length]
 	ld c, a
-	ld a, [w6_d000 + 1]
+	ld a, [wMobileReceiveBuffer2Length + 1]
 	ld b, a
-	ld hl, w6_d000 + 2
+	ld hl, wMobileReceiveBuffer2Data
 	call Mobile_CopyDataToSRAM
 	ret c
 
@@ -2547,8 +2549,8 @@ Function119413:
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function119451:
-	ld a, [wcd89]
-	and $1
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
 	jr z, .asm_11945d
 	ld a, $d3
 	jp SetMobileErrorCode
@@ -2867,11 +2869,11 @@ Function119648:
 	ld a, $8
 	ld [wBattleTowerRoomMenu2JumptableIndex], a
 	call BattleTowerRoomMenu2
-	call Function118b24
+	call Mobile_BuildHTTPGetParameters
 	ld de, w3_d000
 	ld bc, $1000
 	ld a, MOBILEAPI_HTTPGET
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function119665:
 	ld a, $1a
@@ -2883,7 +2885,7 @@ Function11966d:
 	ret c
 	ld a, [wcd47]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
@@ -2897,7 +2899,7 @@ Function119685:
 	ret c
 	ld a, $14
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
@@ -2973,7 +2975,7 @@ popc
 Function1196f2:
 	ld hl, wd002
 .asm_1196f5
-	call Function118b9a
+	call Mobile_CheckDownloadPointer
 	ret nc
 	ld a, [hli]
 	cp $d
@@ -3160,11 +3162,11 @@ Function1197dc:
 	dec de
 	xor a
 	ld [de], a
-	call Function118b24
+	call Mobile_BuildHTTPGetParameters
 	ld de, w3_d000
 	ld bc, $1000
 	ld a, MOBILEAPI_HTTPGET
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function119800:
 	ld a, $fd
@@ -3235,7 +3237,7 @@ DisplaySendToTradeCornerAnimation:
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 .asm_1198a0
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
@@ -3296,15 +3298,15 @@ BattleTower_HTTPPostRecord:
 	ld [hli], a
 	ld a, [wcd52]
 	ld [hli], a
-	call Function119eb4
-	call Function119ec2
-	ld a, $40
-	ld [wcd89], a
+	call Mobile_AppendLoginID
+	call Mobile_AppendLoginPassword
+	ld a, MOBILE_DOWNLOAD_HTTP_POST
+	ld [wMobileDownloadFlags], a
 	ld hl, w3_d800
 	ld de, w3_de00
 	ld bc, $200
 	ld a, MOBILEAPI_HTTPPOST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function119937:
 	farcall BattleTowerAction_06
@@ -3342,10 +3344,10 @@ Mobile_LoginToPOP3:
 	ld [hli], a
 	and a
 	jr nz, .asm_119962
-	call Function119ec2
+	call Mobile_AppendLoginPassword
 	ld hl, wc608
 	ld a, MOBILEAPI_POP3CONNECT
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function119973:
 	ld a, $1
@@ -3355,7 +3357,7 @@ Function119973:
 	ld [w3_d090], a
 	ld de, w3_d000
 	ld a, MOBILEAPI_POP3STAT
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function119987:
 	ld hl, w3_d000 + 1
@@ -3368,7 +3370,7 @@ Function119987:
 	ld h, a
 	ld de, wBGPals2
 	ld a, MOBILEAPI_POP3LIST
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 .asm_1199a0
 	ld a, [w3_d090]
@@ -3397,8 +3399,8 @@ Function1199b4:
 	jp Function119ac9
 
 Function1199ca:
-	ld a, $20
-	ld [wcd89], a
+	ld a, MOBILE_DOWNLOAD_POP3_HEAD
+	ld [wMobileDownloadFlags], a
 	ld a, [wcf64]
 	ld l, a
 	ld a, [wcf65]
@@ -3406,12 +3408,12 @@ Function1199ca:
 	ld de, w3_d100
 	ld bc, $0700
 	ld a, MOBILEAPI_POP3HEAD
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Function1199e2:
 	ld c, $c
 	ld de, XGameCodePrefix
-	call Function119e4f
+	call Mobile_FindMailHeader
 	jp c, Function119ac9
 	ld a, c
 	cp $1
@@ -3431,7 +3433,7 @@ Function1199e2:
 .game_result_prefix
 	ld c, $17
 	ld de, XGameResultPrefix
-	call Function119e4f
+	call Mobile_FindMailHeader
 	jp c, .asm_119aa7
 	ld a, c
 	cp $1
@@ -3455,8 +3457,8 @@ Function1199e2:
 	ld [w3_d8a3], a
 	ld hl, w3_d8a0
 	ld bc, w3_d889
-	call Function119e98
-	call Function119e98
+	call Mobile_DecodeMailHexWord
+	call Mobile_DecodeMailHexWord
 	ld hl, w3_d8a0
 	ld a, [wcd2d]
 	cp [hl]
@@ -3480,9 +3482,9 @@ Function1199e2:
 	ld [w3_d8a3], a
 	ld hl, w3_d8a0
 	ld bc, w3_d88e
-	call Function119e98
+	call Mobile_DecodeMailHexWord
 	ld bc, w3_d893
-	call Function119e98
+	call Mobile_DecodeMailHexWord
 	ld hl, w3_d8a0
 	ld a, [wcd2f]
 	cp [hl]
@@ -3562,8 +3564,8 @@ Function119b0d:
 	jr DeleteTradeEmail
 
 .asm_119b23
-	ld a, $10
-	ld [wcd89], a
+	ld a, MOBILE_DOWNLOAD_POP3_RETR
+	ld [wMobileDownloadFlags], a
 	ld a, [w3_d090 + 1]
 	ld l, a
 	ld a, [w3_d090 + 2]
@@ -3571,7 +3573,7 @@ Function119b0d:
 	ld de, w3_d100
 	ld bc, $0700
 	ld a, MOBILEAPI_POP3RETR
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 DeleteTradeEmail:
 	ld a, [w3_d090 + 1]
@@ -3588,7 +3590,7 @@ DeleteInvalidTradeEmail:
 
 asm_119b4d:
 	ld a, MOBILEAPI_POP3DELE
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_LogoutOfPOP3:
 	ld a, [w3_d090]
@@ -3602,7 +3604,7 @@ Mobile_LogoutOfPOP3:
 
 .asm_119b66
 	ld a, MOBILEAPI_POP3QUIT
-	jp Function119e2b
+	jp Mobile_CallAPIAndAdvanceState
 
 DecodeReceivedTradeCornerTrade:
 	ld a, [w3_d090]
@@ -4006,7 +4008,7 @@ BattleTower_UbersCheck:
 	scf
 	ret
 
-Function119e2b:
+Mobile_CallAPIAndAdvanceState:
 	call MobileAPI
 
 BattleTowerRoomMenu_IncrementJumptable:
@@ -4024,57 +4026,60 @@ XGameResultPrefix:
 
 popc
 
-Function119e4f:
+Mobile_FindMailHeader:
+; Search the POP3 header buffer for the newline-terminated prefix at de.
+; Skip the space after its colon, then copy up to c bytes to w3_d880,
+; including the first CR. Carry means not found or the value was too long.
 	push bc
 	ld hl, w3_d100
 	ld a, [hli]
 	ld c, a
 	ld a, [hli]
 	ld b, a
-.loop
+.search
 	ld a, [de]
 	cp [hl]
-	jr z, .found_equality
-.next
+	jr z, .candidate
+.next_byte
 	inc hl
 	dec bc
 	ld a, b
 	or c
-	jr nz, .loop
-.return_carry
+	jr nz, .search
+.failed
 	pop bc
 	scf
 	ret
 
-.found_equality
+.candidate
 	push de
-.loop2
+.match_prefix
 	ld a, [de]
 	inc de
 pushc ascii
 	cp '\n'
 popc
-	jr z, .newline
+	jr z, .found
 	cp [hl]
 	jr nz, .unequal
 	inc hl
 	dec bc
 	ld a, b
 	or c
-	jr nz, .loop2
+	jr nz, .match_prefix
 	pop de
-	jr .return_carry
+	jr .failed
 
 .unequal
 	pop de
-	jr .next
+	jr .next_byte
 
-.newline
+.found
 	pop de
 	pop bc
 	inc hl
 	ld de, w3_d880
-.loop3
+.copy_value
 	ld a, [hli]
 	ld [de], a
 	inc de
@@ -4083,7 +4088,7 @@ pushc ascii
 popc
 	jr z, .finish
 	dec c
-	jr nz, .loop3
+	jr nz, .copy_value
 	scf
 	ret
 
@@ -4091,28 +4096,36 @@ popc
 	and a
 	ret
 
-Function119e8e:
-	cp $60
-	jr c, .less_than_0x60
-	sub $57
+pushc ascii
+
+Mobile_DecodeASCIIHexDigit:
+; Decode an ASCII digit or lowercase hex letter in a.
+; The original letter branch starts at the backtick character ($60).
+	cp '`'
+	jr c, .digit
+	sub 'a' - 10
 	ret
 
-.less_than_0x60
-	sub $30
+.digit
+	sub '0'
 	ret
 
-Function119e98:
+popc
+
+Mobile_DecodeMailHexWord:
+; Read four ASCII hex digits backwards from bc into a little-endian word
+; at hl. The caller must clear the destination; decoded nibbles are ORed in.
 	ld a, $2
 .loop
 	push af
 	ld a, [bc]
 	dec bc
-	call Function119e8e
+	call Mobile_DecodeASCIIHexDigit
 	or [hl]
 	ld [hl], a
 	ld a, [bc]
 	dec bc
-	call Function119e8e
+	call Mobile_DecodeASCIIHexDigit
 	rlca
 	rlca
 	rlca
@@ -4126,10 +4139,11 @@ Function119e98:
 	jr nz, .loop
 	ret
 
-Function119eb4:
+Mobile_AppendLoginID:
+; Append the login ID and its terminator at hl, clamping it to 32 bytes.
 	xor a
-	ld [wc3cc], a
-	ld de, wc3ac
+	ld [wMobileLoginID + MOBILE_LOGIN_ID_LENGTH], a
+	ld de, wMobileLoginID
 .loop
 	ld a, [de]
 	inc de
@@ -4138,7 +4152,8 @@ Function119eb4:
 	jr nz, .loop
 	ret
 
-Function119ec2:
+Mobile_AppendLoginPassword:
+; Skip the saved password status byte and copy through the null terminator.
 	ld a, BANK(sMobileLoginPassword)
 	call OpenSRAM
 	xor a
@@ -4155,13 +4170,13 @@ Function119ec2:
 
 BattleTowerRoomMenu2:
 	ldh a, [rWBK]
-	ld [wcd8c], a
+	ld [wMobileMenuSavedWRAMBank], a
 	ld a, $1
 	ldh [rWBK], a
 
 	call .RunJumptable
 
-	ld a, [wcd8c]
+	ld a, [wMobileMenuSavedWRAMBank]
 	ldh [rWBK], a
 	ld a, $1
 	ldh [hBGMapMode], a
@@ -4272,9 +4287,9 @@ Function119f98:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	farcall Function115dc3
-	ld a, [wcd33]
+	ld a, [wMobileConnectionEndState]
 	ld [wcf66], a
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
 	ret
@@ -4298,7 +4313,7 @@ Function119f98:
 	ld a, [wMobileInactivityTimerSeconds]
 	ld [wcf66], a
 	farcall Function115dc3
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
 	ret
@@ -4571,8 +4586,8 @@ BattleTowerRoomMenu2_UpdateYesNoMenu:
 
 .d_up
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	ld a, [wMobileInactivityTimerMinutes]
 	and a
 	jr z, .asm_11a24c
@@ -4588,8 +4603,8 @@ BattleTowerRoomMenu2_UpdateYesNoMenu:
 
 .d_down
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	ld a, [wMobileInactivityTimerMinutes]
 	and a
 	jr nz, .asm_11a24c
@@ -4605,8 +4620,8 @@ BattleTowerRoomMenu2_UpdateYesNoMenu:
 
 .a_button
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	call PlayClickSFX
 	ld a, [wMobileInactivityTimerMinutes]
 	and a
@@ -4620,11 +4635,11 @@ BattleTowerRoomMenu2_UpdateYesNoMenu:
 	jr .exit_carry
 
 .asm_11a2b4
-	ld a, [wcd33]
+	ld a, [wMobileConnectionEndState]
 
 .exit_carry
 	ld [wcf66], a
-	ld a, $a
+	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
 	ret
@@ -4682,11 +4697,11 @@ Function11a302:
 	ld de, String_11a72a
 	call PlaceString
 	hlcoord 9, 4
-	ld de, wcd68
+	ld de, wMobileConnectionTimeMinutes
 	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
 	call PrintNum
 	hlcoord 14, 4
-	ld de, wcd67
+	ld de, wMobileConnectionTimeSeconds
 	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
 	call PrintNum
 	ld a, $80
@@ -4972,8 +4987,8 @@ Function11a536:
 
 .asm_11a564
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	ld a, [wMobileInactivityTimerMinutes]
 	and a
 	jr z, .asm_11a54d
@@ -4989,8 +5004,8 @@ Function11a536:
 
 .asm_11a583
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	ld a, [wMobileInactivityTimerMinutes]
 	and a
 	jr nz, .asm_11a54d
@@ -5010,8 +5025,8 @@ Function11a536:
 
 .asm_11a5a7
 	xor a
-	ld [wcd8a], a
-	ld [wcd8b], a
+	ld [wMobileLegacyInactivityCounter], a
+	ld [wMobileLegacyInactivityCounter + 1], a
 	and a
 	ret
 
@@ -5413,21 +5428,22 @@ Function11a9f0:
 	and a
 	ret
 
-Function11a9f4: ; unreferenced
-	ld a, [wcd8a]
+Mobile_CheckLegacyInactivityTimeout: ; unreferenced
+; Count one frame per call and time out after three minutes.
+	ld a, [wMobileLegacyInactivityCounter]
 	ld l, a
-	ld a, [wcd8b]
+	ld a, [wMobileLegacyInactivityCounter + 1]
 	ld h, a
 	inc hl
 	ld a, l
-	ld [wcd8a], a
+	ld [wMobileLegacyInactivityCounter], a
 	ld a, h
-	ld [wcd8b], a
-	ld de, $d5d0
+	ld [wMobileLegacyInactivityCounter + 1], a
+	ld de, -MOBILE_INACTIVITY_TIMEOUT_FRAMES
 	add hl, de
 	bit 7, h
 	ret nz
-	ld a, $d6
+	ld a, MOBILE_ERROR_INACTIVITY_TIMEOUT
 	call SetMobileErrorCode
 	and a
 	ret

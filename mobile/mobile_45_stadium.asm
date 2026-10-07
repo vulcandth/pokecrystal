@@ -673,8 +673,8 @@ Function117bb6:
 	push af
 	ld a, $3
 	ldh [rWBK], a
-	ld a, [wcd89]
-	and $1
+	ld a, [wMobileDownloadFlags]
+	and MOBILE_DOWNLOAD_OVERFLOW
 	jr nz, .asm_117c16
 	ld a, [w3_d000]
 	cp $fe
