@@ -122,7 +122,7 @@ MobileDialog_CheckAdapterReady:
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	farcall MobilePhone_Hide
 	ld a, [wMobileConnectionEndState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
@@ -145,7 +145,7 @@ MobileDialog_CheckAdapterReady:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogCancelState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	farcall MobilePhone_Hide
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
@@ -337,7 +337,7 @@ MobileDialog_CheckDownloadFee:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogCancelState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld [wcd80], a
 	call MobileDialog_ClearText
 	hlcoord 4, 2
@@ -474,7 +474,7 @@ MobileDialog_UpdateCancelMenu:
 	ld a, [wMobileConnectionEndState]
 
 .exit_carry
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	scf
@@ -592,7 +592,7 @@ MobileDialog_CheckDownloadData:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogCancelState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld [wcd80], a
 	scf
 	ret
@@ -662,8 +662,8 @@ MobileDialog_CheckRedownloadData:
 .cancel
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
-	ld a, $1c
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld a, MOBILE_STADIUM_DOWNLOAD_CANCEL
+	ld [wMobileConnectionJumptableIndex], a
 	ld [wcd80], a
 	scf
 	ret
@@ -722,8 +722,8 @@ MobileDialog_CheckCancelDownload:
 	hlcoord 4, 2
 	ld de, MobileDialogCommunicatingString
 	call PlaceString
-	ld a, $14
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld a, MOBILE_STADIUM_DOWNLOAD_LOGOUT
+	ld [wMobileConnectionJumptableIndex], a
 	and a
 	ret
 
@@ -731,7 +731,7 @@ MobileDialog_CheckCancelDownload:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogResumeState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld [wcd80], a
 	scf
 	ret
@@ -773,7 +773,7 @@ MobileDialog_CheckDownloadNews:
 	call ExitMenu
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	ld a, [wMobileDialogCancelState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ld [wcd80], a
 	scf
 	ret

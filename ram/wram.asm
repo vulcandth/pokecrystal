@@ -719,6 +719,17 @@ wNewsRankingSizesBuffer:: ds MAX_NEWS_RANKINGS * 2
 ENDU
 
 NEXTU
+wMobileStadiumStartWeekday:: db
+wMobileStadiumStartHour:: db
+wMobileStadiumStartMinute:: db
+wMobileStadiumEndWeekday:: db
+wMobileStadiumEndHour:: db
+wMobileStadiumEndMinute:: db
+
+NEXTU
+wMobileStadiumEntryIDPointer:: dw
+
+NEXTU
 wMobileCenterTable::
 wc608:: ds 7
 wc60f:: ds 9
@@ -1345,6 +1356,7 @@ wMobileSDK_ReceivePacketBuffer:: ds 250
 wcb36:: db
 	ds 16
 wMobileSDK_PacketBuffer:: ds 281
+wMobileHTTPURL::
 wcc60:: ds 1
 wcc61:: ds 1
 wcc62:: ds 2
@@ -1553,15 +1565,18 @@ wMobileDialogCancelConfirmState:: ds 1
 wBTTempOTSprite::
 wMobilePasswordJumptableIndex::
 wMobileCenterJumptableIndex::
+wMobileHTTPDateWeekday::
 wcd49:: db
 
 wBattleTowerLevelMenuItemCount::
 wMobilePasswordLength::
 wMobileCenterIndex::
+wMobileHTTPDateHour::
 wcd4a:: ds 1
 wBattleTowerLevelMenuStringsPointer::
 wMobilePasswordKeyboard::
 wMobileCenterLastIndex::
+wMobileHTTPDateMinute::
 wcd4b:: ds 1
 
 wEZChatCursorXCoord::
@@ -1579,6 +1594,7 @@ wBattleTowerLevelGroup::
 wMobilePasswordRemember::
 wcd4f:: ds 1
 wBattleTowerLevelCap::
+wMobileStadiumHasActiveEntry::
 wcd50:: ds 1
 wMobilePasswordStateEnd::
 	assert wMobilePasswordStateEnd - wMobilePasswordJumptableIndex == MOBILE_PASSWORD_STATE_SIZE
@@ -1837,6 +1853,7 @@ wMobileStadiumMenuSelection::
 wMobileStadiumMenuDelay::
 wcf64:: db
 wcf65:: db
+wMobileConnectionJumptableIndex::
 wcf66:: db
 ENDU
 

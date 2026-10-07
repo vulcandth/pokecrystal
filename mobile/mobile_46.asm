@@ -43,6 +43,7 @@ asm_11800b:
 	call Mobile_CleanupConnection
 	call ReturnToMapFromSubmenu
 BattleTowerRoomMenu_DoNothing:
+Mobile_ConnectionDoNothing:
 	ret
 
 BattleTower_UploadRecord:
@@ -298,34 +299,34 @@ Mobile_UpdateNewsRankings:
 
 Mobile_DownloadStadiumData:
 	call Mobile_InitConnection
-	ld a, $19
+	ld a, MOBILE_STADIUM_DOWNLOAD_DONE
 	ld [wMobileConnectionEndState], a
-	ld a, $1e
+	ld a, MOBILE_STADIUM_DOWNLOAD_ERROR
 	ld [wMobileConnectionErrorState], a
 	ld a, $5
 	ld [wc3f0], a
 	ldh a, [rWBK]
 	push af
-	ld a, $3
+	ld a, BANK(wMobileReceiveBuffer)
 	ldh [rWBK], a
-.asm_11829d
+.loop
 	call JoyTextDelay
 	call Mobile_UpdateConnectionTimer
-	ld a, [wBattleTowerRoomMenuJumptableIndex]
-	cp $20
-	jr c, .asm_1182b0
+	ld a, [wMobileConnectionJumptableIndex]
+	cp MOBILE_STADIUM_DOWNLOAD_UNUSED_DISCONNECT
+	jr c, .run_state
 	ld a, [wMobileConnectionErrorState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
-.asm_1182b0
-	call Function1186f5
+	ld [wMobileConnectionJumptableIndex], a
+.run_state
+	call Mobile_DownloadStadiumJumptable
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
 	farcall Function11619d
 	call DelayFrame
-	ld a, [wBattleTowerRoomMenuJumptableIndex]
+	ld a, [wMobileConnectionJumptableIndex]
 	ld hl, wMobileConnectionEndState
 	cp [hl]
-	jr nz, .asm_11829d
+	jr nz, .loop
 	pop af
 	ldh [rWBK], a
 	call Mobile_CleanupConnection
@@ -718,10 +719,11 @@ Function1186b2:
 	dw Mobile_WaitForDisconnectDialog
 	dw Mobile_StartDisconnectDialog
 
-Function1186f5:
-	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
+Mobile_DownloadStadiumJumptable:
+	jumptable .Jumptable, wMobileConnectionJumptableIndex
 
 .Jumptable:
+	table_width 2
 	dw Mobile_InitStadiumConnectionDialog
 	dw InitMobileAdapter
 	dw MobileAdapterCommunication
@@ -736,25 +738,26 @@ Function1186f5:
 	dw StopPichuMobileAnimation
 	dw Mobile_DownloadStadiumIndex
 	dw MobileAdapterCommunication
-	dw Function119451
-	dw Function1195f8
-	dw Function119612
-	dw Function119629
-	dw Function119648
+	dw MobileStadium_ParseIndex
+	dw MobileStadium_NewDataMessage
+	dw MobileStadium_PreviousDataMessage
+	dw MobileStadium_ConfirmDownload
+	dw MobileStadium_HTTPGetData
 	dw MobileAdapterCommunication
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Mobile_StartDisconnectDialog
 	dw Mobile_EndConnection
 	dw MobileAdapterCommunication
-	dw BattleTowerRoomMenu_DoNothing
-	dw Function11967d
-	dw Function119685
-	dw Function119665
-	dw Function11966d
+	dw Mobile_ConnectionDoNothing
+	dw MobileStadium_NoNewDataMessage
+	dw MobileStadium_WaitNoNewData
+	dw MobileStadium_CancelDownloadMessage
+	dw MobileStadium_WaitCancelDownload
 	dw Mobile_StartDisconnectDialog
 	dw Mobile_WaitForDisconnectDialog
 	dw Mobile_StartDisconnectDialog
+	assert_table_length NUM_MOBILE_STADIUM_DOWNLOAD_STATES
 
 Function118746:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
@@ -803,7 +806,7 @@ MobileAdapterCommunication:
 	ld a, BANK(wMobileReceiveBuffer)
 	ldh [rWBK], a
 .advance_state
-	jp BattleTowerRoomMenu_IncrementJumptable
+	jp Mobile_IncrementConnectionState
 .busy
 	call Mobile_CheckCancelableConnection
 	ret c
@@ -821,7 +824,7 @@ MobileAdapterCommunication:
 	ld a, [wc3f0]
 	ld [wc319], a
 	ld a, [wMobileConnectionErrorState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ret
 .buffer_full
 	ld hl, wMobileDownloadFlags
@@ -865,7 +868,7 @@ SetMobileErrorCode:
 	ld a, [wc3f0]
 	ld [wc319], a
 	ld a, [wMobileConnectionErrorState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ret
 
 Mobile_CheckCancelableConnection:
@@ -884,7 +887,7 @@ Mobile_CheckCancelableConnection:
 	ld a, [wc3f0]
 	ld [wc319], a
 	ld a, [wMobileConnectionErrorState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	scf
 	ret
 .not_canceled
@@ -900,7 +903,7 @@ Mobile_CheckConnectionCancel:
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
 	ld a, [wMobileConnectionErrorState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	scf
 	ret
 
@@ -923,7 +926,7 @@ Mobile_InitConnectionDialog:
 	ld [wMobileDialogContext], a
 	ld a, MOBILE_DIALOG_INIT
 	ld [wMobileDialogJumptableIndex], a
-	call BattleTowerRoomMenu_IncrementJumptable
+	call Mobile_IncrementConnectionState
 	ld a, [wMobileConnectionEndState]
 	ld [wMobileDialogCancelState], a
 
@@ -952,8 +955,8 @@ Mobile_StopPendingOperation: ; unreferenced
 	jp Mobile_CallAPIAndAdvanceState
 
 .asm_1188aa
-	call BattleTowerRoomMenu_IncrementJumptable
-	jp BattleTowerRoomMenu_IncrementJumptable
+	call Mobile_IncrementConnectionState
+	jp Mobile_IncrementConnectionState
 
 Mobile_ReadPhoneNumber:
 	ld de, wMobilePhoneNumberTable
@@ -1016,7 +1019,7 @@ StopPichuMobileAnimation:
 	ld a, MOBILE_DIALOG_COMMUNICATING
 	ld [wMobileDialogJumptableIndex], a
 	call MobileConnectionDialog
-	jp BattleTowerRoomMenu_IncrementJumptable
+	jp Mobile_IncrementConnectionState
 
 BattleTower_ParseIndex:
 	call Mobile_ParseIndexURLs
@@ -1138,9 +1141,9 @@ Mobile_BuildHTTPGetParameters:
 	ld [hli], a
 	ld a, HIGH(wc708)
 	ld [hli], a
-	ld a, LOW(wcc60)
+	ld a, LOW(wMobileHTTPURL)
 	ld [hli], a
-	ld a, HIGH(wcc60)
+	ld a, HIGH(wMobileHTTPURL)
 	ld [hli], a
 	call Mobile_AppendLoginID
 	call Mobile_AppendLoginPassword
@@ -1390,7 +1393,7 @@ Mobile_StartDisconnectDialog:
 	; Show the disconnect message and connection time.
 	ld a, MOBILE_DIALOG_CONNECTION_CLOSED
 	ld [wMobileDialogJumptableIndex], a
-	jp BattleTowerRoomMenu_IncrementJumptable
+	jp Mobile_IncrementConnectionState
 
 Mobile_EndConnection:
 	call MobileConnectionDialog
@@ -1402,7 +1405,7 @@ Mobile_WaitForDisconnectDialog:
 	call MobileConnectionDialog
 	ret c
 	ld a, [wMobileConnectionEndState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
+	ld [wMobileConnectionJumptableIndex], a
 	ret
 
 Mobile_DownloadNewsMetadata:
@@ -2231,360 +2234,7 @@ Function119413:
 	call CloseSRAM
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function119451:
-	ld a, [wMobileDownloadFlags]
-	and MOBILE_DOWNLOAD_OVERFLOW
-	jr z, .asm_11945d
-	ld a, $d3
-	jp SetMobileErrorCode
-.asm_11945d
-	xor a
-	ld [wcd50], a
-	call Mobile_GetHTTPDateWeekday
-	ld a, b
-	ld [wcd49], a
-	call Mobile_GetHTTPDateTime
-	ld a, [wd002]
-	ld hl, wd003
-
-Function119471:
-	push af
-	ld a, [hli]
-	ld [wc608], a
-	ld a, [hli]
-	ld [wc608 + 3], a
-	ld a, [hli]
-	ld [wc608 + 1], a
-	ld a, [hli]
-	ld [wc608 + 2], a
-	ld a, [hli]
-	ld [wc608 + 4], a
-	ld a, [hli]
-	ld [wc608 + 5], a
-	push hl
-	ld a, [wc608]
-	cp $ff
-	jr z, .asm_1194a7
-	ld a, [wc608 + 2]
-	cp $ff
-	jr z, .asm_1194a7
-	ld a, [wc608 + 1]
-	cp $ff
-	jr nz, .asm_1194a7
-	call Function119584
-	jr c, .asm_11950c
-	jr .asm_1194f0
-.asm_1194a7
-	ld hl, wc608
-	ld de, wc608 + 3
-	ld c, $3
-.asm_1194af
-	ld a, [de]
-	inc de
-	cp [hl]
-	inc hl
-	jr c, .asm_1194f3
-	jr z, .asm_1194b9
-	jr nc, .asm_1194bc
-.asm_1194b9
-	dec c
-	jr nz, .asm_1194af
-.asm_1194bc
-	ld c, $3
-	ld hl, wcd49
-	ld de, wc608
-.asm_1194c4
-	ld a, [de]
-	inc de
-	cp $ff
-	jr z, .asm_1194d1
-	cp [hl]
-	jr z, .asm_1194d1
-	jr c, .asm_1194d5
-	jr nc, .asm_1194f0
-.asm_1194d1
-	inc hl
-	dec c
-	jr nz, .asm_1194c4
-.asm_1194d5
-	ld c, $3
-	ld hl, wcd49
-	ld de, wc608 + 3
-.asm_1194dd
-	ld a, [de]
-	inc de
-	cp $ff
-	jr z, .asm_1194ea
-	cp [hl]
-	jr c, .asm_1194f0
-	jr z, .asm_1194ea
-	jr nc, .asm_11950c
-.asm_1194ea
-	inc hl
-	dec c
-	jr nz, .asm_1194dd
-	jr .asm_11950c
-.asm_1194f0
-	pop hl
-	jr .asm_119557
-.asm_1194f3
-	ld c, $3
-	ld hl, wcd49
-	ld de, wc608
-.asm_1194fb
-	ld a, [de]
-	inc de
-	cp $ff
-	jr z, .asm_119508
-	cp [hl]
-	jr c, .asm_11950c
-	jr z, .asm_119508
-	jr nc, .asm_1194d5
-.asm_119508
-	inc hl
-	dec c
-	jr nz, .asm_1194fb
-.asm_11950c
-	pop hl
-	ld a, $1
-	ld [wcd50], a
-	ld a, l
-	ld [wc608], a
-	ld a, h
-	ld [wc608 + 1], a
-	ld de, wMobileStadiumDataID
-	ld c, $10
-	ld b, $0
-.asm_119521
-	ld a, [de]
-	inc de
-	cp [hl]
-	inc hl
-	jr nz, .asm_119528
-	inc b
-.asm_119528
-	dec c
-	jr nz, .asm_119521
-	ld a, $10
-	cp b
-	jr z, .asm_119536
-rept 4
-	inc hl
-endr
-	jr .asm_11957a
-.asm_119536
-	ld a, [hli]
-	cp $50
-	jr nz, .asm_119552
-	ld a, [hli]
-	cp $33
-	jr nz, .asm_119553
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld a, [wMobileStadiumChecksum]
-	cp c
-	jr nz, .asm_119576
-	ld a, [wMobileStadiumChecksum + 1]
-	cp b
-	jr nz, .asm_119576
-	jr .asm_11955b
-.asm_119552
-	inc hl
-.asm_119553
-	inc hl
-	inc hl
-	jr .asm_11955b
-.asm_119557
-	ld de, $14
-	add hl, de
-.asm_11955b
-	ld a, [hli]
-	ld e, a
-	ld a, [hli]
-	ld d, a
-	add hl, de
-	pop af
-	dec a
-	jp nz, Function119471
-	ld a, [wcd50]
-	and a
-	jr z, .asm_119571
-	ld a, $1a
-	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ret
-.asm_119571
-	ld a, $d8
-	jp SetMobileErrorCode
-.asm_119576
-	ld a, $10
-	jr .asm_11957c
-.asm_11957a
-	ld a, $f
-.asm_11957c
-	ld [wBattleTowerRoomMenuJumptableIndex], a
-	pop af
-	call Function1195c4
-	ret
-
-Function119584:
-	ld a, [wc608]
-	ld b, a
-	ld a, [wc608 + 3]
-	ld c, a
-	cp b
-	jr c, .asm_11959c
-	ld a, [wcd49]
-	cp b
-	jr c, .asm_1195c2
-.asm_119595
-	cp c
-	jr c, .asm_1195a2
-	jr z, .asm_1195a2
-	jr .asm_1195c2
-.asm_11959c
-	ld a, [wcd49]
-	cp b
-	jr c, .asm_119595
-.asm_1195a2
-	ld a, [wc608 + 2]
-	ld b, a
-	ld a, [wc608 + 5]
-	ld c, a
-	cp b
-	jr c, .asm_1195ba
-	ld a, [wcd4b]
-	cp b
-	jr c, .asm_1195c2
-.asm_1195b3
-	cp c
-	jr c, .asm_1195c0
-	jr z, .asm_1195c0
-	jr .asm_1195c2
-.asm_1195ba
-	ld a, [wcd4b]
-	cp b
-	jr c, .asm_1195b3
-.asm_1195c0
-	scf
-	ret
-.asm_1195c2
-	and a
-	ret
-
-Function1195c4:
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-	ld de, $a5
-	ld a, b
-	cp d
-	jr c, .asm_1195d9
-	jr z, .asm_1195d3
-	jr nc, .asm_1195f3
-.asm_1195d3
-	ld a, c
-	cp e
-	jr z, .asm_1195d9
-	jr nc, .asm_1195f3
-.asm_1195d9
-	ld de, wcc60
-	call CopyBytes
-	xor a
-	ld [de], a
-	ld a, [wc608]
-	ld l, a
-	ld a, [wc608 + 1]
-	ld h, a
-	ld de, wMobileStadiumDataID
-	ld bc, $10
-	call CopyBytes
-	ret
-.asm_1195f3
-	ld a, $d8
-	jp SetMobileErrorCode
-
-Function1195f8:
-	ld a, MOBILE_DIALOG_NEW_DATA
-	ld [wMobileDialogJumptableIndex], a
-	ld a, $1c
-	ld [wMobileDialogCancelState], a
-	ld a, $f
-	ld [wMobileDialogResumeState], a
-	ld a, $14
-	ld [wMobileDialogCancelConfirmState], a
-	call BattleTowerRoomMenu_IncrementJumptable
-	jp BattleTowerRoomMenu_IncrementJumptable
-
-Function119612:
-	ld a, MOBILE_DIALOG_PREVIOUSLY_DOWNLOADED
-	ld [wMobileDialogJumptableIndex], a
-	ld a, $1c
-	ld [wMobileDialogCancelState], a
-	ld a, $10
-	ld [wMobileDialogResumeState], a
-	ld a, $14
-	ld [wMobileDialogCancelConfirmState], a
-	jp BattleTowerRoomMenu_IncrementJumptable
-
-Function119629:
-	call MobileConnectionDialog
-	ret c
-	ld a, LOW(wcc60)
-	ld l, a
-	ld a, HIGH(wcc60)
-	ld h, a
-	call Mobile_ParseDownloadFee
-	ld a, MOBILE_DIALOG_DOWNLOAD_FEE_INTRO
-	ld [wMobileDialogJumptableIndex], a
-	ld a, $1c
-	ld [wMobileDialogCancelState], a
-	ld a, $14
-	ld [wMobileDialogCancelConfirmState], a
-	call BattleTowerRoomMenu_IncrementJumptable
-
-Function119648:
-	call MobileConnectionDialog
-	ret c
-	call DelayFrame
-	ld a, MOBILE_DIALOG_COMMUNICATING
-	ld [wMobileDialogJumptableIndex], a
-	call MobileConnectionDialog
-	call Mobile_BuildHTTPGetParameters
-	ld de, w3_d000
-	ld bc, $1000
-	ld a, MOBILEAPI_HTTPGET
-	jp Mobile_CallAPIAndAdvanceState
-
-Function119665:
-	ld a, MOBILE_DIALOG_CANCEL_DOWNLOAD
-	ld [wMobileDialogJumptableIndex], a
-	call BattleTowerRoomMenu_IncrementJumptable
-
-Function11966d:
-	call MobileConnectionDialog
-	ret c
-	ld a, [wMobileDialogCancelConfirmState]
-	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, MOBILE_RESULT_CANCELED
-	ld [wMobileErrorCodeBuffer], a
-	ret
-
-Function11967d:
-	ld a, MOBILE_DIALOG_NO_NEW_DATA
-	ld [wMobileDialogJumptableIndex], a
-	call BattleTowerRoomMenu_IncrementJumptable
-
-Function119685:
-	call MobileConnectionDialog
-	ret c
-	ld a, $14
-	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, MOBILE_RESULT_CANCELED
-	ld [wMobileErrorCodeBuffer], a
-	ret
+INCLUDE "mobile/stadium_download.asm"
 
 Mobile_GetHTTPDateWeekday:
 ; Read the weekday from the HTTP Date header copied to wc708 by the SDK.
@@ -2627,10 +2277,10 @@ Mobile_GetHTTPDateTime:
 ; The hours and minutes start 17 bytes into "Mon, 01 Jan 2001 00:00:00 GMT".
 	ld de, wc719
 	call Mobile_ParseTwoDigitDecimal
-	ld [wcd4a], a
+	ld [wMobileHTTPDateHour], a
 	inc de
 	call Mobile_ParseTwoDigitDecimal
-	ld [wcd4b], a
+	ld [wMobileHTTPDateMinute], a
 	ret
 
 pushc ascii
@@ -3562,7 +3212,8 @@ Mobile_CallAPIAndAdvanceState:
 	call MobileAPI
 
 BattleTowerRoomMenu_IncrementJumptable:
-	ld hl, wBattleTowerRoomMenuJumptableIndex
+Mobile_IncrementConnectionState:
+	ld hl, wMobileConnectionJumptableIndex
 	inc [hl]
 	ret
 
