@@ -936,7 +936,7 @@ InitMobileAdapter:
 	xor a
 	ld [wcf64], a
 	ld [wc807], a
-	ld de, wcd81
+	ld de, wMobileAdapterColor
 	ld hl, $46
 	ld a, MOBILEAPI_INIT
 	jp Mobile_CallAPIAndAdvanceState
@@ -2505,8 +2505,8 @@ Function119800:
 	ld a, $fd
 	ld [wc6d0], a
 	ld [wOTTrademonSpecies], a
-	ld a, [wcd81]
-	ld [wc74e], a
+	ld a, [wMobileAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	ld a, [wJumptableIndex]
 	push af
 	ld a, [wcf64]
@@ -5305,8 +5305,8 @@ Function11b7e5:
 	ld a, [wMobileMonSpecies]
 	ld [wOTTrademonSpecies], a
 	ld [wCurPartySpecies], a
-	ld a, [wcd81]
-	ld [wc74e], a
+	ld a, [wMobileAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	ld hl, wMobileMonOT ; OT
 	ld de, wOTTrademonOTName
 	ld bc, 5

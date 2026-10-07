@@ -414,6 +414,7 @@ MobileAPI_InitAlt:
 	nop
 
 MobileAPI_Init:
+; On completion, write a MOBILE_ADAPTER_* color index to the byte at de.
 	ld a, [wMobileAPIIndex]
 	push af
 	push bc
@@ -5064,9 +5065,9 @@ Function1121f6:
 	ld h, [hl]
 	ld l, a
 	ld a, [wMobileSDK_AdapterType]
-	cp $88
+	cp MOBILE_ADAPTER_TYPE_BASE
 	jr c, .asm_112249
-	sub $88
+	sub MOBILE_ADAPTER_TYPE_BASE
 	ld [hl], a
 
 	; There aren't more than four adapters

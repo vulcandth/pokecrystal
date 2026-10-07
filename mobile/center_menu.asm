@@ -110,7 +110,7 @@ MobileCenterConnectingString:
 	db   "@"
 
 MobileCenter_InitAdapter:
-	ld de, wcd81
+	ld de, wMobileAdapterColor
 	ld hl, $5c
 	ld a, MOBILEAPI_INIT
 	call MobileAPI

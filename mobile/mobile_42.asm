@@ -1713,13 +1713,13 @@ DebugMobileTrade: ; unreferenced
 	dname "マツミヤ", NAME_LENGTH_JAPANESE ; "MATSUMIYA"
 
 LoadMobileAdapterPalette:
-	ld a, [wc74e]
+	ld a, [wMobileTradeAdapterColor]
 	and $7f
-	cp $8 ; CONST: Amount of mobile adapters
-	jr c, .asm_108d12
-	ld a, $7
+	cp NUM_MOBILE_ADAPTER_COLORS
+	jr c, .load_palette
+	ld a, MOBILE_ADAPTER_GRAY
 
-.asm_108d12
+.load_palette
 	ld bc, 1 palettes
 	ld hl, MobileAdapterPalettes
 	call AddNTimes
@@ -1760,4 +1760,6 @@ MobileCable2GFX:
 INCBIN "gfx/mobile/mobile_cable_2.2bpp"
 
 MobileAdapterPalettes:
+	table_width PAL_SIZE
 INCLUDE "gfx/mobile/mobile_adapters.pal"
+	assert_table_length NUM_MOBILE_ADAPTER_COLORS

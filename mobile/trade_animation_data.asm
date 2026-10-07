@@ -27,8 +27,8 @@ MobileTrade_LoadOfferForSending:
 	farcall GetCaughtGender
 	ld a, c
 	ld [wPlayerTrademonCaughtData], a
-	ld a, [wcd81]
-	ld [wc74e], a
+	ld a, [wMobileAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	ld hl, wMobileTradeRequest
 	ld de, wMobileTradeRequestBackup
 	ld bc, TRADE_CORNER_REQUEST_LENGTH
@@ -66,7 +66,7 @@ MobileTrade_LoadOfferForRetrieval:
 	farcall GetCaughtGender
 	ld a, c
 	ld [wOTTrademonCaughtData], a
-	ld a, [wcd81]
-	ld [wc74e], a
+	ld a, [wMobileAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	call CloseSRAM
 	ret

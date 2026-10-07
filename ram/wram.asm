@@ -926,7 +926,9 @@ wc710:: db
 wc711:: db
 wc712:: ds 7
 wc719:: ds 53
-wc74e:: ds 107
+wc74e::
+wMobileTradeAdapterColor:: db
+	ds 106
 wc7b9:: ds 1
 wc7ba:: ds 1
 wc7bb:: ds 2
@@ -1562,6 +1564,7 @@ wcd2c:: ds 1
 wcd2d:: ds 1
 wcd2e:: ds 1
 wcd2f:: ds 1
+wMobileCommsAdapterColor::
 wcd30:: ds 1
 wcd31:: ds 1
 wMobileSavedIE::
@@ -1691,6 +1694,7 @@ wcd7a:: ds 2
 wcd7c:: ds 3
 wMobileSavedStateFlags:: ds 1
 wcd80:: ds 1
+wMobileAdapterColor::
 wcd81:: ds 1
 wcd82:: ds 1
 wMobileStadiumChecksum::

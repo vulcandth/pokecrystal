@@ -3150,7 +3150,7 @@ Function1014f4:
 	ret
 
 Function101507:
-	ld de, wcd30
+	ld de, wMobileCommsAdapterColor
 	ld hl, $40
 	ld bc, $40
 	ld a, MOBILEAPI_INIT
@@ -6015,8 +6015,8 @@ MenuData3_102a33:
 	db PAD_A ; accepted buttons
 
 Function102a3b:
-	ld a, [wcd30]
-	ld [wc74e], a
+	ld a, [wMobileCommsAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	ld hl, wPlayerName
 	ld de, wPlayerTrademonSenderName
 	ld bc, NAME_LENGTH

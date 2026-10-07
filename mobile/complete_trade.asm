@@ -2,8 +2,8 @@ Mobile_CompleteTrade:
 	ld a, [wMobileMonSpecies]
 	ld [wOTTrademonSpecies], a
 	ld [wCurPartySpecies], a
-	ld a, [wcd81]
-	ld [wc74e], a
+	ld a, [wMobileAdapterColor]
+	ld [wMobileTradeAdapterColor], a
 	ld hl, wMobileMonOT
 	ld de, wOTTrademonOTName
 	ld bc, NAME_LENGTH_JAPANESE - 1
