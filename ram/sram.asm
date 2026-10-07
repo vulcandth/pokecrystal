@@ -325,9 +325,9 @@ s5_aa48:: db
 
 sMobilePhoneNumberIndex:: db
 
-sMobileLoginPassword:: ds MOBILE_LOGIN_PASSWORD_LENGTH
-
-	ds $1
+sMobileLoginPassword::
+sMobileLoginPasswordSaved:: db
+sMobileLoginPasswordBuffer:: ds MOBILE_LOGIN_PASSWORD_LENGTH
 
 s5_aa5d:: ds MOBILE_LOGIN_PASSWORD_LENGTH
 
@@ -361,7 +361,9 @@ sNewsRankingTableSize:: dw
 sNewsRankingPointers:: ds MAX_NEWS_RANKINGS * 2
 sNewsRankingEntrySizes:: ds MAX_NEWS_RANKINGS * 2
 
-	ds $100
+sMobilePasswordStateBackup:: ds MOBILE_PASSWORD_STATE_SIZE
+sMobilePasswordBufferBackup:: ds MOBILE_LOGIN_PASSWORD_LENGTH
+	ds $100 - MOBILE_PASSWORD_STATE_SIZE - MOBILE_LOGIN_PASSWORD_LENGTH
 
 sNewsPlayerPrefecture:: db
 sNewsPlayerPostalCode:: ds 4

@@ -155,17 +155,17 @@ MobileDialog_CheckAdapterReady:
 MobileDialog_RequestPassword:
 	ld a, BANK(sMobileLoginPassword)
 	call OpenSRAM
-	ld a, [sMobileLoginPassword]
+	ld a, [sMobileLoginPasswordSaved]
 	and a
 	jr z, .request_password
-	ld a, [sMobileLoginPassword + 1]
+	ld a, [sMobileLoginPasswordBuffer]
 	call CloseSRAM
 	and a
 	ret nz
 	ld a, BANK(sMobileLoginPassword)
 	call OpenSRAM
 	xor a
-	ld [sMobileLoginPassword], a
+	ld [sMobileLoginPasswordSaved], a
 
 .request_password
 	call CloseSRAM
@@ -186,7 +186,7 @@ MobileDialog_RequestPassword:
 	ld a, $1
 	ldh [rWBK], a
 	call FadeToMenu
-	farcall Function11765d
+	farcall MobilePassword
 	call MobileDialog_ReloadOverworld
 	ld a, BANK(w3_d800)
 	ldh [rWBK], a
@@ -212,7 +212,7 @@ MobileDialog_RequestPassword:
 	ld a, $5
 	ld [wMenuBorderBottomCoord], a
 	call PushWindow
-	farcall Function11765d
+	farcall MobilePassword
 	farcall Function117ab4
 	farcall Stubbed_Function106462
 	farcall Function106464
@@ -234,7 +234,7 @@ MobileDialog_RequestPasswordForNews:
 	ld a, SCREEN_HEIGHT - 1
 	ld [wMenuBorderBottomCoord], a
 	call PushWindow
-	farcall Function11765d
+	farcall MobilePassword
 	farcall PokemonNews_ClearScreen
 	farcall Stubbed_Function106462
 	farcall Function106464

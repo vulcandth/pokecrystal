@@ -2464,8 +2464,8 @@ AnimateEZChatCursor:
 	dw .three
 	dw .four
 	dw .five
-	dw .six
-	dw .seven
+	dw .PasswordPosition
+	dw .PasswordKeyboard
 	dw .eight
 	dw .nine
 	dw .ten
@@ -2543,11 +2543,11 @@ AnimateEZChatCursor:
 	ld e, $20
 	jr .load
 
-.six
+.PasswordPosition
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_5
 	call ReinitSpriteAnimFrame
-	; X = [wcd4a] * 8 + 24
-	ld a, [wcd4a]
+	; X = [wMobilePasswordLength] * 8 + 24
+	ld a, [wMobilePasswordLength]
 	sla a
 	sla a
 	sla a
@@ -2559,14 +2559,14 @@ AnimateEZChatCursor:
 	ld a, $30
 	ld [hl], a
 
-	ld a, $1
+	ld a, MOBILE_PASSWORD_POSITION_CURSOR_MASK
 	ld e, a
 	call .UpdateObjectFlags
 	ret
 
-.seven
-	ld a, [wEZChatCursorYCoord]
-	cp $4
+.PasswordKeyboard
+	ld a, [wMobilePasswordCursorY]
+	cp MOBILE_PASSWORD_KEYBOARD_ROWS
 	jr z, .cursor0
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_3
 	jr .got_frameset
@@ -2575,11 +2575,11 @@ AnimateEZChatCursor:
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_1
 .got_frameset
 	call ReinitSpriteAnimFrame
-	ld a, [wEZChatCursorYCoord]
-	cp $4
+	ld a, [wMobilePasswordCursorY]
+	cp MOBILE_PASSWORD_KEYBOARD_ROWS
 	jr z, .asm_11d1b1
-	; X = [wEZChatCursorXCoord] * 8 + 32
-	ld a, [wEZChatCursorXCoord]
+	; X = [wMobilePasswordCursorX] * 8 + 32
+	ld a, [wMobilePasswordCursorX]
 	sla a
 	sla a
 	sla a
@@ -2587,22 +2587,22 @@ AnimateEZChatCursor:
 	ld hl, SPRITEANIMSTRUCT_XCOORD
 	add hl, bc
 	ld [hli], a
-	; Y = [wEZChatCursorYCoord] * 16 + 72
-	ld a, [wEZChatCursorYCoord]
+	; Y = [wMobilePasswordCursorY] * 16 + 72
+	ld a, [wMobilePasswordCursorY]
 	sla a
 	sla a
 	sla a
 	sla a
 	add $48
 	ld [hl], a
-	ld a, $2
+	ld a, MOBILE_PASSWORD_KEYBOARD_CURSOR_MASK
 	ld e, a
 	call .UpdateObjectFlags
 	ret
 
 .asm_11d1b1
-	; X = [wEZChatCursorXCoord] * 40 + 24
-	ld a, [wEZChatCursorXCoord]
+	; X = [wMobilePasswordCursorX] * 40 + 24
+	ld a, [wMobilePasswordCursorX]
 	sla a
 	sla a
 	sla a
@@ -2617,7 +2617,7 @@ AnimateEZChatCursor:
 	; Y = 138
 	ld a, $8a
 	ld [hl], a
-	ld a, $2
+	ld a, MOBILE_PASSWORD_KEYBOARD_CURSOR_MASK
 	ld e, a
 	call .UpdateObjectFlags
 	ret
@@ -2813,11 +2813,11 @@ AnimateEZChatCursor:
 	db SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_1 ; 2f
 
 .UpdateObjectFlags:
-	ld hl, wcd24
+	ld hl, wEZChatCursorHiddenMask
 	and [hl]
 	jr nz, .update_y_offset
 	ld a, e
-	ld hl, wcd23
+	ld hl, wEZChatCursorBlinkMask
 	and [hl]
 	jr z, .reset_y_offset
 	ld hl, SPRITEANIMSTRUCT_VAR3

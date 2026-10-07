@@ -859,6 +859,7 @@ wPuzzlePieces:: ds 6 * 6
 NEXTU
 ; mobile data
 wc6d0:: ds 56
+wMobilePasswordBuffer::
 wc708:: db
 wc709:: db
 wc70a:: db
@@ -1484,7 +1485,9 @@ NEXTU
 wcd20:: ds 1
 wcd21:: ds 1
 wcd22:: ds 1
+wEZChatCursorBlinkMask::
 wcd23:: ds 1
+wEZChatCursorHiddenMask::
 wcd24:: ds 1
 wMobileCommsJumptableIndex:: ds 1
 wcd26:: ds 1
@@ -1547,23 +1550,33 @@ wMobileDialogCancelConfirmState:: ds 1
 	ds 1
 
 wBTTempOTSprite::
+wMobilePasswordJumptableIndex::
 wcd49:: db
 
 wBattleTowerLevelMenuItemCount::
+wMobilePasswordLength::
 wcd4a:: ds 1
 wBattleTowerLevelMenuStringsPointer::
+wMobilePasswordKeyboard::
 wcd4b:: ds 1
 
 wEZChatCursorXCoord::
+wMobilePasswordCursorX::
 wcd4c:: db
 wEZChatCursorYCoord::
+wMobilePasswordCursorY::
 wcd4d:: db
 
+wMobilePasswordDelay::
+wMobilePasswordSelection::
 wcd4e:: ds 1
 wBattleTowerLevelGroup::
+wMobilePasswordRemember::
 wcd4f:: ds 1
 wBattleTowerLevelCap::
 wcd50:: ds 1
+wMobilePasswordStateEnd::
+	assert wMobilePasswordStateEnd - wMobilePasswordJumptableIndex == MOBILE_PASSWORD_STATE_SIZE
 wcd51:: ds 1
 wcd52:: ds 1
 

@@ -325,7 +325,7 @@ Function1719ed:
 	ld [wcd4b], a
 	call ClearBGPalettes
 	call ClearSprites
-	farcall Function171d2b
+	farcall MobileCenter_LoadScreen
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	farcall ClearSpriteAnims
 	ret
@@ -392,7 +392,7 @@ Function171a5d:
 	ret
 
 Function171a95:
-	farcall Function171ccd
+	farcall Mobile_LoadInputPalettes
 	hlcoord 2, 8
 	ld de, String_171aa7
 	call PlaceString
@@ -648,142 +648,7 @@ String_171c73:
 	db   "モバイルセンターを　けってい"
 	next "しました@"
 
-Function171c87:
-	call DisableLCD
-	ld hl, AsciiFontGFX
-	ld de, vTiles2 tile $00
-	ld bc, $6e tiles
-	call CopyBytes
-	ld hl, PasswordSlowpokeLZ
-	ld de, vTiles0 tile $00
-	call Decompress
-	call EnableLCD
-	ld hl, PasswordTopTilemap
-	decoord 0, 0
-	ld bc, $168
-	call CopyBytes
-	ld hl, MobilePasswordAttrmap
-	decoord 0, 0, wAttrmap
-	ld bc, $168
-	call CopyBytes
-	hlcoord 3, 2
-	ld de, String_172e31
-	call PlaceString
-	hlcoord 3, 16
-	ld de, String_172e3f
-	call PlaceString
-	ret
-
-Function171ccd:
-	ldh a, [rWBK]
-	push af
-	ld a, $5
-	ldh [rWBK], a
-	ld hl, MobilePasswordPalettes
-	ld de, wBGPals1
-	ld bc, 8 palettes
-	call CopyBytes
-	ld hl, wOBPals1 palette 0 color 1
-	ld a, LOW(PALRGB_WHITE)
-	ld [hli], a
-	ld a, HIGH(PALRGB_WHITE)
-	ld [hl], a
-	call SetDefaultBGPAndOBP
-	pop af
-	ldh [rWBK], a
-	ret
-
-Function171cf0:
-	xor a
-	hlcoord 4, 15
-	ld [hli], a
-	ld [hli], a
-	ld a, [wcd4b]
-	xor $1
-	ld [wcd4b], a
-	and a
-	jr nz, .shifted
-	ld hl, PasswordBottomTilemap
-	decoord 0, 7
-	ld bc, $8c
-	call CopyBytes
-	hlcoord 3, 16
-	ld de, String_172e3f
-	jp PlaceString
-
-.shifted
-	ld hl, PasswordShiftTilemap
-	decoord 0, 7
-	ld bc, $8c
-	call CopyBytes
-	hlcoord 3, 16
-	ld de, String_172e4e
-	jp PlaceString
-
-Function171d2b:
-	call DisableLCD
-	ld hl, AsciiFontGFX
-	ld de, vTiles2 tile $00
-	ld bc, $6e tiles
-	call CopyBytes
-	ld hl, PasswordSlowpokeLZ
-	ld de, vTiles0 tile $00
-	call Decompress
-	call EnableLCD
-	ld hl, ChooseMobileCenterTilemap
-	decoord 0, 0
-	ld bc, $168
-	call CopyBytes
-	ld hl, ChooseMobileCenterAttrmap
-	decoord 0, 0, wAttrmap
-	ld bc, $168
-	call CopyBytes
-	hlcoord 2, 2
-	ld de, String_172e5d
-	call PlaceString
-	hlcoord 14, 16
-	ld de, String_172e58
-	call PlaceString
-	ret
-
-MobilePasswordPalettes:
-INCLUDE "gfx/mobile/mobile_password.pal"
-
-AsciiFontGFX:
-INCBIN "gfx/mobile/ascii_font.2bpp"
-
-PasswordTopTilemap:
-INCBIN "gfx/mobile/password_top.tilemap"
-
-PasswordBottomTilemap:
-INCBIN "gfx/mobile/password_bottom.tilemap"
-
-PasswordShiftTilemap:
-INCBIN "gfx/mobile/password_shift.tilemap"
-
-ChooseMobileCenterTilemap:
-INCBIN "gfx/mobile/mobile_center.tilemap"
-
-MobilePasswordAttrmap:
-INCBIN "gfx/mobile/password.attrmap"
-
-ChooseMobileCenterAttrmap:
-INCBIN "gfx/mobile/mobile_center.attrmap"
-
-PasswordSlowpokeLZ:
-INCBIN "gfx/pokedex/slowpoke.2bpp.lz"
-
-String_172e31:
-	db "パスワード<WO>いれてください@"
-String_172e3f:
-	db "きりかえ　やめる　　けってい@"
-String_172e4e:
-	db "きりかえ　やめる　　"
-String_172e58:
-	db "けってい@"
-String_172e5d:
-	db "せつぞくする　モバイルセンターを"
-	next "えらんで　ください@"
+INCLUDE "mobile/input_screens.asm"
 
 Function172e78:
 	ld a, $7f

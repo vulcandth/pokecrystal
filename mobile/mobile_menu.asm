@@ -373,9 +373,9 @@ Function4a28a:
 	call PlaceHollowCursor
 	call WaitBGMap
 	call LoadStandardMenuHeader
-	ld a, $5
+	ld a, BANK(sMobileLoginPassword)
 	call OpenSRAM
-	ld a, [$aa4b]
+	ld a, [sMobileLoginPasswordSaved]
 	call CloseSRAM
 	and a
 	jr z, .asm_4a2df
@@ -400,7 +400,7 @@ Function4a28a:
 	cp $3
 	jr z, .quit
 .asm_4a2df
-	farcall Function11765d
+	farcall MobilePassword
 	call ClearBGPalettes
 	call Call_ExitMenu
 	call LoadFontsExtra

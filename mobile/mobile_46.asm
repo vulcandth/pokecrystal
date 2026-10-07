@@ -3707,8 +3707,8 @@ Mobile_AppendLoginPassword:
 	ld a, BANK(sMobileLoginPassword)
 	call OpenSRAM
 	xor a
-	ld [sMobileLoginPassword + MOBILE_LOGIN_PASSWORD_LENGTH], a
-	ld de, sMobileLoginPassword + 1
+	ld [sMobileLoginPasswordBuffer + MOBILE_LOGIN_PASSWORD_MAX_LENGTH], a
+	ld de, sMobileLoginPasswordBuffer
 .loop
 	ld a, [de]
 	inc de
