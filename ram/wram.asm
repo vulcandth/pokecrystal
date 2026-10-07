@@ -1549,7 +1549,9 @@ wMobileDialogCancelConfirmState:: ds 1
 wBTTempOTSprite::
 wcd49:: db
 
+wBattleTowerLevelMenuItemCount::
 wcd4a:: ds 1
+wBattleTowerLevelMenuStringsPointer::
 wcd4b:: ds 1
 
 wEZChatCursorXCoord::
@@ -1558,7 +1560,9 @@ wEZChatCursorYCoord::
 wcd4d:: db
 
 wcd4e:: ds 1
+wBattleTowerLevelGroup::
 wcd4f:: ds 1
+wBattleTowerLevelCap::
 wcd50:: ds 1
 wcd51:: ds 1
 wcd52:: ds 1

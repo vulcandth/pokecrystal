@@ -1496,10 +1496,10 @@ BattleTowerAction_LevelCheck:
 	call OpenSRAM
 	ld a, [s5_b2fb]
 	call CloseSRAM
-	ld c, 10
+	ld c, BATTLETOWER_LEVEL_INTERVAL
 	call SimpleDivide
 	ld a, b
-	ld [wcd4f], a
+	ld [wBattleTowerLevelGroup], a
 	xor a
 	ld [wScriptVar], a
 	farcall BattleTower_LevelCheck
@@ -1516,10 +1516,10 @@ BattleTowerAction_UbersCheck:
 	call OpenSRAM
 	ld a, [s5_b2fb]
 	call CloseSRAM
-	ld c, 10
+	ld c, BATTLETOWER_LEVEL_INTERVAL
 	call SimpleDivide
 	ld a, b
-	ld [wcd4f], a
+	ld [wBattleTowerLevelGroup], a
 	xor a
 	ld [wScriptVar], a
 	farcall BattleTower_UbersCheck
