@@ -13,7 +13,7 @@ MobilePichu_Init:
 	ld [wMobilePichuBallClippedObjects], a
 	ld [wMobilePichuBallXFraction], a
 	ld [wMobilePichuBallYFraction], a
-	ld a, MOBILE_PICHU_BALL_FIRST_FRAME
+	ld a, MOBILE_PICHU_FRAME_BALL_1
 	ld [wMobilePichuBallFrame], a
 	ld a, MOBILE_PICHU_BALL_INITIAL_DELAY
 	ld [wMobilePichuBallFrameDuration], a
@@ -214,16 +214,16 @@ MobilePichu_LoadSprites:
 	ret
 
 MobilePichu_Animate:
-	call Function11659d
-	call Function116758
-	call Function1167a6
+	call MobilePichu_RunMovement
+	call MobilePichu_ClipObjects
+	call MobilePichu_AdvanceFrame
 	ld a, [wMobilePichuFrame]
 	cp MOBILE_PICHU_FRAME_HIDDEN
 	ret z
 	sla a
 	ld c, a
 	ld b, 0
-	ld hl, Unknown_1168c5
+	ld hl, MobilePichuFrames
 	add hl, bc
 	ld a, [hli]
 	ld e, a
@@ -264,7 +264,7 @@ MobilePichu_Animate:
 	sla a
 	ld c, a
 	ld b, 0
-	ld hl, Unknown_1168c5
+	ld hl, MobilePichuFrames
 	add hl, bc
 	ld a, [hli]
 	ld e, a
@@ -415,9 +415,9 @@ MobilePichu_RestoreNews:
 MobilePichu_UpdateBallPosition:
 ; Follow Pichu with 8.8 fixed-point coordinates and velocities.
 ; The appearance sequence mirrors Pichu around the center instead.
-	call Function116567
+	call MobilePichu_AdvanceBallFrame
 	ld a, [wMobilePichuMovementIndex]
-	cp $d
+	cp MOBILE_PICHU_MOVE_WAIT_APPEAR
 	jr nz, .follow_pichu
 	ld hl, wMobilePichuX
 	ld a, [hl]

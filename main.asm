@@ -517,7 +517,10 @@ SECTION "mobile45", ROMX
 
 INCLUDE "mobile/phone_animation.asm"
 INCLUDE "mobile/pichu.asm"
-INCLUDE "mobile/mobile_45_2.asm"
+INCLUDE "mobile/pichu_movement.asm"
+INCLUDE "data/mobile/pichu_animations.asm"
+INCLUDE "data/mobile/pichu_frames.asm"
+INCLUDE "data/mobile/pichu_border.asm"
 INCLUDE "engine/events/give_odd_egg.asm"
 INCLUDE "mobile/password.asm"
 INCLUDE "mobile/stadium.asm"

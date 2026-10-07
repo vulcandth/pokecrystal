@@ -4179,7 +4179,7 @@ Function101cc2: ; unreferenced
 	ret
 
 Function101cc8:
-	ld a, $01
+	ld a, MOBILE_PICHU_MOVE_INIT_HORIZONTAL
 	ld [wMobilePichuMovementIndex], a
 	ld a, $01
 	ld [wMobilePichuEnabled], a
@@ -4191,7 +4191,7 @@ Function101cc8:
 	ret
 
 Function101cdf:
-	ld a, $06
+	ld a, MOBILE_PICHU_MOVE_INIT_VERTICAL
 	ld [wMobilePichuMovementIndex], a
 	ld a, $01
 	ld [wMobilePichuEnabled], a
@@ -4203,7 +4203,7 @@ Function101cdf:
 	ret
 
 Function101cf6:
-	ld a, $0b
+	ld a, MOBILE_PICHU_MOVE_INIT_APPEAR
 	ld [wMobilePichuMovementCommand], a
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -4211,7 +4211,7 @@ Function101cf6:
 	ret
 
 Function101d03:
-	ld a, $0e
+	ld a, MOBILE_PICHU_MOVE_INIT_FINISH
 	ld [wMobilePichuMovementCommand], a
 	ld a, [wMobileCommsJumptableIndex]
 	inc a

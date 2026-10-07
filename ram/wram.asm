@@ -248,6 +248,7 @@ wc314::
 wMobilePichuMovementIndex:: db
 wMobilePichuMovementCommand:: db
 wMobilePichuXSpeed:: db
+wMobilePichuAppearRow::
 wMobilePichuYSpeed:: db
 wMobilePichuClippedObjects:: db
 wMobilePichuJumptableIndex::
