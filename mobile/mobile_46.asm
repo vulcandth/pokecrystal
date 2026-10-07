@@ -30,7 +30,7 @@ asm_11800b:
 
 .skip
 	call Function1184a5
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -70,7 +70,7 @@ BattleTower_UploadRecord:
 
 .asm_118090
 	call Function11857c
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -115,7 +115,7 @@ Function1180b8:
 
 .asm_1180f2
 	call Function1184ec
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -159,7 +159,7 @@ Function118125:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 .skip
 	call BattleTowerRoomMenu_Jumptable
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -246,7 +246,7 @@ Mobile_DownloadNews:
 
 .asm_11820b
 	call Mobile_DownloadNewsJumptable
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -283,7 +283,7 @@ Mobile_UpdateNewsRankings:
 
 .asm_11825f
 	call Mobile_UpdateNewsRankingsJumptable
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -318,7 +318,7 @@ Function118284:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 .asm_1182b0
 	call Function1186f5
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -354,7 +354,7 @@ Function1182d5: ; unreferenced
 
 .asm_118301
 	call Function118746
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -391,7 +391,7 @@ Function118329:
 
 .asm_118355
 	call Function118671
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -427,7 +427,7 @@ Function11837a:
 
 .asm_1183a6
 	call Function1186b2
-	call BattleTowerRoomMenu_WriteMessage
+	call Mobile_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
 	call DelayFrame
@@ -455,7 +455,7 @@ BattleTowerRoomMenu_InitRAM:
 	ld [wMobileConnectionTimeFrames], a
 	ld [wMobileConnectionTimeSeconds], a
 	ld [wMobileConnectionTimeMinutes], a
-	ld [wc31a], a
+	ld [wMobileMessageJumptableIndex], a
 	ld [wMobileDownloadFlags], a
 	ld [wMobileLegacyInactivityCounter], a
 	ld [wMobileLegacyInactivityCounter + 1], a
@@ -1132,11 +1132,11 @@ BattleTowerRoomMenu_PickLevelMessage:
 	ld hl, Text_CheckBattleRoomListByMaxLevel
 
 .asm_118930
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 
 BattleTowerRoomMenu_PlacePickLevelMenu:
-	ld a, [wc31a]
+	ld a, [wMobileMessageJumptableIndex]
 	and a
 	ret nz
 	ld hl, BattleTowerPickLevelMenuHeader
@@ -1750,22 +1750,22 @@ Function118ec6:
 	call Function118440
 	call SpeechTextbox
 	ld hl, w3_d80e
-	ld de, wc320
+	ld de, wMobileMessageBuffer
 	ld bc, $0026
 	call CopyBytes
 	xor a
-	ld [wc31f], a
-	ld a, LOW(wc320)
-	ld [wc31b], a
-	ld a, HIGH(wc320)
-	ld [wc31c], a
+	ld [wMobileMessageDelay], a
+	ld a, LOW(wMobileMessageBuffer)
+	ld [wMobileMessageSource], a
+	ld a, HIGH(wMobileMessageBuffer)
+	ld [wMobileMessageSource + 1], a
 	hlcoord 1, 14
 	ld a, l
-	ld [wc31d], a
+	ld [wMobileMessageDest], a
 	ld a, h
-	ld [wc31e], a
-	ld a, $2
-	ld [wc31a], a
+	ld [wMobileMessageDest + 1], a
+	ld a, MOBILE_MESSAGE_PRINT_TEXT
+	ld [wMobileMessageJumptableIndex], a
 	ld a, MOBILE_DIALOG_DOWNLOAD_NEWS
 	ld [wMobileDialogJumptableIndex], a
 	ld a, $24
@@ -1794,7 +1794,7 @@ Function118f14:
 	and a
 	jr z, .DontSendSaveFile
 	ld hl, Text_SaveFileWillBeSent
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 
 .DontSendSaveFile:
 	ld a, [wcd57]
@@ -1896,12 +1896,12 @@ Mobile_TryDownloadNewsRankings:
 	ld hl, Text_ReadingNews
 
 .asm_118ff5
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	jr Mobile_HTTPPostNewsRankings
 
 .asm_118ffa
 	ld hl, Text_ReadingNews
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 	call BattleTowerRoomMenu_IncrementJumptable
 	jp BattleTowerRoomMenu_IncrementJumptable
@@ -2055,7 +2055,7 @@ Mobile_SaveDownloadedNews:
 	ldh [rWBK], a
 	call CloseSRAM
 	ld hl, Text_ReceivedNews
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	jp BattleTowerRoomMenu_IncrementJumptable
 
 Function11914e:
@@ -3272,11 +3272,11 @@ DisplaySendToTradeCornerAnimation:
 
 Function1198ee:
 	ld hl, Text_RegisteringRecord
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 
 BattleTower_HTTPPostRecord:
-	ld a, [wc31a]
+	ld a, [wMobileMessageJumptableIndex]
 	and a
 	ret nz
 	ld hl, wc608 + 2
@@ -3807,17 +3807,17 @@ popc
 
 BattleTowerRoomMenu_UberRestrictionMessage:
 	ld hl, Text_UberRestriction
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 	jr BattleTowerRoomMenu_WaitForMessage
 
 BattleTowerRoomMenu_PartyMonTopsThisLevelMessage:
 	ld hl, Text_PartyMonTopsThisLevel
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 
 BattleTowerRoomMenu_WaitForMessage:
-	ld a, [wc31a]
+	ld a, [wMobileMessageJumptableIndex]
 	and a
 	ret nz
 	ld a, $80
@@ -3852,11 +3852,11 @@ BattleTowerRoomMenu_QuitMessage:
 	ld hl, Text_ExitGymLeaderHonorRoll
 
 .asm_119cd9
-	call BattleTowerRoomMenu_SetMessage
+	call Mobile_SetMessage
 	call BattleTowerRoomMenu_IncrementJumptable
 
 BattleTowerRoomMenu_PlaceYesNoMenu:
-	ld a, [wc31a]
+	ld a, [wMobileMessageJumptableIndex]
 	and a
 	ret nz
 	ld a, MOBILE_DIALOG_PLACE_CANCEL_MENU
@@ -4267,131 +4267,7 @@ for x, 0, 16**3, 16**2
 	bcd x % 100, x / 100
 endr
 
-BattleTowerRoomMenu_WriteMessage:
-	jumptable .Jumptable, wc31a
-
-.Jumptable:
-	dw BattleTowerRoomMenu_WriteMessage_DoNothing
-	dw Function11a90f
-	dw Function11a971
-
-Function11a90f:
-	ld a, $1
-	ldh [rWBK], a
-	call SpeechTextbox
-	ld a, $50
-	ld hl, wc320
-	ld bc, $008c
-	call ByteFill
-	ld a, [wc31b]
-	ld l, a
-	ld a, [wc31c]
-	ld h, a
-	ld de, wc320
-.asm_11a92c
-	ld a, [hli]
-	cp $57
-	jr z, .asm_11a94f
-	cp $0
-	jr z, .asm_11a92c
-	cp $50
-	jr z, .asm_11a92c
-	cp $1
-	jr z, .asm_11a941
-	ld [de], a
-	inc de
-	jr .asm_11a92c
-
-.asm_11a941
-	ld a, [hli]
-	ld c, a
-	ld a, [hli]
-	ld b, a
-.asm_11a945
-	ld a, [bc]
-	inc bc
-	cp $50
-	jr z, .asm_11a92c
-	ld [de], a
-	inc de
-	jr .asm_11a945
-
-.asm_11a94f
-	xor a
-	ld [wc31f], a
-	ld a, LOW(wc320)
-	ld [wc31b], a
-	ld a, HIGH(wc320)
-	ld [wc31c], a
-	hlcoord 1, 14
-	ld a, l
-	ld [wc31d], a
-	ld a, h
-	ld [wc31e], a
-	ld hl, wc31a
-	inc [hl]
-	ld a, $3
-	ldh [rWBK], a
-
-BattleTowerRoomMenu_WriteMessage_DoNothing:
-	ret
-
-Function11a971:
-	ld hl, wc31f
-	ldh a, [hJoyDown]
-	and a
-	jr nz, .asm_11a97f
-	ld a, [hl]
-	and a
-	jr z, .asm_11a97f
-	dec [hl]
-	ret
-
-.asm_11a97f
-	ld a, [wOptions]
-	and $7
-	ld [hl], a
-	ld hl, wcd8d
-	ld a, [wc31b]
-	ld e, a
-	ld a, [wc31c]
-	ld d, a
-	ld a, [de]
-	inc de
-	ld [hli], a
-	ld a, e
-	ld [wc31b], a
-	ld a, d
-	ld [wc31c], a
-	ld a, $50
-	ld [hl], a
-	ld a, [wc31d]
-	ld l, a
-	ld a, [wc31e]
-	ld h, a
-	ld de, wcd8d
-	call PlaceString
-	ld a, c
-	ld [wc31d], a
-	ld a, b
-	ld [wc31e], a
-	ld a, [wcd8d]
-	cp $50
-	jr nz, .asm_11a9bf
-	xor a
-	ld [wc31a], a
-
-.asm_11a9bf
-	ret
-
-BattleTowerRoomMenu_SetMessage:
-	ld a, l
-	ld [wc31b], a
-	ld a, h
-	ld [wc31c], a
-	ld a, $1
-	ld [wc31a], a
-	ret
+INCLUDE "mobile/message.asm"
 
 MobileDialog_ReloadOverworld:
 	call ClearBGPalettes
@@ -4430,104 +4306,7 @@ Mobile_CheckLegacyInactivityTimeout: ; unreferenced
 	and a
 	ret
 
-Text_SaveFileWillBeSent:
-	text "SAVE FILE will be"
-	line "sent."
-	done
-
-Text_SentSaveFileReadingNews:
-	text "Sent SAVE FILE."
-	line "Reading NEWS…"
-	done
-
-Text_ReadingNews:
-	text "Reading NEWS…"
-	done
-
-Text_ReceivedNews:
-	text "Received NEWS!"
-	done
-
-Text_QuitReadingNews:
-	text "Quit reading NEWS?"
-	done
-
-Text_CanceledSendingSaveFile: ; unreferenced
-	text "Canceled sending"
-	line "SAVE FILE."
-	done
-
-Text_ReceivedOddEgg: ; unreferenced
-	text "ODD EGG"
-	line "was received!"
-	done
-
-Text_RegisteringRecord:
-	text "Registering your"
-	line "record…"
-	done
-
-Text_BattleRoomVisitLimit: ; unreferenced
-	text "One visit per day"
-	line "per BATTLE ROOM!"
-	done
-
-Text_PartyMonTopsThisLevel:
-	text "A party #MON"
-	line "tops this level."
-	done
-
-Text_UberRestriction:
-	text_ram wcd49
-	text " may go"
-	line "only to BATTLE"
-
-	para "ROOMS that are"
-	line "Lv.70 or higher."
-	done
-
-Text_CancelBattleRoomChallenge:
-	text "Cancel your BATTLE"
-	line "ROOM challenge?"
-	done
-
-Text_ExitGymLeaderHonorRoll:
-	text "Exit GYM LEADER"
-	line "HONOR ROLL?"
-	done
-
-Text_LinkingWithCenter: ; unreferenced
-	text "Linking with the"
-	line "CENTER…"
-	done
-
-Text_WhatLevelDoYouWantToChallenge:
-	text "What level do you"
-	line "want to challenge?"
-	done
-
-Text_CheckBattleRoomListByMaxLevel:
-	text "Check BATTLE ROOM"
-	line "list by max level?"
-	done
-
-Text_EnterWhichBattleRoom: ; unreferenced
-	text "Enter which"
-	line "BATTLE ROOM?"
-	done
-
-Text_WhichBattleRoom: ; unreferenced
-	text "Which BATTLE ROOM?"
-	done
-
-Text_ThisBattleRoomPleaseWait: ; unreferenced
-	text_ram wStringBuffer3
-	text "'s ROOM"
-	line "@"
-	text_ram wStringBuffer4
-	text "?"
-	cont "Please wait…"
-	done
+INCLUDE "data/mobile/messages.asm"
 
 Function11ac3e:
 	call SpeechTextbox

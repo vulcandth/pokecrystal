@@ -310,7 +310,7 @@ MobileDialog_DownloadFee:
 	call MobileDialog_ClearText
 	call MobileDialog_BuildDownloadFeeString
 	hlcoord 4, 2
-	ld de, wc346
+	ld de, wMobileDownloadFeeQuestion
 	call PlaceString
 	call MobileDialog_DrawYesNoBox
 	xor a
@@ -362,7 +362,7 @@ MobileDialog_CheckDownloadFeeString:
 
 MobileDialog_BuildDownloadFeeString:
 	ld hl, MobileDialogDownloadFeePrefixString
-	ld de, wc346
+	ld de, wMobileDownloadFeeQuestion
 	call MobileDialog_CopyString
 	ld hl, wMobileDownloadFeeString
 	call MobileDialog_CopyString

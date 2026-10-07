@@ -239,14 +239,16 @@ wc312:: ds 1
 wc313:: ds 1
 wc314:: ds 5
 wc319:: db
-wc31a:: db
-wc31b:: db
-wc31c:: db
-wc31d:: db
-wc31e:: db
-wc31f:: db
+wMobileMessageJumptableIndex:: db
+wMobileMessageSource:: dw
+wMobileMessageDest:: dw
+wMobileMessageDelay:: db
+; Message text shares the phone/API parameter buffers.
+wMobileMessageBuffer::
 wc320:: ds 38
+wMobileDownloadFeeQuestion::
 wc346:: ds 102
+	assert @ - wMobileMessageBuffer == MOBILE_MESSAGE_BUFFER_LENGTH
 ; The login ID spans the following sprite fields through wc3cc.
 wMobileLoginID::
 wc3ac:: ds 8
@@ -1613,7 +1615,7 @@ wMobileLegacyInactivityCounter::
 wcd8a:: ds 1
 wcd8b:: ds 1
 wMobileMenuSavedWRAMBank:: ds 1
-wcd8d:: ds 11
+wMobileMessageCharBuffer:: ds 11
 ENDU
 
 wDefaultSGBLayout:: db
