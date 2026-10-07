@@ -18,6 +18,9 @@ DEF NEWS_JP_QUIZ_QUESTION               EQU $cd67
 DEF NEWS_JP_QUIZ_SCORE                  EQU $cd68
 DEF NEWS_JP_RANKINGS_UPDATE_RESULT      EQU $cd6e
 
+; PostalMarkGFX is loaded at this tile in the news viewer.
+DEF NEWS_POSTAL_MARK EQU $60
+
 ; PokemonNewsStatePointers indexes
 	const_def
 	const NEWS_STATE_LOAD_SCREEN

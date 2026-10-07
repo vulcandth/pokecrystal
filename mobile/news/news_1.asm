@@ -379,7 +379,7 @@ PokemonNews1RankingRegions:
 	db " <NO>ランキング@"
 
 .PostalCodeText:
-	db "<BOLD_A>"
+	db NEWS_POSTAL_MARK
 	news_text_start
 	news_text_command NewsText_PlayerPostalCode
 	db $83
@@ -636,7 +636,7 @@ PokemonNews1Rankings:
 	news_end
 
 .Message15Text:
-	db "ここに<POKE>だれも<NEXT>ランクイン してません<PARA>@"
+	db "ここに<WA>だれも<NEXT>ランクイン してません<PARA>@"
 
 .PlayerRankingScript:
 	news_command NewsScript_CompareRAM
@@ -830,7 +830,7 @@ PokemonNews1Rankings:
 	db " <NO>トップ10!@"
 
 .Region3Text:
-	db "<BOLD_A>"
+	db NEWS_POSTAL_MARK
 	news_text_start
 	news_text_command NewsText_PlayerPostalCode
 	db $83

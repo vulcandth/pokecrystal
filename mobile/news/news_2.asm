@@ -697,12 +697,12 @@ PokemonNews2Quiz:
 
 .Question3Text:
 	db "#<NO>つかまえかたを<NEXT>おしえて くれる<NEXT>おにいさん"
-	db "<NO>りュックに<NEXT>きずくすり<POKE>いくつ?<NEXT>1<DOT>1こ  "
+	db "<NO>りュックに<NEXT>きずくすり<WA>いくつ?<NEXT>1<DOT>1こ  "
 	db " 2<DOT>2こ<NEXT>3<DOT>3こ<NEXT>@"
 
 .Question4Text:
-	db "おかあさんの<NEXT>とくい りょうりは<NEXT><PO>グレンふう "
-	db "かざん ???<KE><NEXT><PO>???<KE><POKE>なに?<NEXT>1<DOT>ハンバ"
+	db "おかあさんの<NEXT>とくい りょうりは<NEXT>「グレンふう "
+	db "かざん ???」<NEXT>「???」<WA>なに?<NEXT>1<DOT>ハンバ"
 	db "ーグ  2<DOT>カレー<NEXT>3<DOT>やきそば<NEXT>@"
 
 .Question5Text:
@@ -873,22 +873,22 @@ PokemonNews2QuizResults:
 	db "!@"
 
 .Message3Text:
-	db $00, "ぜんぜん まだまだ じゃな<LINE>これ<POKE>おぼえてなく"
+	db $00, "ぜんぜん まだまだ じゃな<LINE>これ<WA>おぼえてなく"
 	db "ても いいだろう<CONT>というような ことまで おぼえ"
 	db "るのが<CONT>#マニアと いうものじゃ<DONE>"
 
 .Message4Text:
-	db $00, "#マニア<NI>して<POKE>まだ<LINE>ボりューム<GA>たりん!<PARA>い"
+	db $00, "#マニア<NI>して<WA>まだ<LINE>ボりューム<GA>たりん!<PARA>い"
 	db "ろいろな ものを<LINE>むだでも くまなく みるのじゃ"
 	db "!<DONE>"
 
 .Message5Text:
 	db $00, "ふむ がんば<TTE>おるな<LINE>それなり<NI>#マニア<CONT>らし"
 	db "く な<TTE>きておるよ!<PARA>ともだちと そうだん して"
-	db "いるかな?<LINE>ひとりで<POKE>たいへん だからな<DONE>"
+	db "いるかな?<LINE>ひとりで<WA>たいへん だからな<DONE>"
 
 .Message6Text:
-	db $00, "エクセレントじゃ!<LINE>きみ<POKE>じゅうばこ<NO>すみを<CONT>"
+	db $00, "エクセレントじゃ!<LINE>きみ<WA>じゅうばこ<NO>すみを<CONT>"
 	db "つつくの<GA>すき なんじゃろ?<DONE>"
 
 .Message7Text:
@@ -1268,7 +1268,7 @@ PokemonNews2RankingRegions:
 	db " <NO>ランキング@"
 
 .PostalCodeText:
-	db "<BOLD_A>"
+	db NEWS_POSTAL_MARK
 	news_text_start
 	news_text_command NewsText_PlayerPostalCode
 	db $83
@@ -1525,7 +1525,7 @@ PokemonNews2Rankings:
 	news_end
 
 .Message15Text:
-	db "ここに<POKE>だれも<NEXT>ランクイン してません<PARA>@"
+	db "ここに<WA>だれも<NEXT>ランクイン してません<PARA>@"
 
 .PlayerRankingScript:
 	news_command NewsScript_CompareRAM
@@ -1720,7 +1720,7 @@ PokemonNews2Rankings:
 	db " <NO>トップ10!@"
 
 .Region3Text:
-	db "<BOLD_A>"
+	db NEWS_POSTAL_MARK
 	news_text_start
 	news_text_command NewsText_PlayerPostalCode
 	db $83

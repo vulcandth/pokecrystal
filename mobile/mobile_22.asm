@@ -477,7 +477,7 @@ Function893b3:
 	call LoadStandardFont
 	call LoadFontsExtra
 	call CardFolder_LoadCursorGFXIntoVRAM
-	call CardFolder_LoadMobileAdapterGFXIntoVRAM
+	call CardFolder_LoadCardSprites
 	call Function89455
 	call EnableLCD
 	ret
@@ -517,7 +517,7 @@ Function893fe: ; unreferenced
 EZChatCursorGFX:
 INCBIN "gfx/mobile/ez_chat_cursor.2bpp"
 
-CardFolder_LoadMobileAdapterGFXIntoVRAM:
+CardFolder_LoadCardSprites:
 	ld de, vTiles0 tile $02
 	ld hl, CardLargeSpriteAndFolderGFX
 	ld bc, 8 tiles ; just the large card sprite

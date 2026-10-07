@@ -545,7 +545,7 @@ EZChatEmptyWordText:
 EZChat_DrawChatWords:
 	call EZChat_ClearBottom12Rows
 	ld de, EZChatChatExplanationBox
-	call EZChat_TextboxWithTileOffset
+	call EZChat_TextboxBorder
 	hlcoord 1, 7
 	ld de, EZChatChatExplanationText
 	call PlaceString
@@ -925,7 +925,7 @@ Function11c658:
 	call EZChat_ClearBottom12Rows
 	call EZChat_DetermineWordCounts
 	ld de, EZChatWordSubmenuBox
-	call EZChat_TextboxWithTileOffset
+	call EZChat_TextboxBorder
 	call EZChat_WhiteOutLowerMenu
 	call EZChat_RenderWordChoices
 	call EZChat_HandleWordSubmenuBottom
@@ -2346,7 +2346,7 @@ EZChat_Textbox:
 	ld [hl], a
 	ret
 
-EZChat_TextboxWithTileOffset:
+EZChat_TextboxBorder:
 	hlcoord 0, 0
 	ld bc, SCREEN_WIDTH
 	ld a, [de]
