@@ -34,7 +34,7 @@ ReadPokemonNews:
 	call FadeToMenu
 	ldh a, [rWBK]
 	push af
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	call PokemonNews_Init
 	call PokemonNews_JoypadLoop
@@ -52,12 +52,12 @@ ReadPokemonNews:
 	ret
 
 PokemonNews_ValidateChecksum:
-	ld a, BANK(s5_b1b1)
+	ld a, BANK(sNewsRankingTableSize)
 	call OpenSRAM
-	ld a, [s5_b1b1]
+	ld a, [sNewsRankingTableSize]
 	call CloseSRAM
-	cp $21
-	jr nc, .asm_17d354
+	cp MAX_NEWS_RANKINGS * 2 + 1
+	jr nc, .invalid
 	ld a, BANK(sPokemonNewsData)
 	call OpenSRAM
 	ld l, 0
@@ -67,7 +67,7 @@ PokemonNews_ValidateChecksum:
 	ld c, a
 	ld a, [sPokemonNewsLength + 1]
 	ld b, a
-.asm_17d336
+.sum_bytes
 	push bc
 	ld a, [de]
 	inc de
@@ -78,24 +78,24 @@ PokemonNews_ValidateChecksum:
 	dec bc
 	ld a, b
 	or c
-	jr nz, .asm_17d336
+	jr nz, .sum_bytes
 	ld a, [sPokemonNewsChecksum]
 	cp l
-	jr nz, .asm_17d354
+	jr nz, .invalid
 	ld a, [sPokemonNewsChecksum + 1]
 	cp h
-	jr nz, .asm_17d354
+	jr nz, .invalid
 	call CloseSRAM
 	and a
 	ret
 
-.asm_17d354
+.invalid
 	call CloseSRAM
-	ld a, $5
+	ld a, BANK(sPokemonNewsID)
 	call OpenSRAM
 	xor a
-	ld hl, $aa73
-	ld bc, $c
+	ld hl, sPokemonNewsID
+	ld bc, NEWS_ID_LENGTH
 	call ByteFill
 	call CloseSRAM
 	ld a, $2
@@ -115,8 +115,8 @@ PokemonNews_Init:
 	call ClearScreen
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	call DisableLCD
-	ld hl, vTiles0 tile $ee
-	ld de, wc608
+	ld hl, vTiles0 tile '▼'
+	ld de, wNewsSavedScrollTile
 	ld bc, 1 tiles
 	call CopyBytes
 	ld a, $1
@@ -129,27 +129,27 @@ PokemonNews_Init:
 	ld hl, vTiles5 tile $7f
 	ld bc, 1 tiles
 	call ByteFill
-	ld hl, wc608
-	ld de, vTiles3 tile $ee
+	ld hl, wNewsSavedScrollTile
+	ld de, vTiles3 tile '▼'
 	ld bc, 1 tiles
 	call CopyBytes
 	xor a
 	ldh [rVBK], a
 	ld hl, PostalMarkGFX
-	ld de, vTiles2 tile $60
+	ld de, vTiles2 tile NEWS_POSTAL_MARK
 	ld bc, 1 tiles
 	call CopyBytes
 	call EnableLCD
 	call PokemonNews_LoadMetadata
-	ld a, $0
+	ld a, LOW(wNewsScreenBuffer)
 	ld [wNewsScreenPointer], a
-	ld a, $d0
+	ld a, HIGH(wNewsScreenBuffer)
 	ld [wNewsScreenPointer + 1], a
 	ld a, BANK(sPokemonNewsData)
 	call OpenSRAM
 	ld hl, sPokemonNewsData
 	ld de, wNewsScreenBuffer
-	ld bc, $1000
+	ld bc, NEWS_BUFFER_SIZE
 	call CopyBytes
 	call CloseSRAM
 	ret
@@ -162,8 +162,8 @@ PokemonNews_ClearScreen:
 
 PokemonNews_LoadGraphics:
 	call DisableLCD
-	ld hl, vTiles0 tile $ee
-	ld de, wc608
+	ld hl, vTiles0 tile '▼'
+	ld de, wNewsSavedScrollTile
 	ld bc, 1 tiles
 	call CopyBytes
 	ld a, $1
@@ -176,8 +176,8 @@ PokemonNews_LoadGraphics:
 	ld hl, vTiles5 tile $7f
 	ld bc, 1 tiles
 	call ByteFill
-	ld hl, wc608
-	ld de, vTiles3 tile $ee
+	ld hl, wNewsSavedScrollTile
+	ld de, vTiles3 tile '▼'
 	ld bc, 1 tiles
 	call CopyBytes
 	xor a
@@ -185,7 +185,7 @@ PokemonNews_LoadGraphics:
 	call EnableLCD
 	ldh a, [rWBK]
 	push af
-	ld a, $5
+	ld a, BANK(wBGPals1)
 	ldh [rWBK], a
 	ld hl, PokemonNewsPalettes
 	ld de, wBGPals1
@@ -227,21 +227,21 @@ PokemonNews_LoadScreen:
 ; Decode the screen header, then its three menu pointer tables.
 ; Palette byte: bit n supplies a replacement for palette n.
 	ld hl, PokemonNewsPalettes
-	ld de, wc608
-	ld bc, $40
+	ld de, wNewsPaletteBuffer
+	ld bc, 8 palettes
 	call CopyBytes
 	ld hl, PokemonNewsTileAttrmap
 	decoord 0, 0
 	bccoord 0, 0, wAttrmap
-	ld a, $12
+	ld a, SCREEN_HEIGHT
 .asm_17d4a4
 	push af
-	ld a, $14
+	ld a, SCREEN_WIDTH
 	push hl
 .asm_17d4a8
 	push af
 	ld a, [hli]
-	cp $7f
+	cp ' '
 	jr z, .asm_17d4b0
 	add $80
 
@@ -256,7 +256,7 @@ PokemonNews_LoadScreen:
 	jr nz, .asm_17d4a8
 	pop hl
 	push bc
-	ld bc, $40
+	ld bc, TILEMAP_WIDTH * 2
 	add hl, bc
 	pop bc
 	pop af
@@ -279,12 +279,12 @@ PokemonNews_LoadScreen:
 
 .asm_17d4e0
 	ld a, [hli]
-	ld de, wc608
+	ld de, wNewsPaletteBuffer
 	ld c, $8
 .asm_17d4e6
 	srl a
 	jr nc, .asm_17d4f6
-	ld b, $8
+	ld b, 1 palettes
 	push af
 .asm_17d4ed
 	ld a, [hli]
@@ -298,7 +298,7 @@ PokemonNews_LoadScreen:
 .asm_17d4f6
 	push af
 	ld a, e
-	add $8
+	add 1 palettes
 	ld e, a
 	pop af
 
@@ -314,24 +314,24 @@ PokemonNews_LoadScreen:
 .asm_17d508
 	push af
 	ld a, [hli]
-	ld [wcd4f], a
+	ld [wNewsBoxX], a
 	ld a, [hli]
-	ld [wcd50], a
+	ld [wNewsBoxY], a
 	ld a, [hli]
-	ld [wcd51], a
+	ld [wNewsBoxWidth], a
 	ld a, [hli]
-	ld [wcd52], a
+	ld [wNewsBoxHeight], a
 	ld a, [hli]
 	sla a
 	sla a
 	sla a
 	add $98
-	ld [wcd53], a
-	ld de, wcd4f
+	ld [wNewsBoxTile], a
+	ld de, wNewsBoxX
 	call PokemonNews_DrawBox
 	ld a, [hli]
-	ld [wcd53], a
-	ld de, wcd4f
+	ld [wNewsBoxAttributes], a
+	ld de, wNewsBoxX
 	call PokemonNews_ApplyBoxAttributes
 	pop af
 	dec a
@@ -357,7 +357,7 @@ PokemonNews_LoadScreen:
 	dec a
 	jr nz, .asm_17d53a
 	ld de, wNewsMenuX
-	ld bc, $c
+	ld bc, wNewsMenuCursor - wNewsMenuX
 	call CopyBytes
 	xor a
 	ld [wNewsMenuCursor], a
@@ -366,7 +366,7 @@ PokemonNews_LoadScreen:
 	ld [wNewsMenuCursorColumn], a
 	ld [wNewsMenuCursorRow], a
 	ld de, wNewsJoypadScripts
-	ld bc, $10
+	ld bc, wNewsMenuItems - wNewsJoypadScripts
 	call CopyBytes
 	ld a, [hli]
 	ld [wNewsMenuItems], a
@@ -450,39 +450,41 @@ PokemonNews_Joypad:
 	ret
 
 PokemonNews_CopyPalettes:
-	ld a, $5
+	ld a, BANK(wBGPals1)
 	ldh [rWBK], a
-	ld hl, wc608
+	ld hl, wNewsPaletteBuffer
 	ld de, wBGPals1
 	ld bc, 8 palettes
 	call CopyBytes
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	ret
 
 PokemonNews_LoadMetadata:
-	ld a, $5
+; Rebuild the pointer table using each ranking's big-endian entry count
+; and its little-endian entry size from the downloaded metadata.
+	ld a, BANK(sNewsRankingEntrySizes)
 	call OpenSRAM
-	ld hl, $b1d3
-	ld de, wc608
-	ld bc, $20
+	ld hl, sNewsRankingEntrySizes
+	ld de, wNewsRankingSizesBuffer
+	ld bc, MAX_NEWS_RANKINGS * 2
 	call CopyBytes
-	ld a, [$b1b1]
+	ld a, [sNewsRankingTableSize]
 	ld c, a
-	ld a, [$b1b2]
+	ld a, [sNewsRankingTableSize + 1]
 	ld b, a
-	ld a, [$b1b3]
+	ld a, [sNewsRankingPointers]
 	ld l, a
-	ld a, [$b1b4]
+	ld a, [sNewsRankingPointers + 1]
 	ld h, a
 	call CloseSRAM
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	ld de, wc708
 	ld a, c
 	and a
-	jr z, .asm_17d684
-.asm_17d63b
+	jr z, .save_pointers
+.next_ranking
 	push bc
 	ld a, l
 	ld [de], a
@@ -490,7 +492,7 @@ PokemonNews_LoadMetadata:
 	ld a, h
 	ld [de], a
 	inc de
-	ld bc, $a
+	ld bc, NEWS_RANKING_COUNT_OFFSET
 	add hl, bc
 	pop bc
 	ld a, [hli]
@@ -499,7 +501,7 @@ PokemonNews_LoadMetadata:
 	ld [wNewsMenuTextPointers], a
 	push hl
 	push de
-	ld hl, wc608
+	ld hl, wNewsRankingSizesBuffer
 	ld e, b
 	ld d, $0
 	add hl, de
@@ -513,7 +515,7 @@ PokemonNews_LoadMetadata:
 	inc b
 	dec c
 	dec c
-	jr z, .asm_17d684
+	jr z, .save_pointers
 	push bc
 	push de
 	ld a, [wNewsMenuTextPointers]
@@ -524,25 +526,25 @@ PokemonNews_LoadMetadata:
 	ld e, a
 	ld a, [wNewsMenuScriptPointers + 1]
 	ld d, a
-.asm_17d67a
+.skip_entries
 	add hl, de
 	dec bc
 	ld a, c
 	or b
-	jr nz, .asm_17d67a
+	jr nz, .skip_entries
 	pop de
 	pop bc
-	jr .asm_17d63b
+	jr .next_ranking
 
-.asm_17d684
+.save_pointers
 	call CloseSRAM
-	ld a, $5
+	ld a, BANK(sNewsRankingEntrySizes)
 	call OpenSRAM
 	ld hl, wc708
-	ld de, $b1b3
-	ld a, [$b1b1]
+	ld de, sNewsRankingPointers
+	ld a, [sNewsRankingTableSize]
 	ld c, a
-	ld a, [$b1b2]
+	ld a, [sNewsRankingTableSize + 1]
 	ld b, a
 	call CopyBytes
 	call CloseSRAM
@@ -553,16 +555,16 @@ PokemonNews_LoadRanking:
 	ld a, [wNewsRanking]
 	ld c, a
 	ld b, 0
-	ld a, $5
+	ld a, BANK(sNewsRankingEntrySizes)
 	call OpenSRAM
-	ld hl, $b1d3
+	ld hl, sNewsRankingEntrySizes
 	add hl, bc
 	add hl, bc
 	ld a, [hli]
 	ld [wNewsRankingEntrySize], a
 	ld a, [hl]
 	ld [wNewsRankingEntrySize + 1], a
-	ld hl, $b1b3
+	ld hl, sNewsRankingPointers
 	add hl, bc
 	add hl, bc
 	ld a, [hli]
@@ -571,7 +573,7 @@ PokemonNews_LoadRanking:
 	ld h, a
 	ld l, c
 	call CloseSRAM
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	ld a, l
 	ld [wNewsRankingPointer], a
@@ -648,7 +650,7 @@ NewsScript_LoadScreen:
 	ld hl, sPokemonNewsData
 	add hl, bc
 	ld de, wNewsScreenBuffer
-	ld bc, $1000
+	ld bc, NEWS_BUFFER_SIZE
 	call CopyBytes
 	call CloseSRAM
 	xor a
@@ -693,24 +695,24 @@ NewsScript_DrawBox:
 ; db x, y, width, height, border, palette.
 	call PokemonNews_AdvanceScriptPointer
 	ld a, [hli]
-	ld [wcd4f], a
+	ld [wNewsBoxX], a
 	ld a, [hli]
-	ld [wcd50], a
+	ld [wNewsBoxY], a
 	ld a, [hli]
-	ld [wcd51], a
+	ld [wNewsBoxWidth], a
 	ld a, [hli]
-	ld [wcd52], a
+	ld [wNewsBoxHeight], a
 	ld a, [hli]
 	sla a
 	sla a
 	sla a
 	add $98
-	ld [wcd53], a
-	ld de, wcd4f
+	ld [wNewsBoxTile], a
+	ld de, wNewsBoxX
 	call PokemonNews_DrawBox
 	ld a, [hli]
-	ld [wcd53], a
-	ld de, wcd4f
+	ld [wNewsBoxAttributes], a
+	ld de, wNewsBoxX
 	call PokemonNews_ApplyBoxAttributes
 	call PokemonNews_SetScriptPointer
 	ret
@@ -827,7 +829,7 @@ NewsScript_HTTPPost:
 	pop af
 	cp $c0
 	jr c, .asm_17d8c2
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17d878
 
@@ -844,7 +846,7 @@ NewsScript_HTTPPost:
 	ld de, wBGPals1
 	ld b, $0
 	call CopyBytes
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	call PokemonNews_BackUpRAM
 	pop bc
@@ -1010,7 +1012,7 @@ NewsScript_CopyBytes:
 	pop af
 	cp $c0
 	jr c, .asm_17da2d
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17da30
 
@@ -1071,7 +1073,7 @@ NewsScript_UpdateBit:
 	pop af
 	cp $c0
 	jr c, .asm_17da88
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17da8b
 
@@ -1377,7 +1379,7 @@ NewsScript_FadeIn:
 	call PokemonNews_SetScriptPointer
 
 PokemonNews_FadeIn:
-	ld a, $5
+	ld a, BANK(wBGPals1)
 	ldh [rWBK], a
 	ld hl, wBGPals1
 	ld de, 1 palettes
@@ -1386,14 +1388,14 @@ PokemonNews_FadeIn:
 	push hl
 	ld a, $ff
 	ld [hli], a
-	ld a, $7f
+	ld a, ' '
 	ld [hl], a
 	pop hl
 	add hl, de
 	dec c
 	jr nz, .asm_17dcbb
 	call RotateThreePalettesRight
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	ret
 
@@ -1519,7 +1521,7 @@ NewsScript_CompareBytes:
 	ld a, [wc70a]
 	cp $c0
 	jr c, .close_sram
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .exited_bank
 
@@ -1596,7 +1598,7 @@ NewsScript_CheckBit:
 	ld a, [wc70a]
 	cp $c0
 	jr c, .asm_17de0c
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17de0f
 
@@ -1638,7 +1640,7 @@ NewsScript_CompareRanking:
 	ld c, a
 	ld b, 0
 	call CopyBytes
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	call PokemonNews_GetRankingEntry
 	ld a, [wc708]
@@ -1693,7 +1695,7 @@ NewsScript_CheckRankingBit:
 	ld de, wc708
 	ld bc, $7
 	call CopyBytes
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	call PokemonNews_GetRankingEntry
 	ld a, [wc708]
@@ -2204,7 +2206,7 @@ NewsScript_CompareRAM:
 	ld a, [wc70a]
 	cp $c0
 	jr c, .asm_17e1e2
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17e1e5
 
@@ -2236,7 +2238,7 @@ NewsScript_CompareRAM:
 	ld a, [wc70e]
 	cp $c0
 	jr c, .asm_17e21a
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17e21d
 
@@ -2368,42 +2370,42 @@ NewsScript_UpdateRankings:
 	call PokemonNews_BackUpRAM
 	xor a
 	ld [wcf66], a
-	farcall Function118233
+	farcall Mobile_UpdateNewsRankings
 	ld de, PostalMarkGFX
-	ld hl, vTiles2 tile $60
+	ld hl, vTiles2 tile NEWS_POSTAL_MARK
 	lb bc, BANK(PostalMarkGFX), 1
 	call Get2bpp
 	ld a, [wMobileErrorCodeBuffer]
 	and a
-	jr z, .asm_17e2d8
+	jr z, .success
 	cp $a
-	jr z, .asm_17e2f7
+	jr z, .canceled
 	cp $b
-	jr z, .asm_17e300
+	jr z, .news_changed
 	call PokemonNews_DisplayError
 	ret
 
-.asm_17e2d8
+.success
 	call PokemonNews_LoadMetadata
 	call PokemonNews_RestoreRAM
 	xor a
 	ld [wNewsRankingsUpdateResult], a
-	ld a, $5
+	ld a, BANK(sPokemonNewsID)
 	call OpenSRAM
-	ld hl, $aa73
-	ld de, $aa7f
-	ld bc, $c
+	ld hl, sPokemonNewsID
+	ld de, sPokemonNewsRankingsID
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ret
 
-.asm_17e2f7
+.canceled
 	call PokemonNews_RestoreRAM
 	ld a, $1
 	ld [wNewsRankingsUpdateResult], a
 	ret
 
-.asm_17e300
+.news_changed
 	call PokemonNews_RestoreRAM
 	ld a, $2
 	ld [wNewsRankingsUpdateResult], a
@@ -2424,27 +2426,29 @@ PokemonNews_DisplayError:
 	ret
 
 PokemonNews_BackUpRAM:
-	ld a, $5
+	ld a, BANK(sNewsPaletteBackup)
 	call OpenSRAM
-	ld hl, wc608
-	ld de, $b0b1
-	ld bc, $40
+	ld hl, wNewsPaletteBuffer
+	ld de, sNewsPaletteBackup
+	ld bc, 8 palettes
 	call CopyBytes
+; de now points to sNewsStateBackup.
 	ld hl, wNewsScreenPointer
-	ld bc, $5b
+	ld bc, wNewsStateEnd - wNewsScreenPointer
 	call CopyBytes
 	call CloseSRAM
 	ret
 
 PokemonNews_RestoreRAM:
-	ld a, $5
+	ld a, BANK(sNewsPaletteBackup)
 	call OpenSRAM
-	ld hl, $b0b1
-	ld de, wc608
-	ld bc, $40
+	ld hl, sNewsPaletteBackup
+	ld de, wNewsPaletteBuffer
+	ld bc, 8 palettes
 	call CopyBytes
+; hl now points to sNewsStateBackup.
 	ld de, wNewsScreenPointer
-	ld bc, $5b
+	ld bc, wNewsStateEnd - wNewsScreenPointer
 	call CopyBytes
 	call CloseSRAM
 	ret
@@ -2586,7 +2590,7 @@ PokemonNews_PlaceMenuItems:
 	add hl, bc
 	push hl
 	hlcoord 0, 0
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	ld a, [wNewsMenuY]
 	call AddNTimes
 	ld a, [wNewsMenuX]
@@ -2637,7 +2641,7 @@ PokemonNews_PlaceMenuItems:
 	jr nz, .asm_17e490
 	pop hl
 	ld a, [wNewsMenuRowSpacing]
-	ld de, $14
+	ld de, SCREEN_WIDTH
 .asm_17e4cb
 	add hl, de
 	dec a
@@ -2663,7 +2667,7 @@ PokemonNews_PlaceScrollArrows:
 	ret z
 	ld a, [wNewsScrollArrowY]
 	hlcoord 0, 0
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	call AddNTimes
 	ld a, [wNewsScrollArrowX]
 	ld c, a
@@ -2677,7 +2681,7 @@ PokemonNews_PlaceScrollArrows:
 
 .asm_17e4ff
 	ld a, [wNewsScrollArrowSpacing]
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	call AddNTimes
 	ld a, [wNewsMenuItems]
 	ld c, a
@@ -2688,7 +2692,7 @@ PokemonNews_PlaceScrollArrows:
 	cp c
 	ret z
 	ret nc
-	ld a, $ee
+	ld a, '▼'
 	ld [hl], a
 	ret
 
@@ -2699,7 +2703,7 @@ PokemonNews_ClearMenu:
 	inc a
 	ld [wcd4f], a
 	hlcoord 0, 0
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	ld a, [wNewsMenuY]
 	dec a
 	call AddNTimes
@@ -2717,10 +2721,10 @@ PokemonNews_ClearMenu:
 	ld a, [wcd4f]
 	ld c, a
 	ld b, 0
-	ld a, $7f
+	ld a, ' '
 	call ByteFill
 	pop hl
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	add hl, bc
 	pop af
 	dec a
@@ -2731,7 +2735,7 @@ PokemonNews_PlaceCursor:
 	ld a, [wNewsMenuItems]
 	and a
 	ret z
-	ld a, $ed
+	ld a, '▶'
 	call PokemonNews_PlaceCursorTile
 	ret
 
@@ -2739,14 +2743,14 @@ PokemonNews_EraseCursor:
 	ld a, [wNewsMenuItems]
 	and a
 	ret z
-	ld a, $7f
+	ld a, ' '
 	call PokemonNews_PlaceCursorTile
 	ret
 
 PokemonNews_PlaceCursorTile:
 	push af
 	hlcoord 0, 0
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	ld a, [wNewsMenuY]
 	call AddNTimes
 	ld a, [wNewsMenuX]
@@ -2762,7 +2766,7 @@ PokemonNews_PlaceCursorTile:
 	call SimpleMultiply
 	ld l, $0
 	ld h, l
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	call AddNTimes
 	ld a, [wNewsMenuCursorColumn]
 	dec a
@@ -2830,11 +2834,11 @@ PokemonNews_ClearTextBox:
 	push af
 	push hl
 	push bc
-	ld a, $7f
+	ld a, ' '
 	call ByteFill
 	pop bc
 	pop hl
-	ld de, $14
+	ld de, SCREEN_WIDTH
 	add hl, de
 	pop af
 	dec a
@@ -2844,7 +2848,7 @@ PokemonNews_ClearTextBox:
 PokemonNews_DrawBox:
 	push hl
 	hlcoord 0, 0
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	ld a, [de]
 	inc de
 	push af
@@ -2863,7 +2867,7 @@ PokemonNews_DrawBox:
 	ld b, 0
 	add hl, bc
 	push hl
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	ld [hli], a
 	ld a, [de]
 	inc de
@@ -2871,7 +2875,7 @@ PokemonNews_DrawBox:
 	dec a
 	jr z, .asm_17e63f
 	ld c, a
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	inc a
 .asm_17e63b
 	ld [hli], a
@@ -2879,11 +2883,11 @@ PokemonNews_DrawBox:
 	jr nz, .asm_17e63b
 
 .asm_17e63f
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $2
 	ld [hl], a
 	pop hl
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	add hl, bc
 	ld a, [de]
 	dec de
@@ -2893,7 +2897,7 @@ PokemonNews_DrawBox:
 	ld b, a
 .asm_17e651
 	push hl
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $3
 	ld [hli], a
 	ld a, [de]
@@ -2901,26 +2905,26 @@ PokemonNews_DrawBox:
 	dec a
 	jr z, .asm_17e664
 	ld c, a
-	ld a, $7f
+	ld a, ' '
 .asm_17e660
 	ld [hli], a
 	dec c
 	jr nz, .asm_17e660
 
 .asm_17e664
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $4
 	ld [hl], a
 	pop hl
 	push bc
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	add hl, bc
 	pop bc
 	dec b
 	jr nz, .asm_17e651
 
 .asm_17e674
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $5
 	ld [hli], a
 	ld a, [de]
@@ -2928,7 +2932,7 @@ PokemonNews_DrawBox:
 	dec a
 	jr z, .asm_17e689
 	ld c, a
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $6
 .asm_17e685
 	ld [hli], a
@@ -2936,7 +2940,7 @@ PokemonNews_DrawBox:
 	jr nz, .asm_17e685
 
 .asm_17e689
-	ld a, [wcd53]
+	ld a, [wNewsBoxTile]
 	add $7
 	ld [hl], a
 	pop hl
@@ -2945,7 +2949,7 @@ PokemonNews_DrawBox:
 PokemonNews_ApplyBoxAttributes:
 	push hl
 	ld hl, NULL
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	ld a, [de]
 	inc de
 	push af
@@ -2977,14 +2981,14 @@ PokemonNews_ApplyBoxAttributes:
 	bccoord 0, 0
 	add hl, bc
 	ld a, [hl]
-	cp $7f
+	cp ' '
 	jr z, .asm_17e6c2
-	ld a, [wcd53]
+	ld a, [wNewsBoxAttributes]
 	add $8
 	jr .asm_17e6c7
 
 .asm_17e6c2
-	ld a, [wcd53]
+	ld a, [wNewsBoxAttributes]
 	jr .asm_17e6c7
 
 .asm_17e6c7
@@ -2998,7 +3002,7 @@ PokemonNews_ApplyBoxAttributes:
 	dec a
 	jr nz, .asm_17e6af
 	pop hl
-	ld bc, $14
+	ld bc, SCREEN_WIDTH
 	add hl, bc
 	pop af
 	dec a
@@ -3024,7 +3028,7 @@ PokemonNews_ApplyPicturePalette:
 	dec c
 	jr nz, .asm_17e6f1
 	pop hl
-	ld de, $14
+	ld de, SCREEN_WIDTH
 	add hl, de
 	dec b
 	jr nz, .asm_17e6ee
@@ -3043,7 +3047,7 @@ PokemonNewsPalettes:
 INCLUDE "gfx/mobile/pokemon_news.pal"
 
 PokemonNews_PlaceText::
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	inc de
 .loop
@@ -3371,7 +3375,7 @@ NewsText_RankingPokemon:
 	ld [wcd52], a
 	ld a, b
 	ld [wcd53], a
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	ld a, [wcd54]
 	call PokemonNews_AdvanceTextPointer
@@ -3492,7 +3496,7 @@ NewsText_RankingItem:
 	ld [wcd52], a
 	ld a, b
 	ld [wcd53], a
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	ld a, [wcd54]
 	call PokemonNews_AdvanceTextPointer
@@ -3547,7 +3551,7 @@ NewsText_PlayerName:
 	ld de, wc608
 	ld bc, NAME_LENGTH_JAPANESE
 	call CopyBytes
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	pop hl
 	ld de, wc608
@@ -3584,9 +3588,9 @@ NewsText_PlayerPrefecture:
 	jr .asm_17f35d
 
 .asm_17f355
-	ld a, BANK(s5_b2f3)
+	ld a, BANK(sNewsPlayerPrefecture)
 	call OpenSRAM
-	ld a, [s5_b2f3]
+	ld a, [sNewsPlayerPrefecture]
 
 .asm_17f35d
 	ld c, a
@@ -3628,9 +3632,9 @@ NewsText_PlayerPostalCode:
 	jr .asm_17f3ab
 
 .asm_17f3a3
-	ld a, BANK(s5_b2f4)
+	ld a, BANK(sNewsPlayerPostalCode)
 	call OpenSRAM
-	ld de, s5_b2f4
+	ld de, sNewsPlayerPostalCode
 
 .asm_17f3ab
 	ld a, PRINTNUM_LEADINGZEROS | 2
@@ -3817,13 +3821,13 @@ NewsText_Number:
 	ld a, [wcd56]
 	cp $c0
 	jr c, .asm_17f4af
-	ld a, $4
+	ld a, BANK(wNewsScreenBuffer)
 	ldh [rWBK], a
 	jr .asm_17f4b7
 
 .asm_17f4af
 	call CloseSRAM
-	ld a, $6
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 
 .asm_17f4b7

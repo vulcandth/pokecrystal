@@ -245,7 +245,7 @@ Mobile_DownloadNews:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_11820b
-	call Function1185c3
+	call Mobile_DownloadNewsJumptable
 	call BattleTowerRoomMenu_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
@@ -260,7 +260,7 @@ Mobile_DownloadNews:
 	call ReturnToMapFromSubmenu
 	ret
 
-Function118233:
+Mobile_UpdateNewsRankings:
 	call BattleTowerRoomMenu_InitRAM
 	ld a, $1b
 	ld [wcd33], a
@@ -282,7 +282,7 @@ Function118233:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
 .asm_11825f
-	call Function118624
+	call Mobile_UpdateNewsRankingsJumptable
 	call BattleTowerRoomMenu_WriteMessage
 	farcall Function115dd3
 	farcall Function11619d
@@ -676,7 +676,7 @@ Function11857c:
 	dw BattleTowerRoomMenu_CallRoomMenu2
 	dw Function118e76
 
-Function1185c3:
+Mobile_DownloadNewsJumptable:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
@@ -694,18 +694,18 @@ Function1185c3:
 	dw StopPichuMobileAnimation
 	dw Mobile_DownloadNewsIndex
 	dw MobileAdapterCommunication
-	dw Function118e92
+	dw Mobile_DownloadNewsMetadata
 	dw MobileAdapterCommunication
-	dw Function118eb0
+	dw Mobile_CheckDownloadedNewsID
 	dw Function118ec6
 	dw Function118f0d
 	dw Function118f14
 	dw Function118f5e
 	dw MobileAdapterCommunication
-	dw Function118fc0
+	dw Mobile_TryDownloadNewsRankings
 	dw MobileAdapterCommunication
-	dw Function119054
-	dw Function1190d0
+	dw Mobile_SaveDownloadedNewsRankings
+	dw Mobile_DownloadNewsData
 	dw MobileAdapterCommunication
 	dw Mobile_SaveDownloadedNews
 	dw Mobile_LogoutOfISP
@@ -722,7 +722,7 @@ Function1185c3:
 	dw Function11914e
 	dw Function118e76
 
-Function118624:
+Mobile_UpdateNewsRankingsJumptable:
 	jumptable .Jumptable, wBattleTowerRoomMenuJumptableIndex
 
 .Jumptable:
@@ -740,14 +740,14 @@ Function118624:
 	dw StopPichuMobileAnimation
 	dw Mobile_DownloadNewsIndex
 	dw MobileAdapterCommunication
-	dw Function118e92
+	dw Mobile_DownloadNewsMetadata
 	dw MobileAdapterCommunication
-	dw Function11915d
+	dw Mobile_CheckNewsRankingsID
 	dw Function118f68
 	dw MobileAdapterCommunication
-	dw Function119009
+	dw Mobile_HTTPPostNewsRankings
 	dw MobileAdapterCommunication
-	dw Function119054
+	dw Mobile_SaveDownloadedNewsRankings
 	dw Mobile_LogoutOfISP
 	dw MobileAdapterCommunication
 	dw Function118e76
@@ -1720,7 +1720,7 @@ BattleTowerRoomMenu_CallRoomMenu2:
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 	ret
 
-Function118e92:
+Mobile_DownloadNewsMetadata:
 	call Function118440
 	call Mobile_ParseRankingIndexURLs
 	ld a, [wcd53]
@@ -1728,19 +1728,19 @@ Function118e92:
 	ld a, [wcd54]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld de, w3_d800
 	ld bc, $0800
 	jp Mobile_HTTPGetIndex
 
-Function118eb0:
+Mobile_CheckDownloadedNewsID:
 	call Function118440
 	ld hl, w3_d802
 	ld de, wBGMapBuffer
-	ld bc, $000c
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
-	call Function1192cc
+	call Mobile_CheckNewsAlreadyDownloaded
 	ret c
 	jp BattleTowerRoomMenu_IncrementJumptable
 
@@ -1786,7 +1786,7 @@ Function118f14:
 	ld a, [wcd52]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld a, [wcc60]
 	and a
@@ -1800,7 +1800,7 @@ Function118f14:
 	ld a, [wcd58]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld hl, wcc60
 	call Function118e39
@@ -1821,7 +1821,7 @@ Function118f5e:
 	call DelayFrame
 
 Function118f68:
-	call Function119223
+	call Mobile_PrepareNewsUpload
 	ret c
 	call Function118440
 	ld a, [wcd51]
@@ -1829,7 +1829,7 @@ Function118f68:
 	ld a, [wcd52]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld a, [wcc60]
 	and a
@@ -1865,14 +1865,14 @@ Function118f68:
 	call BattleTowerRoomMenu_IncrementJumptable
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function118fc0:
+Mobile_TryDownloadNewsRankings:
 	call Function118440
 	ld a, [wcd55]
 	ld l, a
 	ld a, [wcd56]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld a, [wcc60]
 	and a
@@ -1882,7 +1882,7 @@ Function118fc0:
 	ld a, [wcd52]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld a, [wcc60]
 	and a
@@ -1895,7 +1895,7 @@ Function118fc0:
 
 .asm_118ff5
 	call BattleTowerRoomMenu_SetMessage
-	jr Function119009
+	jr Mobile_HTTPPostNewsRankings
 
 .asm_118ffa
 	ld hl, Text_ReadingNews
@@ -1904,15 +1904,15 @@ Function118fc0:
 	call BattleTowerRoomMenu_IncrementJumptable
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function119009:
+Mobile_HTTPPostNewsRankings:
 	call Function118440
-	call Function119300
+	call Mobile_BuildNewsRankingsRequest
 	ld a, [wcd55]
 	ld l, a
 	ld a, [wcd56]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld hl, wc346
 	ld a, LOW(wc608)
@@ -1941,8 +1941,8 @@ Function119009:
 	ld a, MOBILEAPI_16
 	jp Function119e2b
 
-Function119054:
-	ld a, $6
+Mobile_SaveDownloadedNewsRankings:
+	ld a, BANK(sPokemonNews)
 	call OpenSRAM
 	ld hl, wd002
 	ld a, [wcd4f]
@@ -1953,44 +1953,44 @@ Function119054:
 	ld c, a
 	ld a, [w3_d000 + 1]
 	ld b, a
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 	ld a, [wcd89]
 	and $1
-	jr z, .asm_11908a
-	ld a, $6
+	jr z, .save_metadata
+	ld a, BANK(w6_d000)
 	ldh [rWBK], a
 	ld hl, wd002
 	ld a, [w3_d000]
 	ld c, a
 	ld a, [w3_d000 + 1]
 	ld b, a
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 
-.asm_11908a
+.save_metadata
 	call CloseSRAM
-	ld a, $3 ; ???
+	ld a, BANK(w3_d000)
 	ldh [rWBK], a
 ; These news metadata fields are all in SRAM bank 5.
-	ld a, BANK(s5_b1b3)
+	ld a, BANK(sNewsRankingPointers)
 	call OpenSRAM
 	ld a, [wcd4f]
-	ld [s5_b1b3], a
+	ld [sNewsRankingPointers], a
 	ld a, [wcd50]
-	ld [s5_b1b4], a
+	ld [sNewsRankingPointers + 1], a
 	ld hl, wcd20
 	ld de, sPokemonNewsRankingsID
-	ld bc, 12
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
 	ldh a, [rWBK]
 	push af
 	ld a, BANK(wPlayerPrefecture) ; aka BANK(wPlayerPostalCode)
 	ldh [rWBK], a
 	ld a, [wPlayerPrefecture]
-	ld [s5_b2f3], a
+	ld [sNewsPlayerPrefecture], a
 	ld hl, wPlayerPostalCode
-	ld de, s5_b2f4
+	ld de, sNewsPlayerPostalCode
 	ld bc, 4
 	call CopyBytes
 	pop af
@@ -1998,7 +1998,7 @@ Function119054:
 	call CloseSRAM
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function1190d0:
+Mobile_DownloadNewsData:
 	ld a, BANK(w3_d000)
 	ldh [rWBK], a
 	ld a, [wcd57]
@@ -2006,7 +2006,7 @@ Function1190d0:
 	ld a, [wcd58]
 	ld h, a
 	ld de, wcc60
-	call Function1191ad
+	call Mobile_CopyNewsURL
 	ret c
 	ld de, w3_d000
 	ld bc, $1000
@@ -2017,7 +2017,7 @@ Mobile_SaveDownloadedNews:
 	call OpenSRAM
 	ld hl, wBGMapBuffer
 	ld de, sPokemonNewsID
-	ld bc, 12
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ld a, BANK(sPokemonNewsDownloaded)
@@ -2033,7 +2033,7 @@ Mobile_SaveDownloadedNews:
 	ld b, a
 	ld hl, wd002
 	ld de, sPokemonNews
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 	ld a, [wcd89]
 	and $1
@@ -2045,7 +2045,7 @@ Mobile_SaveDownloadedNews:
 	ld a, [w6_d000 + 1]
 	ld b, a
 	ld hl, w6_d000 + 2
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 
 .asm_11913e
@@ -2065,16 +2065,16 @@ Function11914e:
 	ld [wMobileErrorCodeBuffer], a
 	ret
 
-Function11915d:
+Mobile_CheckNewsRankingsID:
 	ld hl, w3_d802
 	ld de, wcd20
-	ld bc, 12
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
 	ld a, BANK(sPokemonNewsRankingsID)
 	call OpenSRAM
 	ld hl, wBGMapBuffer
 	ld de, sPokemonNewsRankingsID
-	ld c, 12
+	ld c, NEWS_ID_LENGTH
 .asm_119176
 	ld a, [de]
 	inc de
@@ -2096,48 +2096,52 @@ Function11915d:
 	call CloseSRAM
 	ret
 
-Function119192:
+Mobile_CopyDataToSRAM:
+; Copy bc bytes from hl to de. Carry indicates that de reached $c000.
+; The boundary check happens after each write, including the final byte.
 	inc b
 	inc c
-	jr .asm_11919e
+	jr .check_count
 
-.asm_119196
+.copy
 	ld a, [hli]
 	ld [de], a
 	inc de
 	ld a, $bf
 	cp d
-	jr c, .asm_1191a6
+	jr c, .overflow
 
-.asm_11919e
+.check_count
 	dec c
-	jr nz, .asm_119196
+	jr nz, .copy
 	dec b
-	jr nz, .asm_119196
+	jr nz, .copy
 	and a
 	ret
 
-.asm_1191a6
+.overflow
 	ld a, $d3
 	call SetMobileErrorCode
 	scf
 	ret
 
-Function1191ad:
+Mobile_CopyNewsURL:
+; Copy a null-terminated URL from bank 5 at hl to de.
+; URLs longer than NEWS_URL_MAX_LENGTH bytes set carry and a mobile error.
 	push bc
 	ld c, $0
 	ld a, $5
 	ldh [rWBK], a
-.asm_1191b4
+.copy
 	ld a, [hli]
 	ld [de], a
 	inc de
 	and a
-	jr z, .asm_1191cc
+	jr z, .done
 	inc c
 	ld a, c
-	cp $a6
-	jr c, .asm_1191b4
+	cp NEWS_URL_MAX_LENGTH + 1
+	jr c, .copy
 	ld a, $da
 	call SetMobileErrorCode
 	ld a, BANK("Battle Tower RAM")
@@ -2146,7 +2150,7 @@ Function1191ad:
 	scf
 	ret
 
-.asm_1191cc
+.done
 	ld a, BANK("Battle Tower RAM")
 	ldh [rWBK], a
 	pop bc
@@ -2198,47 +2202,49 @@ Mobile_TerminateIndexURL:
 	inc hl
 	ret
 
-Function119223:
+Mobile_PrepareNewsUpload:
+; Read the ranking destination and entry sizes from the news metadata, then
+; gather the requested SRAM ranges and literal bytes into wc608.
 	xor a
 	ld [wcd4b], a
 	ld [wcd4c], a
-	ld a, BANK(s5_b092) ; aka BANK(s5_b1b1) and BANK(s5_b1b2) and BANK(s5_b1d3)
+	ld a, BANK(sNewsEmailAddress)
 	call OpenSRAM
 	ld hl, wEmailAddress
-	ld de, s5_b092
-	ld bc, 31
+	ld de, sNewsEmailAddress
+	ld bc, MOBILE_EMAIL_LENGTH + 1
 	call CopyBytes
 	dec de
 	xor a
 	ld [de], a
 	ld hl, w3_d810
-.asm_119241
+.skip_message
 	ld a, [hli]
-	cp $50
-	jr nz, .asm_119241
+	cp NEWS_METADATA_DELIMITER
+	jr nz, .skip_message
 	ld a, [hli]
 	ld [wcd4f], a
 	ld a, [hli]
 	ld [wcd50], a
 	ld a, [hli]
-	ld [s5_b1b1], a
+	ld [sNewsRankingTableSize], a
 	ld c, a
 	ld a, [hli]
-	ld [s5_b1b2], a
+	ld [sNewsRankingTableSize + 1], a
 	ld b, a
-	ld de, s5_b1d3
+	ld de, sNewsRankingEntrySizes
 	call CopyBytes
 	call CloseSRAM
 	ld e, l
 	ld d, h
 	ld hl, wc608
-.asm_119266
+.next_record
 	ld a, [de]
 	inc de
-	cp $ff
-	jr z, .asm_1192c2
-	cp $fe
-	jr z, .asm_1192a5
+	cp NEWS_UPLOAD_END
+	jr z, .done
+	cp NEWS_UPLOAD_LITERAL
+	jr z, .literal
 	call OpenSRAM
 	ld a, [de]
 	inc de
@@ -2255,7 +2261,7 @@ Function119223:
 	ld a, [wcd4c]
 	ld d, a
 	pop af
-.asm_119286
+.copy_sram
 	push af
 	ld a, [bc]
 	inc bc
@@ -2263,29 +2269,29 @@ Function119223:
 	inc de
 	pop af
 	dec a
-	jr nz, .asm_119286
+	jr nz, .copy_sram
 	call CloseSRAM
 	ld a, e
 	ld [wcd4b], a
 	ld a, d
 	ld [wcd4c], a
 	pop de
-.asm_11929b
+.check_length
 	and a
-	jr z, .asm_119266
+	jr z, .next_record
 	ld a, $d3
 	call SetMobileErrorCode
 	scf
 	ret
 
-.asm_1192a5
+.literal
 	ld a, [wcd4b]
 	ld c, a
 	ld a, [wcd4c]
 	ld b, a
 	ld a, [de]
 	inc de
-.asm_1192af
+.copy_literal
 	push af
 	ld a, [de]
 	inc de
@@ -2293,14 +2299,14 @@ Function119223:
 	inc bc
 	pop af
 	dec a
-	jr nz, .asm_1192af
+	jr nz, .copy_literal
 	ld a, c
 	ld [wcd4b], a
 	ld a, b
 	ld [wcd4c], a
-	jr .asm_11929b
+	jr .check_length
 
-.asm_1192c2
+.done
 	ld a, e
 	ld [wcd4d], a
 	ld a, d
@@ -2308,17 +2314,17 @@ Function119223:
 	and a
 	ret
 
-Function1192cc:
+Mobile_CheckNewsAlreadyDownloaded:
 	ld a, BANK(sPokemonNewsID)
 	call OpenSRAM
 	ld hl, sPokemonNewsID
 	ld de, wc608
-	ld bc, 12
+	ld bc, NEWS_ID_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ld hl, wc608
 	ld de, wcd20
-	ld c, $c
+	ld c, NEWS_ID_LENGTH
 .asm_1192e8
 	ld a, [de]
 	inc de
@@ -2339,7 +2345,11 @@ Function1192cc:
 	and a
 	ret
 
-Function119300:
+pushc ascii
+
+Mobile_BuildNewsRankingsRequest:
+; Build an ASCII form body in wc608. Metadata supplies the parameter names
+; and SRAM ranges; each value is encoded as lowercase hexadecimal.
 	xor a
 	ld [wcd4b], a
 	ld [wcd4c], a
@@ -2352,17 +2362,17 @@ Function119300:
 	ld c, a
 	ld a, [wcd4c]
 	ld b, a
-.asm_11931a
+.copy_parameter
 	ld a, [de]
 	inc de
-	cp $50
-	jr z, .asm_119324
+	cp NEWS_METADATA_DELIMITER
+	jr z, .parameter_value
 	ld [hli], a
 	inc bc
-	jr .asm_11931a
+	jr .copy_parameter
 
-.asm_119324
-	ld a, $3d
+.parameter_value
+	ld a, '='
 	ld [hli], a
 	inc bc
 	ld a, c
@@ -2387,23 +2397,23 @@ Function119300:
 	ld a, [wcd4c]
 	ld d, a
 	pop af
-.asm_119348
+.hex_byte
 	push af
 	ld a, [bc]
 	and $f0
 	swap a
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 	inc de
 	ld a, [bc]
 	inc bc
 	and $f
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 	inc de
 	pop af
 	dec a
-	jr nz, .asm_119348
+	jr nz, .hex_byte
 	call CloseSRAM
 	ld a, e
 	ld [wcd4b], a
@@ -2411,19 +2421,21 @@ Function119300:
 	ld [wcd4c], a
 	pop de
 	ld a, [de]
-	cp $50
-	jr z, .asm_11937f
+	cp NEWS_METADATA_DELIMITER
+	jr z, .done
 	ld a, [wcd4b]
 	ld c, a
 	ld a, [wcd4c]
 	ld b, a
-	ld a, $26
+	ld a, '&'
 	ld [hli], a
 	inc bc
-	jr .asm_11931a
+	jr .copy_parameter
 
-.asm_11937f
+.done
 	ret
+
+popc
 
 Function119380:
 	ld a, $80
@@ -2513,7 +2525,7 @@ Function119413:
 	ld e, a
 	ld a, [hli]
 	ld d, a
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 	ld a, [wcd89]
 	and $1
@@ -2525,7 +2537,7 @@ Function119413:
 	ld a, [w6_d000 + 1]
 	ld b, a
 	ld hl, w6_d000 + 2
-	call Function119192
+	call Mobile_CopyDataToSRAM
 	ret c
 
 .asm_119447
@@ -2995,7 +3007,7 @@ Function1196f2:
 	ld c, $0
 	ld b, c
 .asm_119728
-	call Function119798
+	call Mobile_ReadASCIIHexWord
 	ld a, d
 	cp $ff
 	jr nz, .asm_119735
@@ -3058,68 +3070,75 @@ Function1196f2:
 	ld a, b
 	and $f0
 	swap a
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 
 .asm_11977e
 	ld a, b
 	and $f
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 
 .asm_119785
 	ld a, c
 	and $f0
 	swap a
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 
 .asm_11978e
 	ld a, c
 	and $f
-	call Function1197bf
+	call Mobile_EncodeASCIIHexDigit
 	ld [hli], a
 	jp BattleTowerRoomMenu_IncrementJumptable
 
-Function119798:
+pushc ascii
+
+Mobile_ReadASCIIHexWord:
+; Read four lowercase ASCII hex digits at hl into de, advancing hl.
 	ld d, $0
 	ld e, d
-	call Function1197b4
+	call Mobile_ReadASCIIHexDigit
 	swap a
 	or d
 	ld d, a
-	call Function1197b4
+	call Mobile_ReadASCIIHexDigit
 	or d
 	ld d, a
-	call Function1197b4
+	call Mobile_ReadASCIIHexDigit
 	swap a
 	or e
 	ld e, a
-	call Function1197b4
+	call Mobile_ReadASCIIHexDigit
 	or e
 	ld e, a
 	ret
 
-Function1197b4:
+Mobile_ReadASCIIHexDigit:
+; Decode [hli] into a. The caller supplies '0'-'9' or 'a'-'f'.
 	ld a, [hli]
-	cp $61
-	jr nc, .asm_1197bc
-	sub $30
+	cp 'a'
+	jr nc, .letter
+	sub '0'
 	ret
 
-.asm_1197bc
-	sub $57
+.letter
+	sub 'a' - 10
 	ret
 
-Function1197bf:
-	cp $a
-	jr nc, .asm_1197c6
-	add $30
+Mobile_EncodeASCIIHexDigit:
+; Encode a (0-15) as a lowercase ASCII hex digit.
+	cp 10
+	jr nc, .letter
+	add '0'
 	ret
 
-.asm_1197c6
-	add $57
+.letter
+	add 'a' - 10
 	ret
+
+popc
 
 Function1197c9:
 	ld hl, wd002

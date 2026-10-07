@@ -334,8 +334,8 @@ s5_aa5d:: ds MOBILE_LOGIN_PASSWORD_LENGTH
 	ds $4
 
 sPokemonNewsDownloaded:: db
-sPokemonNewsID:: ds 12
-sPokemonNewsRankingsID:: ds 12
+sPokemonNewsID:: ds NEWS_ID_LENGTH
+sPokemonNewsRankingsID:: ds NEWS_ID_LENGTH
 
 s5_aa8b:: db
 s5_aa8c:: db
@@ -348,23 +348,23 @@ s5_b023:: ds 105
 s5_b08c:: ds 4
 s5_b090:: db
 s5_b091:: db
-s5_b092:: ds 31
+sNewsEmailAddress:: ds MOBILE_EMAIL_LENGTH + 1
+
+; Preserve the viewer while a mobile connection or Easy Chat uses its WRAM.
+sNewsPaletteBackup:: ds 8 palettes
+sNewsStateBackup:: ds wNewsStateEnd - wNewsScreenPointer
+	ds $100 - 8 palettes - (wNewsStateEnd - wNewsScreenPointer)
+
+sNewsRankingTableSize:: dw
+; Initially only the first pointer is set by the download routine.
+; PokemonNews_LoadMetadata derives the others from each ranking's header.
+sNewsRankingPointers:: ds MAX_NEWS_RANKINGS * 2
+sNewsRankingEntrySizes:: ds MAX_NEWS_RANKINGS * 2
 
 	ds $100
 
-s5_b1b1:: db
-s5_b1b2:: db
-s5_b1b3:: db
-s5_b1b4:: db
-
-	ds $1e
-
-s5_b1d3::
-
-	ds $120
-
-s5_b2f3:: db
-s5_b2f4:: ds 4
+sNewsPlayerPrefecture:: db
+sNewsPlayerPostalCode:: ds 4
 
 	ds $1
 
@@ -388,7 +388,7 @@ sPokemonNews::
 sPokemonNewsDestination:: dw
 sPokemonNewsChecksum:: dw
 sPokemonNewsLength:: dw
-sPokemonNewsData:: ds $1000
+sPokemonNewsData:: ds NEWS_BUFFER_SIZE
 
 SECTION "SRAM Mobile 4", SRAM
 

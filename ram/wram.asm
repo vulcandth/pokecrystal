@@ -702,6 +702,16 @@ wUnknownMonNick::    ds NAME_LENGTH_JAPANESE - 1
 wUnknownMonMail::    mailmsg_jp wUnknownMonMail
 
 NEXTU
+; Temporary graphics and metadata used by the Pokémon News viewer.
+UNION
+wNewsPaletteBuffer:: ds 8 palettes
+NEXTU
+wNewsSavedScrollTile:: ds 1 tiles
+NEXTU
+wNewsRankingSizesBuffer:: ds MAX_NEWS_RANKINGS * 2
+ENDU
+
+NEXTU
 wc608:: ds 7
 wc60f:: ds 9
 wc618:: ds 48
@@ -1431,7 +1441,13 @@ wNewsRankingEntrySize:: dw
 wNewsMenuTextPointers:: dw
 wNewsMenuScriptPointers:: dw
 wNewsMenuDescriptionPointers:: dw
-	ds 15
+wNewsBoxX:: db
+wNewsBoxY:: db
+wNewsBoxWidth:: db
+wNewsBoxHeight:: db
+wNewsBoxTile::
+wNewsBoxAttributes:: db
+	ds 10
 wNewsRankingPointer:: dw
 wNewsRankingTotal:: ds 4
 wNewsPlayerRanking:: ds 4
@@ -1450,6 +1466,7 @@ wNewsQuizScore:: db
 wNewsJumptableIndex:: db
 	ds 2
 wNewsRankingsUpdateResult:: db
+wNewsStateEnd::
 
 NEXTU
 ; more mobile data
@@ -3660,7 +3677,7 @@ ENDU
 SECTION "News Script RAM", WRAMX
 
 wNewsScreenBuffer::
-w4_d000:: ds $1000
+w4_d000:: ds NEWS_BUFFER_SIZE
 
 
 SECTION "GBC Video", WRAMX, ALIGN[8]
