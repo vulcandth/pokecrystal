@@ -13,8 +13,8 @@ asm_11800b:
 	ld [wMobileConnectionEndState], a
 	ld a, $19
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -32,7 +32,7 @@ asm_11800b:
 	call Function1184a5
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -54,8 +54,8 @@ BattleTower_UploadRecord:
 	ld [wMobileConnectionEndState], a
 	ld a, $19
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -73,7 +73,7 @@ BattleTower_UploadRecord:
 	call Function11857c
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -91,8 +91,8 @@ Function1180b8:
 	ld [wMobileConnectionEndState], a
 	ld a, $23
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -118,7 +118,7 @@ Function1180b8:
 	call Function1184ec
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -144,8 +144,8 @@ Function118125:
 	ld [wMobileConnectionEndState], a
 	ld a, $d
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -162,7 +162,7 @@ Function118125:
 	call BattleTowerRoomMenu_Jumptable
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -230,8 +230,8 @@ Mobile_DownloadNews:
 	ld [wMobileConnectionEndState], a
 	ld a, $22
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -249,7 +249,7 @@ Mobile_DownloadNews:
 	call Mobile_DownloadNewsJumptable
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -267,8 +267,8 @@ Mobile_UpdateNewsRankings:
 	ld [wMobileConnectionEndState], a
 	ld a, $1c
 	ld [wMobileConnectionErrorState], a
-	ld a, $6
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_NEWS
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -286,7 +286,7 @@ Mobile_UpdateNewsRankings:
 	call Mobile_UpdateNewsRankingsJumptable
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -303,8 +303,8 @@ Mobile_DownloadStadiumData:
 	ld [wMobileConnectionEndState], a
 	ld a, MOBILE_STADIUM_DOWNLOAD_ERROR
 	ld [wMobileConnectionErrorState], a
-	ld a, $5
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_STADIUM
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, BANK(wMobileReceiveBuffer)
@@ -321,7 +321,7 @@ Mobile_DownloadStadiumData:
 	call Mobile_DownloadStadiumJumptable
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wMobileConnectionJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -338,8 +338,8 @@ Function1182d5: ; unreferenced
 	ld [wMobileConnectionEndState], a
 	ld a, $19
 	ld [wMobileConnectionErrorState], a
-	ld a, $4
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -357,7 +357,7 @@ Function1182d5: ; unreferenced
 	call Function118746
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -375,8 +375,8 @@ Function118329:
 	ld [wMobileConnectionEndState], a
 	ld a, $16
 	ld [wMobileConnectionErrorState], a
-	ld a, $6
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_NEWS
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -394,7 +394,7 @@ Function118329:
 	call Function118671
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -411,8 +411,8 @@ Function11837a:
 	ld [wMobileConnectionEndState], a
 	ld a, $17
 	ld [wMobileConnectionErrorState], a
-	ld a, $6
-	ld [wc3f0], a
+	ld a, MOBILE_PICHU_RESTORE_NEWS
+	ld [wMobilePichuRestoreState], a
 	ldh a, [rWBK]
 	push af
 	ld a, $3
@@ -430,7 +430,7 @@ Function11837a:
 	call Function1186b2
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
-	farcall Function11619d
+	farcall MobilePichu_Update
 	call DelayFrame
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
@@ -821,8 +821,8 @@ MobileAdapterCommunication:
 	ld [wMobileErrorCodeBuffer + 2], a
 	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
-	ld a, [wc3f0]
-	ld [wc319], a
+	ld a, [wMobilePichuRestoreState]
+	ld [wMobilePichuJumptableIndex], a
 	ld a, [wMobileConnectionErrorState]
 	ld [wMobileConnectionJumptableIndex], a
 	ret
@@ -865,17 +865,17 @@ SetMobileErrorCode:
 	ld [wMobileErrorCodeBuffer + 2], a
 	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
-	ld a, [wc3f0]
-	ld [wc319], a
+	ld a, [wMobilePichuRestoreState]
+	ld [wMobilePichuJumptableIndex], a
 	ld a, [wMobileConnectionErrorState]
 	ld [wMobileConnectionJumptableIndex], a
 	ret
 
 Mobile_CheckCancelableConnection:
-	ld a, [wc319]
-	cp $3
+	ld a, [wMobilePichuJumptableIndex]
+	cp MOBILE_PICHU_ANIMATE
 	jr c, .not_canceled
-	cp $4
+	cp MOBILE_PICHU_RESTORE_OVERWORLD
 	jr z, .not_canceled
 	ldh a, [hJoyDown]
 	cp A_BUTTON | SELECT
@@ -884,8 +884,8 @@ Mobile_CheckCancelableConnection:
 	call MobileAPI
 	ld a, MOBILE_RESULT_CANCELED
 	ld [wMobileErrorCodeBuffer], a
-	ld a, [wc3f0]
-	ld [wc319], a
+	ld a, [wMobilePichuRestoreState]
+	ld [wMobilePichuJumptableIndex], a
 	ld a, [wMobileConnectionErrorState]
 	ld [wMobileConnectionJumptableIndex], a
 	scf
@@ -1012,8 +1012,8 @@ Mobile_GetSelectedPhoneNumber:
 	ret
 
 StopPichuMobileAnimation:
-	ld a, [wc3f0]
-	ld [wc319], a
+	ld a, [wMobilePichuRestoreState]
+	ld [wMobilePichuJumptableIndex], a
 	ld c, MOBILE_PHONE_ANIM_SIGNAL
 	farcall MobilePhone_SetAnimation
 	ld a, MOBILE_DIALOG_COMMUNICATING

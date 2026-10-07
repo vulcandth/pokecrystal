@@ -230,14 +230,27 @@ wMobilePhoneFrame:: ds 1
 wMobilePhoneAnimation:: ds 1
 wMobilePhoneAnimationStep:: ds 1
 wMobilePhoneFrameDuration:: ds 1
+wMobilePichuEnabled::
 wc30d:: ds 1
+wMobilePichuX::
 wc30e:: ds 1
+wMobilePichuY::
 wc30f:: ds 1
+wMobilePichuFrame::
 wc310:: ds 1
+wMobilePichuAnimation::
 wc311:: ds 1
+wMobilePichuAnimationStep::
 wc312:: ds 1
+wMobilePichuFrameDuration::
 wc313:: ds 1
-wc314:: ds 5
+wc314::
+wMobilePichuMovementIndex:: db
+wMobilePichuMovementCommand:: db
+wMobilePichuXSpeed:: db
+wMobilePichuYSpeed:: db
+wMobilePichuClippedObjects:: db
+wMobilePichuJumptableIndex::
 wc319:: db
 wMobileMessageJumptableIndex:: db
 wMobileMessageSource:: dw
@@ -245,6 +258,7 @@ wMobileMessageDest:: dw
 wMobileMessageDelay:: db
 ; Message text shares the phone/API parameter buffers.
 wMobileMessageBuffer::
+wMobilePichuPaletteBackup::
 wc320:: ds 38
 wMobilePhoneNumberTable::
 wMobileDownloadFeeQuestion::
@@ -288,18 +302,31 @@ wc3ec:: ds 1
 wc3ed:: ds 1
 wc3ee:: ds 1
 wc3ef:: ds 1
+wMobilePichuRestoreState::
 wc3f0:: ds 1
+wMobilePichuBallX::
 wc3f1:: ds 1
+wMobilePichuBallXFraction::
 wc3f2:: ds 1
+wMobilePichuBallY::
 wc3f3:: ds 1
+wMobilePichuBallYFraction::
 wc3f4:: ds 1
+wMobilePichuBallFrame::
 wc3f5:: ds 1
+wMobilePichuBallAnimationStep::
 wc3f6:: ds 1
+wMobilePichuBallFrameDuration::
 wc3f7:: ds 1
+wMobilePichuBallClippedObjects::
 wc3f8:: ds 1
+wMobilePichuBallXSpeed::
 wc3f9:: ds 1
+wMobilePichuBallXSpeedFraction::
 wc3fa:: ds 1
+wMobilePichuBallYSpeed::
 wc3fb:: ds 1
+wMobilePichuBallYSpeedFraction::
 wc3fc:: ds 1
 	ds 3
 wMobileWRAMEnd::

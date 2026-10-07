@@ -34,7 +34,7 @@ Mobile_InitConnection:
 	farcall Stubbed_Function106462
 	farcall Function106464
 	farcall MobilePhone_Init
-	farcall Function11615a
+	farcall MobilePichu_Init
 	ld a, BANK(s5_bfff)
 	call OpenSRAM
 	xor a

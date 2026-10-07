@@ -133,9 +133,9 @@ MobileDialog_CheckAdapterReady:
 	ld de, MobileDialogDialingString
 	call PlaceString
 	ld a, $1
-	ld [wc30d], a
+	ld [wMobilePichuEnabled], a
 	ld a, $1
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	farcall HDMATransferTilemapAndAttrmap_Overworld
 	and a
 	ret

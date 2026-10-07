@@ -1,8 +1,8 @@
 Function116567:
-	ld hl, wc3f7
+	ld hl, wMobilePichuBallFrameDuration
 	dec [hl]
 	ret nz
-	ld hl, wc3f6
+	ld hl, wMobilePichuBallAnimationStep
 	inc [hl]
 .asm_116570
 	ld a, $7
@@ -17,7 +17,7 @@ Function116567:
 	ld d, a
 	push de
 	pop hl
-	ld a, [wc3f6]
+	ld a, [wMobilePichuBallAnimationStep]
 	sla a
 	ld c, a
 	ld b, 0
@@ -26,17 +26,17 @@ Function116567:
 	cp $fe
 	jr nz, .asm_116595
 	xor a
-	ld [wc3f6], a
+	ld [wMobilePichuBallAnimationStep], a
 	jr .asm_116570
 
 .asm_116595
-	ld [wc3f5], a
+	ld [wMobilePichuBallFrame], a
 	ld a, [hl]
-	ld [wc3f7], a
+	ld [wMobilePichuBallFrameDuration], a
 	ret
 
 Function11659d:
-	ld a, [wc314]
+	ld a, [wMobilePichuMovementIndex]
 	cp $12
 	ret nc
 	ld e, a
@@ -83,7 +83,7 @@ Function1165d8:
 
 Function1165e3:
 	call Function116747
-	ld a, [wc30e]
+	ld a, [wMobilePichuX]
 	cp $e8
 	ret nz
 	ld a, $1
@@ -101,14 +101,14 @@ Function1165f5:
 
 Function116600:
 	call Function116747
-	ld a, [wc30e]
+	ld a, [wMobilePichuX]
 	cp $a8
 	ret nz
 	ld a, $1
 	call Function116780
 	ret c
 	ld a, $2
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ret
 
 Function116615:
@@ -124,7 +124,7 @@ Function116618:
 
 Function116623:
 	call Function116747
-	ld a, [wc30f]
+	ld a, [wMobilePichuY]
 	cp $a0
 	ret nz
 	ld a, $6
@@ -142,30 +142,30 @@ Function116635:
 
 Function116640:
 	call Function116747
-	ld a, [wc30f]
+	ld a, [wMobilePichuY]
 	cp $28
 	ret nz
 	ld a, $6
 	call Function116780
 	ret c
 	ld a, $7
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ret
 
 Function116655:
 	xor a
-	ld [wc314 + 3], a
+	ld [wMobilePichuYSpeed], a
 	call Function11678e
 
 Function11665c:
-	ld hl, wc314 + 3
+	ld hl, wMobilePichuYSpeed
 	ld a, $1
 	xor [hl]
 	ld [hl], a
 	add $4
 	ld c, a
 	call Function11679c
-	ld a, [wc314 + 3]
+	ld a, [wMobilePichuYSpeed]
 	and a
 	jr nz, .asm_116673
 	ld a, $48
@@ -175,7 +175,7 @@ Function11665c:
 	ld a, $78
 
 .asm_116675
-	ld [wc30f], a
+	ld [wMobilePichuY], a
 	call Random
 	ldh a, [hRandomAdd]
 	and $7
@@ -183,18 +183,18 @@ Function11665c:
 	sla a
 	sla a
 	add $30
-	ld [wc30e], a
+	ld [wMobilePichuX], a
 	call Function116797
 
 Function11668d:
-	ld a, [wc311]
+	ld a, [wMobilePichuAnimation]
 	cp $ff
 	ret nz
 	ld a, $b
 	call Function116780
 	ret c
 	ld a, $c
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ret
 
 Function11669f:
@@ -202,15 +202,15 @@ Function11669f:
 
 Function1166a2:
 	ld a, $a8
-	ld [wc30e], a
-	ld [wc3f1], a
+	ld [wMobilePichuX], a
+	ld [wMobilePichuBallX], a
 	ld a, $60
-	ld [wc30f], a
-	ld [wc3f3], a
+	ld [wMobilePichuY], a
+	ld [wMobilePichuBallY], a
 	ld a, $ff
-	ld [wc314 + 2], a
+	ld [wMobilePichuXSpeed], a
 	xor a
-	ld [wc314 + 3], a
+	ld [wMobilePichuYSpeed], a
 	ld a, $0
 	ld c, a
 	call Function11679c
@@ -218,7 +218,7 @@ Function1166a2:
 
 Function1166c4:
 	call Function116747
-	ld a, [wc30e]
+	ld a, [wMobilePichuX]
 	cp $58
 	ret nz
 	ld a, $6
@@ -228,29 +228,29 @@ Function1166c4:
 
 Function1166d6:
 	call Function116747
-	ld a, [wc30e]
+	ld a, [wMobilePichuX]
 	cp $48
 	jr nz, .asm_1166e4
 	xor a
-	ld [wc314 + 2], a
+	ld [wMobilePichuXSpeed], a
 
 .asm_1166e4
-	ld a, [wc311]
+	ld a, [wMobilePichuAnimation]
 	cp $ff
 	ret nz
-	ld a, $4
-	ld [wc319], a
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuJumptableIndex], a
 	xor a
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ret
 
 Function1166f4:
-	ld [wc30e], a
+	ld [wMobilePichuX], a
 	ld a, b
-	ld [wc314 + 2], a
+	ld [wMobilePichuXSpeed], a
 	xor a
-	ld [wc314 + 3], a
-	ld hl, wc30f
+	ld [wMobilePichuYSpeed], a
+	ld hl, wMobilePichuY
 .asm_116702
 	call Random
 	ldh a, [hRandomAdd]
@@ -271,12 +271,12 @@ Function1166f4:
 	ret
 
 Function11671f:
-	ld [wc30f], a
+	ld [wMobilePichuY], a
 	ld a, b
-	ld [wc314 + 3], a
+	ld [wMobilePichuYSpeed], a
 	xor a
-	ld [wc314 + 2], a
-	ld hl, wc30e
+	ld [wMobilePichuXSpeed], a
+	ld hl, wMobilePichuX
 .asm_11672d
 	call Random
 	ldh a, [hRandomAdd]
@@ -293,18 +293,18 @@ Function11671f:
 	ret
 
 Function116747:
-	ld hl, wc30e
-	ld a, [wc314 + 2]
+	ld hl, wMobilePichuX
+	ld a, [wMobilePichuXSpeed]
 	add [hl]
 	ld [hl], a
-	ld hl, wc30f
-	ld a, [wc314 + 3]
+	ld hl, wMobilePichuY
+	ld a, [wMobilePichuYSpeed]
 	add [hl]
 	ld [hl], a
 	ret
 
 Function116758:
-	ld a, [wc30f]
+	ld a, [wMobilePichuY]
 	cp $30
 	jr c, .asm_116770
 	jr z, .asm_116770
@@ -329,18 +329,18 @@ Function116758:
 	ld a, $4
 
 .asm_11677a
-	ld [wc314 + 4], a
+	ld [wMobilePichuClippedObjects], a
 	ret
 
 Function11677e:
 	ld a, $0
 
 Function116780:
-	ld hl, wc314 + 1
+	ld hl, wMobilePichuMovementCommand
 	cp [hl]
 	jr z, .asm_11678c
 	ld a, [hl]
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	scf
 	ret
 
@@ -349,33 +349,33 @@ Function116780:
 	ret
 
 Function11678e:
-	ld hl, wc314
+	ld hl, wMobilePichuMovementIndex
 	ld a, [hl]
-	ld [wc314 + 1], a
+	ld [wMobilePichuMovementCommand], a
 	inc [hl]
 	ret
 
 Function116797:
-	ld hl, wc314
+	ld hl, wMobilePichuMovementIndex
 	inc [hl]
 	ret
 
 Function11679c:
 	ld a, c
-	ld [wc311], a
+	ld [wMobilePichuAnimation], a
 	xor a
-	ld [wc312], a
+	ld [wMobilePichuAnimationStep], a
 	jr asm_1167af
 
 Function1167a6:
-	ld hl, wc313
+	ld hl, wMobilePichuFrameDuration
 	dec [hl]
 	ret nz
-	ld hl, wc312
+	ld hl, wMobilePichuAnimationStep
 	inc [hl]
 
 asm_1167af:
-	ld a, [wc311]
+	ld a, [wMobilePichuAnimation]
 	cp $ff
 	ret z
 	sla a
@@ -389,7 +389,7 @@ asm_1167af:
 	ld d, a
 	push de
 	pop hl
-	ld a, [wc312]
+	ld a, [wMobilePichuAnimationStep]
 	sla a
 	ld c, a
 	ld b, 0
@@ -400,18 +400,18 @@ asm_1167af:
 	cp $fe
 	jr nz, .asm_1167e3
 	xor a
-	ld [wc312], a
+	ld [wMobilePichuAnimationStep], a
 	jr asm_1167af
 
 .asm_1167dc
 	ld a, $ff
-	ld [wc311], a
+	ld [wMobilePichuAnimation], a
 	ld a, $fd
 
 .asm_1167e3
-	ld [wc310], a
+	ld [wMobilePichuFrame], a
 	ld a, [hl]
-	ld [wc313], a
+	ld [wMobilePichuFrameDuration], a
 	ret
 
 Unknown_1167eb:

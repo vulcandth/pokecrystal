@@ -39,7 +39,7 @@ Function100022:
 	farcall Function10127e
 	farcall Stubbed_Function106462
 	farcall Function106464 ; load broken gfx
-	farcall Function11615a ; init RAM
+	farcall MobilePichu_Init ; init RAM
 	ld hl, wStateFlags
 	set LAST_12_SPRITE_OAM_STRUCTS_RESERVED_F, [hl]
 	ret
@@ -142,7 +142,7 @@ Function1000e8:
 	ret
 
 Function1000fa:
-	ld a, [wc30d]
+	ld a, [wMobilePichuEnabled]
 	and a
 	ret z
 	ld hl, wcd29
@@ -151,7 +151,7 @@ Function1000fa:
 	ld a, [wcd2b]
 	and a
 	jr nz, .asm_100117
-	farcall Function11619d
+	farcall MobilePichu_Update
 	ld hl, wcd29
 	set 6, [hl]
 	ret
@@ -172,9 +172,9 @@ Function1000fa:
 	push af
 	xor a
 	ld [wLinkMode], a
-	ld a, $04
-	ld [wc314 + 5], a
-	farcall Function11619d
+	ld a, MOBILE_PICHU_RESTORE_OVERWORLD
+	ld [wMobilePichuJumptableIndex], a
+	farcall MobilePichu_Update
 	ld hl, wcd29
 	set 6, [hl]
 	pop af
@@ -3731,7 +3731,7 @@ Function101913:
 	ld hl, wcd2a
 	set 0, [hl]
 	xor a
-	ld [wc30d], a
+	ld [wMobilePichuEnabled], a
 	ld hl, wcd29
 	res 4, [hl]
 	xor a
@@ -4133,7 +4133,7 @@ Function101c62:
 	ld c, MOBILE_PHONE_ANIM_SIGNAL
 	call MobilePhone_EnableAnimation
 	xor a
-	ld [wc30d], a
+	ld [wMobilePichuEnabled], a
 	ld hl, wcd29
 	res 4, [hl]
 	ld e, $0b
@@ -4180,9 +4180,9 @@ Function101cc2: ; unreferenced
 
 Function101cc8:
 	ld a, $01
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ld a, $01
-	ld [wc30d], a
+	ld [wMobilePichuEnabled], a
 	ld hl, wcd29
 	set 4, [hl]
 	ld a, [wMobileCommsJumptableIndex]
@@ -4192,9 +4192,9 @@ Function101cc8:
 
 Function101cdf:
 	ld a, $06
-	ld [wc314], a
+	ld [wMobilePichuMovementIndex], a
 	ld a, $01
-	ld [wc30d], a
+	ld [wMobilePichuEnabled], a
 	ld hl, wcd29
 	set 4, [hl]
 	ld a, [wMobileCommsJumptableIndex]
@@ -4204,7 +4204,7 @@ Function101cdf:
 
 Function101cf6:
 	ld a, $0b
-	ld [wc314 + 1], a
+	ld [wMobilePichuMovementCommand], a
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -4212,7 +4212,7 @@ Function101cf6:
 
 Function101d03:
 	ld a, $0e
-	ld [wc314 + 1], a
+	ld [wMobilePichuMovementCommand], a
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -4272,7 +4272,7 @@ Function101d5d:
 	ret
 
 Function101d6b:
-	ld a, [wc30d]
+	ld a, [wMobilePichuEnabled]
 	and a
 	ret nz
 	ld hl, wcd29

@@ -516,7 +516,7 @@ INCLUDE "engine/movie/title.asm"
 SECTION "mobile45", ROMX
 
 INCLUDE "mobile/phone_animation.asm"
-INCLUDE "mobile/mobile_45_sprite_engine.asm"
+INCLUDE "mobile/pichu.asm"
 INCLUDE "mobile/mobile_45_2.asm"
 INCLUDE "engine/events/give_odd_egg.asm"
 INCLUDE "mobile/password.asm"
@@ -542,6 +542,7 @@ INCLUDE "engine/link/link_trade.asm"
 SECTION "mobile5C", ROMX
 
 INCLUDE "mobile/mobile_5c.asm"
+INCLUDE "mobile/pichu_gfx.asm"
 INCLUDE "mobile/center_menu.asm"
 INCLUDE "mobile/input_screens.asm"
 INCLUDE "mobile/stadium_screen.asm"
