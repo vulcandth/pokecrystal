@@ -87,26 +87,25 @@ ResetReceivePacketBuffer:
 	ret
 
 _MobileAPI::
-; Use the byte at wMobileAPIIndex as a parameter
-; for a dw.
-; If [wMobileAPIIndex] not in {MOBILEAPI_06, MOBILEAPI_07, MOBILEAPI_08},
-; clear [wc835].
+; wMobileAPIIndex contains the byte offset into .Jumptable.
+; Only the three configuration accessors reuse the cached configuration.
+; During the call, wMobileAPIIndex holds the handler address's low byte.
 	push de
 	ld a, [wMobileAPIIndex]
-	cp MOBILEAPI_06
+	cp MOBILEAPI_READPHONENUMBERS
 	jr z, .noreset
-	cp MOBILEAPI_07
+	cp MOBILEAPI_READUSERID
 	jr z, .noreset
-	cp MOBILEAPI_08
+	cp MOBILEAPI_READEMAIL
 	jr z, .noreset
 	xor a
-	ld [wc835], a
+	ld [wMobileSDK_ConfigLoaded], a
 	ld a, [wMobileAPIIndex]
 .noreset
 	; Get the pointer
 	ld d, 0
 	ld e, a
-	ld hl, .dw
+	ld hl, .Jumptable
 	add hl, de
 	; Store the low byte in [wMobileAPIIndex]
 	ld a, [hli]
@@ -116,62 +115,64 @@ _MobileAPI::
 	pop de
 	ld hl, ReturnMobileAPI ; return here
 	push hl
-	; If the destination function is not Function110236,
-	; call Function1100b4.
+	; If the destination function is not MobileAPI_Init,
+	; call MobileSDK_WaitForSerialTransfer.
 	ld h, a
 	ld a, [wMobileAPIIndex]
 	ld l, a
 	push hl
-	ld a, LOW(Function110236)
+	ld a, LOW(MobileAPI_Init)
 	cp l
 	jr nz, .okay
-	ld a, HIGH(Function110236)
+	ld a, HIGH(MobileAPI_Init)
 	cp h
 .okay
-	call nz, Function1100b4
+	call nz, MobileSDK_WaitForSerialTransfer
 	ld hl, wc986
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	ret ; indirectly jump to the function loaded from the dw, which returns to ReturnMobileAPI.
 
-.dw
-	dw Function110115
-	dw Function110236
-	dw Function110291
-	dw Function1103ac
-	dw Function110438
-	dw Function1104c6
-	dw Function110578
-	dw Function110582
-	dw Function11058c
-	dw Function1105dd
-	dw Function1106ef
-	dw Function110757
-	dw Function1107ff
-	dw Function110899
-	dw Function1108a3
-	dw Function110905
-	dw Function1109a4
-	dw Function1109f9
-	dw Function110a5b
-	dw Function110c3c
-	dw Function110c9e
-	dw Function110ddd
-	dw Function1111fe
-	dw Function1113fe
+.Jumptable:
+	table_width 2
+	dw MobileAPI_ErrorCheck
+	dw MobileAPI_Init
+	dw MobileAPI_WriteConfiguration
+	dw MobileAPI_ISPLogin
+	dw MobileAPI_Dial
+	dw MobileAPI_HangUp
+	dw MobileAPI_ReadPhoneNumbers
+	dw MobileAPI_ReadUserID
+	dw MobileAPI_ReadEmailAddress
+	dw MobileAPI_Answer
+	dw MobileAPI_SMTPConnect
+	dw MobileAPI_SMTPSetAddresses
+	dw MobileAPI_SMTPSend
+	dw MobileAPI_SMTPQuit
+	dw MobileAPI_POP3Quit
+	dw MobileAPI_POP3Connect
+	dw MobileAPI_POP3Stat
+	dw MobileAPI_POP3List
+	dw MobileAPI_POP3Retr
+	dw MobileAPI_POP3Dele
+	dw MobileAPI_POP3Head
+	dw MobileAPI_HTTPGet
+	dw MobileAPI_HTTPPost
+	dw MobileAPI_SendData
 	dw MobileAPI_SetTimer
 	dw MobileAPI_TelephoneStatus
-	dw Function111596
-	dw Function11162d
-	dw Function11032c
-	dw Function11148c
-	dw Function111610
-	dw Function1103ac
-	dw Function110235
-	dw Function111540
+	dw MobileAPI_Stop
+	dw MobileAPI_End
+	dw MobileAPI_ReadConfiguration
+	dw MobileAPI_GetData
+	dw MobileAPI_TCPCut
+	dw MobileAPI_ISPLogin
+	dw MobileAPI_InitAlt
+	dw MobileAPI_TelephoneStatusAlt
+	assert_table_length NUM_MOBILE_API_CALLS
 
-Function1100b4:
+MobileSDK_WaitForSerialTransfer:
 	push bc
 .loop
 	di
@@ -191,9 +192,9 @@ Function1100b4:
 	cp $4
 	jr z, .loop
 	xor a
-	ld [wc80f], a
-	ld hl, wc821
-	set 1, [hl]
+	ld [wMobileSDK_ErrorCode], a
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	scf
 .done
 	pop bc
@@ -236,9 +237,10 @@ MobileAPI_SetTimer:
 	ldh [c], a
 	ret
 
-Function110115:
-	ld hl, wc821
-	bit 1, [hl]
+MobileAPI_ErrorCheck:
+; Return the SDK error class in a and its subcode in hl; clear the error flag.
+	ld hl, wMobileSDK_Status
+	bit MOBILE_SDK_ERROR_F, [hl]
 	jr nz, .asm_110120
 	xor a
 	ld l, a
@@ -247,7 +249,7 @@ Function110115:
 
 .asm_110120
 	res 1, [hl]
-	ld a, [wc80f]
+	ld a, [wMobileSDK_ErrorCode]
 	ld e, a
 	cp $22
 	jr z, .asm_11016a
@@ -284,10 +286,10 @@ Function110115:
 	add $15
 	ld e, a
 	xor a
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	ld [hli], a
 	ld [hl], a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 
 .asm_11016a
 	xor a
@@ -295,7 +297,7 @@ Function110115:
 	ld [hl], a
 	ld [wc807], a
 	inc a
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld hl, wc822
 	res 0, [hl]
 	res 5, [hl]
@@ -311,12 +313,12 @@ Function110115:
 	jr .asm_1101d7
 
 .asm_11018e
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 	bit 4, a
 	ld a, $1
 	jr z, .asm_11016a
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, [wc805]
 	ld [wc807], a
 	jr .asm_110158
@@ -325,7 +327,7 @@ Function110115:
 	res 0, [hl]
 	ld hl, wc822
 	res 5, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	res 7, [hl]
 	res 6, [hl]
 	set 5, [hl]
@@ -333,7 +335,7 @@ Function110115:
 	ld [wc86d], a
 	ld [wc9af], a
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, $4
 	ld [wc807], a
 	ld a, e
@@ -347,7 +349,7 @@ Function110115:
 	jp nz, .asm_110158
 
 .asm_1101d7
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -373,44 +375,45 @@ Function110115:
 	cp $a4
 	jr z, .asm_1101a4
 	ld a, $3
-	ld [wc86a], a
-	ld hl, wc810
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	jp .asm_11015b
 
 .asm_11020d
-	ld a, [wc810]
+	ld a, [wMobileSDK_ErrorSubcode]
 	cp $2
 	jr z, .asm_1101a4
 	cp $3
 	jr z, .asm_1101a4
 	ld a, $4
-	ld [wc86a], a
-	ld hl, wc810
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	jp .asm_11015b
 
-Function110226:
+MobileSDK_InvalidState:
 	ld a, $21
 
-Function110228:
-	ld [wc80f], a
-	ld hl, wc821
-	set 1, [hl]
+MobileSDK_SetError:
+	ld [wMobileSDK_ErrorCode], a
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ret
 
-Function110231:
+MobileSDK_InvalidArgument:
 	ld a, $20
-	jr Function110228
+	jr MobileSDK_SetError
 
-Function110235:
+MobileAPI_InitAlt:
+; The shared initializer distinguishes this entry by its address.
 	nop
 
-Function110236:
+MobileAPI_Init:
 	ld a, [wMobileAPIIndex]
 	push af
 	push bc
@@ -454,7 +457,7 @@ Function110236:
 	call MobileAPI_SetTimer
 	call Function1104b0
 	pop af
-	cp $35
+	cp LOW(MobileAPI_InitAlt)
 	jr nz, .asm_110289
 	ld a, $2b
 	jr .asm_11028b
@@ -463,26 +466,26 @@ Function110236:
 	ld a, $a
 
 .asm_11028b
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110291:
-	ld a, [wc821]
-	bit 1, a
+MobileAPI_WriteConfiguration:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr z, .asm_1102a6
-	ld a, [wc80f]
+	ld a, [wMobileSDK_ErrorCode]
 	cp $14
 	jr z, .asm_1102b3
 	cp $25
 	jr z, .asm_1102b3
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 
 .asm_1102a6
 	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 
 .asm_1102b3
 	xor a
@@ -554,21 +557,21 @@ Function110291:
 	call Function111f63
 	call Function1104b0
 	ld a, $2e
-	ld [wc86a], a
-	ld hl, wc821
-	res 1, [hl]
-	set 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
+	set MOBILE_SDK_BUSY_F, [hl]
 	ret
 
-Function11032c:
-	ld a, [wc821]
-	bit 1, a
-	jp nz, Function110226
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_ReadConfiguration:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
+	jp nz, MobileSDK_InvalidState
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ldh [rTAC], a
 	ld [wc819], a
@@ -615,8 +618,8 @@ Function11032c:
 	call Function111f63
 	call Function1104b0
 	ld a, $2d
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 Function110393:
 	ld c, LOW(rIE)
@@ -645,13 +648,13 @@ Function11039a:
 	scf
 	ret
 
-Function1103ac:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_ISPLogin:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	push hl
 	ld c, $15
 	call Function11039a
@@ -665,7 +668,7 @@ Function1103ac:
 
 .asm_1103d2
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
 .isp_login
 	xor a
@@ -712,26 +715,26 @@ Function1103ac:
 	ld [wMobileSDK_PacketBuffer + 50], a
 	call Function1104b0
 	ld a, $b
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 
-Function110432:
-	ld hl, wc821
-	set 0, [hl]
+MobileSDK_SetBusy:
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ret
 
-Function110438:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_Dial:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	push hl
 	ld c, $15
 	call Function11039a
 	jr nc, .asm_110454
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
 .asm_110454
 	xor a
@@ -757,8 +760,8 @@ Function110438:
 	call Function111f63
 	call Function1104b0
 	ld a, $c
-	ld [wc86a], a
-	jr Function110432
+	ld [wMobileSDK_State], a
+	jr MobileSDK_SetBusy
 
 Mobile_DialTelephone:
 	ld de, wMobileSDK_PacketBuffer
@@ -798,17 +801,17 @@ Function1104b0:
 	ld b, 1
 	jp PacketSendBytes
 
-Function1104c6:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_HangUp:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
 	jr z, .asm_110526
 	cp $3
 	jr z, .asm_110526
 	cp $2
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld hl, wc822
 	bit 4, [hl]
 	jr nz, .asm_110507
@@ -822,10 +825,10 @@ Function1104c6:
 	call PacketSendBytes
 .asm_1104fa
 	ld a, $e
-	ld [wc86a], a
-	ld hl, wc821
-	set 0, [hl]
-	res 3, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
+	res MOBILE_SDK_DATA_READY_F, [hl]
 	ret
 
 .asm_110507
@@ -833,10 +836,10 @@ Function1104c6:
 	or a
 	jr nz, .asm_11051f
 	ld a, $1
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld hl, wc822
 	res 4, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $17
 	ld [hl], a
@@ -871,7 +874,7 @@ Function1104c6:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120c1
+	ld hl, MobileMailQuitCommand
 	call MobileSDK_CopyString
 	ld b, c
 	call Function111f63
@@ -881,38 +884,38 @@ Function1104c6:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $e
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110578:
+MobileAPI_ReadPhoneNumbers:
 	ld b, $25
 	call Function110596
 	or a
-	jp nz, Function1135ba
+	jp nz, MobileSDK_CopyPhoneNumbers
 	ret
 
-Function110582:
+MobileAPI_ReadUserID:
 	ld b, $26
 	call Function110596
 	or a
-	jp nz, Function11359d
+	jp nz, MobileSDK_CopyUserID
 	ret
 
-Function11058c:
+MobileAPI_ReadEmailAddress:
 	ld b, $27
 	call Function110596
 	or a
-	jp nz, Function1135ad
+	jp nz, MobileSDK_CopyEmailAddress
 	ret
 
 Function110596:
-	ld a, [wc821]
-	bit 0, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
 	jr nz, .asm_1105d9
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1
 	jr nz, .asm_1105d9
-	ld a, [wc835]
+	ld a, [wMobileSDK_ConfigLoaded]
 	or a
 	ret nz
 	ld a, b
@@ -935,21 +938,21 @@ Function110596:
 	ld [hl], a
 	call Function1104b0
 	ld a, [wcb36]
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	xor a
-	jp Function110432
+	jp MobileSDK_SetBusy
 
 .asm_1105d9
 	pop hl
-	jp Function110226
+	jp MobileSDK_InvalidState
 
-Function1105dd:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_Answer:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ldh [rTAC], a
 	ld a, [wc870]
@@ -969,8 +972,8 @@ Function1105dd:
 	ld [wc86e], a
 	call Function1104b0
 	ld a, $d
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 Function110615:
 	ld b, $15
@@ -1050,8 +1053,8 @@ Function110615:
 	ld hl, wc995
 	call Function111f02
 	ld a, $f
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 .asm_1106ac
 	ld hl, wMobileSDK_PacketBuffer
@@ -1060,8 +1063,8 @@ Function110615:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $f
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 .asm_1106c1
 	ld b, $50
@@ -1094,22 +1097,22 @@ Function110615:
 	ld b, $40
 	jp .asm_110631
 
-Function1106ef:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_SMTPConnect:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $2
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc86d]
 	or a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	push hl
 	ld c, $20
 	call Function11039a
 	jr nc, .asm_110712
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
 .asm_110712
 	xor a
@@ -1125,7 +1128,7 @@ Function1106ef:
 	inc de
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_11209e
+	ld hl, MobileSMTPHeloCommand
 	call MobileSDK_CopyString
 	pop hl
 	push hl
@@ -1149,16 +1152,16 @@ Function1106ef:
 	ld a, $0
 	jp Function110615
 
-Function110757:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_SMTPSetAddresses:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $3
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc98a]
 	or a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	push hl
 .asm_11076f
 	ld a, [hli]
@@ -1201,7 +1204,7 @@ Function110757:
 	inc de
 	ld bc, $0001
 	ld de, wMobileSDK_PacketBuffer + 19
-	ld hl, Unknown_1120a4
+	ld hl, MobileSMTPMailFromCommand
 	call MobileSDK_CopyString
 	pop hl
 	call MobileSDK_CopyString
@@ -1226,26 +1229,26 @@ Function110757:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $15
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 .asm_1107fb
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
-Function1107ff:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_SMTPSend:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $3
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc98a]
 	or a
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
 	ld a, c
 	or b
-	jp z, Function110231
+	jp z, MobileSDK_InvalidArgument
 	ld a, l
 	ld [wc87c], a
 	ld a, h
@@ -1286,7 +1289,7 @@ Function1107ff:
 	jr nz, .asm_110891
 	ld bc, $0001
 	ld de, wMobileSDK_PacketBuffer + 157
-	ld hl, Unknown_1120ba
+	ld hl, MobileSMTPDataCommand
 	call MobileSDK_CopyString
 	ld a, c
 	ld [wMobileSDK_PacketBuffer + 155], a
@@ -1301,24 +1304,24 @@ Function1107ff:
 
 .asm_110891
 	ld a, $16
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110899:
-	ld a, [wc86a]
+MobileAPI_SMTPQuit:
+	ld a, [wMobileSDK_State]
 	cp $3
-	jp nz, Function110226
-	jr Function1108ab
+	jp nz, MobileSDK_InvalidState
+	jr MobileSDK_MailQuit
 
-Function1108a3:
-	ld a, [wc86a]
+MobileAPI_POP3Quit:
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 
-Function1108ab:
-	ld hl, wc821
-	bit 0, [hl]
-	jp nz, Function110226
+MobileSDK_MailQuit:
+	ld hl, wMobileSDK_Status
+	bit MOBILE_SDK_BUSY_F, [hl]
+	jp nz, MobileSDK_InvalidState
 	call Function112724
 	xor a
 	ld [wc86b], a
@@ -1342,7 +1345,7 @@ Function1108ab:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120c1
+	ld hl, MobileMailQuitCommand
 	call MobileSDK_CopyString
 	ld b, c
 	call Function111f63
@@ -1352,19 +1355,19 @@ Function1108ab:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $17
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110905:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_POP3Connect:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $2
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc86d]
 	or a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ld [wc86b], a
 	push hl
@@ -1377,7 +1380,7 @@ Function110905:
 
 .asm_11092f
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
 .asm_110933
 	ld de, wMobileSDK_PacketBuffer + 96
@@ -1386,7 +1389,7 @@ Function110905:
 	call MobileSDK_CopyBytes
 	inc de
 	inc de
-	ld hl, Unknown_1120c8
+	ld hl, MobilePOP3UserCommand
 	call MobileSDK_CopyString
 	pop hl
 	push hl
@@ -1426,7 +1429,7 @@ Function110905:
 	ld b, $5
 	call MobileSDK_CopyBytes
 	ld de, wMobileSDK_PacketBuffer + 167
-	ld hl, Unknown_1120ce
+	ld hl, MobilePOP3PasswordCommand
 	ld b, $5
 	call MobileSDK_CopyBytes
 	ld de, wMobileSDK_PacketBuffer + 128
@@ -1436,13 +1439,13 @@ Function110905:
 	ld a, $1
 	jp Function110615
 
-Function1109a4:
-	ld hl, wc821
-	bit 0, [hl]
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_POP3Stat:
+	ld hl, wMobileSDK_Status
+	bit MOBILE_SDK_BUSY_F, [hl]
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, e
 	ld [wc86e], a
 	ld a, d
@@ -1461,7 +1464,7 @@ Function1109a4:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120d4
+	ld hl, MobilePOP3StatCommand
 	call MobileSDK_CopyString
 	ld b, c
 	call Function111f63
@@ -1471,16 +1474,16 @@ Function1109a4:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $18
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function1109f9:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_POP3List:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ld [wc86b], a
 	ld a, e
@@ -1489,7 +1492,7 @@ Function1109f9:
 	ld [wc86e + 1], a
 	ld a, l
 	or h
-	jp z, Function110231
+	jp z, MobileSDK_InvalidArgument
 	push hl
 	call Function112729
 	ld de, wMobileSDK_PacketBuffer
@@ -1503,7 +1506,7 @@ Function1109f9:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120db
+	ld hl, MobilePOP3ListCommand
 	call MobileSDK_CopyString
 	ld de, wMobileSDK_PacketBuffer + 12
 	pop hl
@@ -1516,27 +1519,27 @@ Function1109f9:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $1d
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110a5b:
-	ld a, [wc821]
-	bit 2, a
+MobileAPI_POP3Retr:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr z, .asm_110a6d
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	jp Function110af4
 
 .asm_110a6d
 	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, l
 	or h
-	jp z, Function110231
+	jp z, MobileSDK_InvalidArgument
 	ld a, l
 	ld [wc86e], a
 	ld a, h
@@ -1584,7 +1587,7 @@ Function110a5b:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120e8
+	ld hl, MobilePOP3RetrCommand
 	call MobileSDK_CopyString
 	ld de, wMobileSDK_PacketBuffer + 12
 	ld hl, wc86e
@@ -1600,8 +1603,8 @@ Function110a5b:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $1a
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 Function110af4:
 	ld hl, wc827
@@ -1721,8 +1724,8 @@ Function110af4:
 	call Function1127f3
 	jr z, .asm_110bbb
 	di
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, $1
 	ld [wc86b], a
 	ld de, $000b
@@ -1734,10 +1737,10 @@ Function110af4:
 
 .asm_110bbb
 	ld a, $4
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
-	res 2, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld hl, wc827
 	ld a, [hli]
 	ld e, a
@@ -1814,16 +1817,16 @@ Function110af4:
 	pop hl
 	jp .asm_110b1c
 
-Function110c3c:
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+MobileAPI_POP3Dele:
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, l
 	or h
-	jp z, Function110231
+	jp z, MobileSDK_InvalidArgument
 	ld a, l
 	ld [wc86e], a
 	ld a, h
@@ -1840,7 +1843,7 @@ Function110c3c:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_1120f5
+	ld hl, MobilePOP3DeleCommand
 	call MobileSDK_CopyString
 	ld de, wMobileSDK_PacketBuffer + 12
 	ld hl, wc86e
@@ -1856,27 +1859,28 @@ Function110c3c:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $1b
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
-Function110c9e:
-	ld a, [wc821]
-	bit 2, a
+MobileAPI_POP3Head:
+; Use TOP with zero body lines to retrieve only the message headers.
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr z, .asm_110cb0
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1c
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	jp Function110af4
 
 .asm_110cb0
 	bit 0, a
-	jp nz, Function110226
-	ld a, [wc86a]
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $4
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, l
 	or h
-	jp z, Function110231
+	jp z, MobileSDK_InvalidArgument
 	ld a, l
 	ld [wc86e], a
 	ld a, h
@@ -1924,7 +1928,7 @@ Function110c9e:
 	ld [de], a
 	inc de
 	ld bc, $0001
-	ld hl, Unknown_112102
+	ld hl, MobilePOP3HeadCommand
 	call MobileSDK_CopyString
 	ld de, wMobileSDK_PacketBuffer + 11
 	ld hl, wc86e
@@ -1940,8 +1944,8 @@ Function110c9e:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $1c
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 Function110d37:
 	push bc
@@ -2079,10 +2083,12 @@ Function110d37:
 	jr nz, .last_loop
 	ret
 
-Function110ddd:
-	ld a, [wc821]
-	bit 2, a
-	ld a, [wc86a]
+MobileAPI_HTTPGet:
+; hl: Date buffer pointer, URL pointer, null-terminated user ID and password.
+; de/bc: receive buffer and capacity, including a two-byte length prefix.
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
+	ld a, [wMobileSDK_State]
 	jr z, .asm_110e00
 	cp $13
 	jp z, Function111044
@@ -2090,7 +2096,7 @@ Function110ddd:
 	jp z, Function111044
 	cp $21
 	jp z, Function111044
-	jp Function110226
+	jp MobileSDK_InvalidState
 
 .asm_110df9
 	pop hl
@@ -2099,17 +2105,17 @@ Function110ddd:
 	pop hl
 	pop hl
 .asm_110dfd
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
 .asm_110e00
 	cp $2
-	jp nz, Function110226
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc86d]
 	or a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	ld a, l
 	ld [wc9b5], a
 	ld a, h
@@ -2345,8 +2351,8 @@ Function110f07:
 	ld hl, wc995
 	call Function111f02
 	ld a, $f
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 .asm_110f8a
 	ld hl, wMobileSDK_PacketBuffer
@@ -2362,8 +2368,8 @@ Function110f07:
 	ld b, $5
 	call PacketSendBytes
 	ld a, $f
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 URIPrefix:
 	db "http://"
@@ -2503,8 +2509,8 @@ Function111044:
 	di
 	ld a, $2
 	ld [wc989], a
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, [wMobileSDK_ReceivePacketBuffer]
 	cp MOBILE_COMMAND_TRANSFER_DATA_END | $80
 	jr z, .asm_111144
@@ -2529,7 +2535,7 @@ Function111044:
 	ld hl, wc98f
 	inc [hl]
 	ld a, $f
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, $1
 	ld [wc86b], a
 	ld a, [wc86d]
@@ -2552,7 +2558,7 @@ Function111044:
 	ld a, [wc82e]
 	ld [hl], a
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	xor a
 	ld [wc86d], a
 	ei
@@ -2635,8 +2641,8 @@ Function11115f:
 	ret
 
 Function1111ca:
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, $6
 	ld [wc86b], a
 	jp Function112430
@@ -2674,19 +2680,21 @@ Function1111d7:
 	ld [hl], a
 	ret
 
-Function1111fe:
-	ld a, [wc821]
-	bit 2, a
-	ld a, [wc86a]
+MobileAPI_HTTPPost:
+; hl: send buffer pointer/length, Date buffer pointer, URL pointer,
+;     null-terminated user ID and password. de/bc: receive buffer/capacity.
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
+	ld a, [wMobileSDK_State]
 	jp nz, Function1113ea
 	cp $2
-	jp nz, Function110226
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
 	ld a, [wc86d]
 	or a
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ld [wc989], a
 	ld [wc98a], a
@@ -3005,7 +3013,7 @@ Function1113ea:
 	jp z, Function111044
 	cp $24
 	jp z, Function111044
-	jp Function110226
+	jp MobileSDK_InvalidState
 
 Function1113f7:
 	pop hl
@@ -3014,32 +3022,32 @@ Function1113f8:
 	pop hl
 	pop hl
 	pop hl
-	jp Function110231
+	jp MobileSDK_InvalidArgument
 
-Function1113fe:
+MobileAPI_SendData:
 	ld a, [wc822]
 	bit 4, a
 	jp z, .asm_11147f
 	bit 7, a
 	jp nz, .asm_11147f
-	ld a, [wc821]
-	bit 0, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
 	jp nz, .asm_11147f
 .asm_111413
 	ld a, [wc800]
 	or a
 	jr nz, .asm_111413
 	di
-	ld a, [wc821]
-	bit 3, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_DATA_READY_F, a
 	jp nz, .asm_11147b
 	ld a, [wc807]
 	or a
 	jr nz, .asm_111436
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, $23
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $ff
 	ei
 	ret
@@ -3083,8 +3091,8 @@ Function1113fe:
 	call Function111f63
 	ld hl, wc822
 	set 7, [hl]
-	ld hl, wc821
-	set 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ld a, $0
 	ei
 	ret
@@ -3095,25 +3103,25 @@ Function1113fe:
 	ret
 
 .asm_11147f
-	call Function110226
+	call MobileSDK_InvalidState
 	ld a, $ff
 	ret
 
 .asm_111485
 	ei
-	call Function110231
+	call MobileSDK_InvalidArgument
 	ld a, $ff
 	ret
 
-Function11148c:
+MobileAPI_GetData:
 	ld a, [wc822]
 	bit 4, a
-	jp z, Function110226
-	ld a, [wc821]
-	bit 0, a
-	jp nz, Function110226
-	bit 3, a
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_BUSY_F, a
+	jp nz, MobileSDK_InvalidState
+	bit MOBILE_SDK_DATA_READY_F, a
+	jp z, MobileSDK_InvalidState
 	ld e, l
 	ld d, h
 	ld a, [wc992]
@@ -3151,8 +3159,8 @@ Function11148c:
 	xor a
 	or c
 	jr nz, .asm_1114dc
-	ld hl, wc821
-	res 3, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_DATA_READY_F, [hl]
 	ret
 
 .asm_1114dc
@@ -3178,8 +3186,8 @@ Function11148c:
 	ld de, wc880
 	call MobileSDK_CopyBytes
 .asm_1114fa
-	ld hl, wc821
-	res 3, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_DATA_READY_F, [hl]
 	ret
 
 .asm_111500
@@ -3226,16 +3234,17 @@ Function11148c:
 	pop hl
 	jr .asm_1114d2
 
-Function111540:
+MobileAPI_TelephoneStatusAlt:
+; The shared handler distinguishes this entry by its address.
 	nop
 
 MobileAPI_TelephoneStatus:
-	ld hl, wc821
-	bit 0, [hl]
-	jp nz, Function110226
-	ld a, [wc86a]
+	ld hl, wMobileSDK_Status
+	bit MOBILE_SDK_BUSY_F, [hl]
+	jp nz, MobileSDK_InvalidState
+	ld a, [wMobileSDK_State]
 	cp $5
-	jp nc, Function110226
+	jp nc, MobileSDK_InvalidState
 	ld [wc985], a
 	ld a, e
 	ld [wc86e], a
@@ -3251,7 +3260,7 @@ MobileAPI_TelephoneStatus:
 	call PacketSendEmptyBody
 .asm_11156f
 	ld a, [wMobileAPIIndex]
-	cp $40
+	cp LOW(MobileAPI_TelephoneStatusAlt)
 	jr nz, .asm_11157a
 	ld a, $2c
 	jr .asm_11157c
@@ -3260,8 +3269,8 @@ MobileAPI_TelephoneStatus:
 	ld a, $1e
 
 .asm_11157c
-	ld [wc86a], a
-	jp Function110432
+	ld [wMobileSDK_State], a
+	jp MobileSDK_SetBusy
 
 .asm_111582
 	xor a
@@ -3274,13 +3283,13 @@ MobileAPI_TelephoneStatus:
 	ld [wc86b], a
 	jr .asm_11156f
 
-Function111596:
-	ld hl, wc86a
+MobileAPI_Stop:
+	ld hl, wMobileSDK_State
 	ld a, [hl]
 	cp $1
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
 	cp $2a
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
 	ld a, [wc800]
 	bit 1, a
 	jr nz, .asm_1115af
@@ -3306,8 +3315,8 @@ Function111596:
 	ld [wc807], a
 	call ResetReceivePacketBuffer
 	call Function11164f
-	ld hl, wc821
-	set 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ei
 	ret
 
@@ -3321,8 +3330,8 @@ Function111596:
 Function1115e4:
 	di
 	push af
-	ld hl, wc821
-	set 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ld a, $1
 	ld [wc86b], a
 	ld a, [wc86d]
@@ -3337,7 +3346,7 @@ Function1115e4:
 	call Function112430
 .asm_111604
 	pop af
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ret
 
 .asm_111609
@@ -3348,13 +3357,13 @@ Function1115e4:
 	ei
 	jr .asm_111604
 
-Function111610:
-	ld hl, wc86a
+MobileAPI_TCPCut:
+	ld hl, wMobileSDK_State
 	ld a, [hl]
 	dec a
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
 	dec a
-	jp z, Function110226
+	jp z, MobileSDK_InvalidState
 	ld a, [wc800]
 	or a
 	jr nz, .asm_111626
@@ -3368,10 +3377,10 @@ Function111610:
 	ld [hl], b
 	ret
 
-Function11162d:
-	ld a, [wc86a]
+MobileAPI_End:
+	ld a, [wMobileSDK_State]
 	cp $1
-	jp nz, Function110226
+	jp nz, MobileSDK_InvalidState
 	xor a
 	ld hl, wMobileSDK_PacketBuffer
 	ld [hli], a
@@ -3436,10 +3445,10 @@ Function111686:
 	and ~(IE_SERIAL | IE_TIMER)
 	ldh [c], a
 	ld a, [wMobileSDK_PacketBuffer + 1]
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, [wMobileSDK_PacketBuffer]
 	ld c, a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	or c
 	ld [hl], a
@@ -3451,7 +3460,7 @@ Function1116a0:
 
 Function1116a4:
 	set 1, [hl]
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 
 Function1116a9:
 	ld [wMobileSDK_PacketBuffer + 1], a
@@ -3461,7 +3470,7 @@ Function1116a9:
 	ld a, [wc81f]
 	rla
 	ld [hl], a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	ld b, a
 	and $d
@@ -3629,11 +3638,11 @@ asm_1117a2:
 	ld [wc800], a
 	ld a, $6
 	ld [hl], a
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, $15
-	ld [wc80f], a
-	ld hl, wc810
+	ld [wMobileSDK_ErrorCode], a
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, [wc808]
 	and $f
 	cp $2
@@ -3684,12 +3693,12 @@ Function1117e7:
 	ld a, $6
 	ld [wc807], a
 	ld a, $10
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	xor a
 	ld [wc800], a
 	ld hl, wc822
 	res 0, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	set 1, a
 	and $f
@@ -3713,8 +3722,8 @@ Function1117e7:
 	bit 4, a
 	jr z, .asm_111864
 	ld b, a
-	ld a, [wc821]
-	bit 3, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_DATA_READY_F, a
 	jr nz, .asm_111864
 	jp Function11177c
 .asm_111864
@@ -3824,18 +3833,18 @@ _Timer::
 	jp z, Function111b3b
 	ld [hl], a
 	ld a, $10
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	xor a
 	ld [wc800], a
 	ld hl, wc822
 	res 0, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $f
 	or $2
 	ld [hl], a
 	ld a, $10
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	jp Function111b3b
 .asm_111927
 	ld a, [wc800]
@@ -3865,7 +3874,7 @@ _Timer::
 	jr z, .asm_111984
 	cp $8
 	jr z, .asm_11197d
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $2a
 	jr z, .asm_111991
 	cp $d
@@ -3883,14 +3892,14 @@ _Timer::
 .asm_111984
 	xor a
 	ld [hl], a
-	ld hl, wc821
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	call Function111686
 	jp Function111b3b
 .asm_111991
 	xor a
 	ld [hl], a
-	ld [wc821], a
+	ld [wMobileSDK_Status], a
 	call Function111686
 	jp Function111b3b
 .asm_11199c
@@ -3902,8 +3911,8 @@ _Timer::
 	bit 7, a
 	jr nz, .asm_1119be
 .asm_1119a9
-	ld a, [wc821]
-	bit 3, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_DATA_READY_F, a
 	jr nz, .asm_111977
 	ld de, MobilePacket_TransferData.End - MobilePacket_TransferData
 	ld hl, MobilePacket_TransferData
@@ -3911,8 +3920,8 @@ _Timer::
 	call Function111f02
 	jp Function111b3b
 .asm_1119be
-	ld a, [wc821]
-	bit 3, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_DATA_READY_F, a
 	jr nz, .asm_1119dd
 	ld a, [wMobileSDK_PacketBuffer + 5]
 	add $a
@@ -3925,13 +3934,13 @@ _Timer::
 	call PacketSendBytes
 	jp Function111b3b
 .asm_1119dd
-	ld hl, wc821
-	set 1, [hl]
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
+	res MOBILE_SDK_BUSY_F, [hl]
 	ld hl, wc822
 	res 7, [hl]
 	ld a, $21
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	jr .asm_1119a9
 
 Function1119f0_BeginSession:
@@ -4005,7 +4014,7 @@ asm_111a47:
 	jr asm_111a40
 .asm_111a63
 	di
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $2a
 	jr z, .asm_111aa8
 	ld hl, wc9b2
@@ -4016,18 +4025,18 @@ asm_111a47:
 	ld hl, wc822
 	res 5, [hl]
 	res 0, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	res 4, [hl]
 	ld a, $0
 	ld [wc805], a
 	ld a, $29
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, $1
 	ld [wc806], a
 	jr .asm_111aa8
 .asm_111a91
 	ld a, $29
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	xor a
 	ld [wc806], a
 	ld [wc86b], a
@@ -4091,14 +4100,14 @@ Function111abd:
 	ld [wc800], a
 	ld a, $6
 	ld [hl], a
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, $15
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $2
-	ld [wc810], a
+	ld [wMobileSDK_ErrorSubcode], a
 	xor a
-	ld [wc810 + 1], a
+	ld [wMobileSDK_ErrorSubcode + 1], a
 .asm_111b1c
 	ld a, $f1
 	jp Function111a42
@@ -4216,7 +4225,7 @@ Function111b3c:
 	ld [wc807], a
 	ld hl, wc822
 	res 4, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	res 4, [hl]
 	ret
 
@@ -4282,8 +4291,8 @@ Function111c17:
 	cp b
 	jr c, .asm_111c6e
 .asm_111c5b
-	ld hl, wc821
-	set 3, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_DATA_READY_F, [hl]
 	ld hl, wc993
 	ld a, $1
 	ld [hli], a
@@ -4351,9 +4360,9 @@ Function111cc2:
 	cp e
 	jr c, .asm_111cda
 	jr z, .asm_111cda
-	ld a, [wc821]
-	set 2, a
-	ld [wc821], a
+	ld a, [wMobileSDK_Status]
+	set MOBILE_SDK_RECV_BUFFER_FULL_F, a
+	ld [wMobileSDK_Status], a
 	ld a, c
 	sub e
 	ld c, e
@@ -4400,8 +4409,8 @@ Function111d07:
 	jr z, .asm_111d1c
 	ld hl, wc822
 	res 7, [hl]
-	ld hl, wc821
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 .asm_111d1c
 	ld a, [wc805]
 	ld [wc807], a
@@ -4453,7 +4462,7 @@ ParseResponse_BeginSession:
 Function111d65:
 	ld a, $3
 	ld [wc807], a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	set 4, [hl]
 	ret
 
@@ -4473,23 +4482,23 @@ Function111d70:
 	jr z, .asm_111da9
 	or a
 	ret nz
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	res 4, [hl]
-	set 1, [hl]
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, [wc822]
 	bit 4, a
 	jr nz, .asm_111dbb
 	ld a, $23
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $6
 	ld [wc807], a
 	ret
 .asm_111da9
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	res 4, [hl]
-	set 1, [hl]
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, $11
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $6
 	ld [wc807], a
 	ret
@@ -4529,7 +4538,7 @@ Function111dd9:
 	ld a, [wc822]
 	bit 0, a
 	jr z, .asm_111df8
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	jr .asm_111dfb
 .asm_111df8
 	ld a, [wc985]
@@ -4561,10 +4570,10 @@ Function111e15:
 	rrca
 	push hl
 	ld l, a
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 	and $1f
 	or l
-	ld [wc821], a
+	ld [wMobileSDK_Status], a
 	pop hl
 	ret
 
@@ -4576,15 +4585,15 @@ GetErrorCode:
 	ld a, [wMobileSDK_SendCommandID]
 	cp -1
 	jp z, Function111ef8
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $d
 	jr z, .asm_111e48
 	cp $2a
 	jr z, .asm_111e48
 	ld a, $6
 	ld [wc807], a
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 .asm_111e48
 	ld a, [wc822]
 	bit 0, a
@@ -4619,7 +4628,7 @@ GetErrorCode:
 	ld a, [hl]
 
 .store_error_code
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ret
 
 .adapter_not_plugged_in
@@ -4642,8 +4651,8 @@ GetErrorCode:
 	jr .store_error_code
 
 .hang_up_logout
-	ld hl, wc821
-	res 1, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
 	res 4, [hl]
 	ld a, $2
 	ld [wc807], a
@@ -4658,13 +4667,13 @@ GetErrorCode:
 	jr z, .asm_111ed3
 	res 4, a
 	ld [wc822], a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $f
 	or $2
 	ld [hl], a
 	ld a, $23
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $6
 	ld [wc807], a
 	ret
@@ -4683,16 +4692,16 @@ GetErrorCode:
 	jr .store_error_code
 
 .open_tcp_connection
-	ld hl, wc821
-	res 1, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
 
 .dns_query
 	ld a, $24
 	jr .store_error_code
 
 .close_tcp_connection
-	ld hl, wc821
-	res 1, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
 	ld a, $3
 	ld [wc807], a
 	ret
@@ -4713,12 +4722,12 @@ PacketSendBytes:
 ; hl = bytes
 ; de = size
 ; b = ?
-	call Function1100b4
+	call MobileSDK_WaitForSerialTransfer
 	ret c
 	ld a, [wc800]
 	cp $0
 	jr z, .asm_111f17
-	call Function110226
+	call MobileSDK_InvalidState
 	scf
 	ret
 .asm_111f17
@@ -4820,7 +4829,7 @@ Function111f97:
 	jr z, .done
 	cp $6
 	jr nz, .hang_up
-	ld a, [wc80f]
+	ld a, [wMobileSDK_ErrorCode]
 	cp $22
 	jr z, .done
 	cp $23
@@ -4932,48 +4941,13 @@ Unknown_112089:
 	db -20, $10, $b4
 	db -28, $0c, $dd
 
-Unknown_11209e:
-	db "HELO ", 0
-Unknown_1120a4:
-	db "MAIL FROM:<", 0
-Unknown_1120b0:
-	db "RCPT TO:<", 0
-Unknown_1120ba:
-	db "DATA\r\n", 0
-Unknown_1120c1:
-	db "QUIT\r\n", 0
-Unknown_1120c8:
-	db "USER ", 0
-Unknown_1120ce:
-	db "PASS ", 0
-Unknown_1120d4:
-	db "STAT\r\n", 0
-Unknown_1120db:
-	db "LIST 00000\r\n", 0
-Unknown_1120e8:
-	db "RETR 00000\r\n", 0
-Unknown_1120f5:
-	db "DELE 00000\r\n", 0
-Unknown_112102:
-	db "TOP 00000 0\r\n", 0
-Unknown_112110:
-	db "GET ", 0
-Unknown_112115:
-	db " HTTP/1.0\r\n", 0
-Unknown_112121:
-	db "User-Agent: CGB-", 0
-Unknown_112132:
-	db "\r\n\r\n", 0
-Unknown_112137:
-	db "POST ", 0
-Unknown_11213d:
-	db "Content-Length: ", 0
+INCLUDE "data/mobile/sdk_protocol_strings.asm"
 
 Function11214e:
 	ld a, [wc822]
 	bit 5, a
 	ret nz
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $a
 	ret c
 	ld c, a
@@ -5009,19 +4983,19 @@ Function11214e:
 	ld a, [wc86b]
 	cp $1
 	jr nz, .asm_11216f
-	ld hl, wc821
-	res 1, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
 	jr .asm_112175
 .asm_112196
 	ld c, a
-	ld a, [wc80f]
+	ld a, [wMobileSDK_ErrorCode]
 	cp $24
 	jr nz, .asm_11216f
 	ld a, [wc86b]
 	cp $1
 	jr nz, .asm_11216f
-	ld hl, wc821
-	res 1, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_ERROR_F, [hl]
 	jr .asm_112175
 
 Jumptable_1121ac:
@@ -5124,7 +5098,7 @@ Function1121f6:
 	ld hl, wc871
 	ld [hld], a
 	ld [hl], c
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $a
 	jr nz, Function112251
 	jp Function1116a0
@@ -5136,17 +5110,17 @@ Function1121f6:
 
 Function112251:
 	xor a
-	ld [wc821], a
+	ld [wMobileSDK_Status], a
 	ld [wc807], a
 	inc a
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ret
 
 Function11225d:
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ld a, $5
-	ld [wc86a], a
-	ld hl, wc821
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
 	ret
 
 Mobile_EndSession:
@@ -5248,7 +5222,7 @@ Function112271:
 	jp Mobile_EndSession
 
 .asm_112309
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 	and $e0
 	jr nz, .asm_112314
 	ld b, $92
@@ -5277,9 +5251,9 @@ Function112271:
 
 .asm_112335
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	set 5, [hl]
 	ret
 
@@ -5325,7 +5299,7 @@ Function112373:
 	ret
 
 .asm_112381
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 	and $e0
 	jr nz, .asm_11238c
 	ld b, $92
@@ -5346,9 +5320,9 @@ Function112373:
 	ld hl, wc822
 	set 4, [hl]
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	set 6, [hl]
 	ret
 
@@ -5379,9 +5353,9 @@ Function1123b6:
 	ld hl, wc822
 	set 4, [hl]
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	set 6, [hl]
 	set 5, [hl]
 	ret
@@ -5432,7 +5406,7 @@ Function1123e1:
 .asm_112421
 	ld hl, wc822
 	res 4, [hl]
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $f
 	ld [hl], a
@@ -5511,8 +5485,8 @@ Function112451:
 	ld a, [wc9af]
 	cp $5
 	jr c, .asm_1124b8
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ret
 
 .asm_1124b8
@@ -5577,7 +5551,7 @@ Function112451:
 
 .asm_112521
 	add $23
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, [wc98a]
 	cp $2
 	jr nz, .asm_112531
@@ -5635,7 +5609,7 @@ Function112566:
 
 .asm_112590
 	add $21
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	jr Function1125bf
 
 Function112597:
@@ -5658,12 +5632,12 @@ Function112597:
 	add b
 
 .asm_1125bc
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 
 Function1125bf:
-	ld hl, wc821
-	set 0, [hl]
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ret
 
 Function1125c7:
@@ -5741,11 +5715,11 @@ Function11261c:
 	ld hl, wMobileSDK_PacketBuffer + 96
 	call Function1127c5
 	ld a, $11
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 
 Function11264e:
-	ld hl, wc821
-	set 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 Function112654:
@@ -5781,12 +5755,12 @@ Function112654:
 	ld hl, wMobileSDK_PacketBuffer + 128
 	call Function1127c5
 	ld a, $12
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	jr Function11264e
 
 Function11269b:
 	ld bc, $0001
-	ld hl, Unknown_112110
+	ld hl, MobileHTTPGetCommand
 	ld a, [wc994]
 	or a
 	call nz, Function1126ac
@@ -5794,15 +5768,15 @@ Function11269b:
 	ret
 
 Function1126ac:
-	ld hl, Unknown_112137
+	ld hl, MobileHTTPPostCommand
 	ret
 
 Function1126b0:
-	ld hl, Unknown_112115
+	ld hl, MobileHTTPVersion
 	jp MobileSDK_CopyString
 
 Function1126b6:
-	ld hl, Unknown_112121
+	ld hl, MobileHTTPUserAgent
 	call MobileSDK_CopyString
 	ld hl, $013f
 	ld b, $4
@@ -5824,13 +5798,13 @@ Function1126b6:
 	ld a, $7
 	add c
 	ld c, a
-	ld hl, Unknown_112132
+	ld hl, MobileHTTPHeaderEnd
 	jp MobileSDK_CopyString
 
 Function1126e6:
 	xor a
 	ld [wc86b], a
-	ld hl, Unknown_11213d
+	ld hl, MobileHTTPContentLength
 	call MobileSDK_CopyString
 	ld hl, wc9a5
 	ld b, $5
@@ -5865,9 +5839,9 @@ Function112715:
 	xor a
 	ld [wc86c], a
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 Function112724:
@@ -5949,8 +5923,8 @@ Function11273a:
 	cp e
 	jr nz, .asm_1127b7
 	ld a, $3
-	ld [wc86a], a
-	ld hl, wc821
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $d6
 	or $80
@@ -5960,7 +5934,7 @@ Function11273a:
 	ret
 
 .asm_1127b7
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, e
 	ld [hli], a
 	ld [hl], d
@@ -5974,7 +5948,7 @@ Function1127c5:
 	jp Function111f02
 
 Function1127cd:
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	xor a
 	ld [hli], a
 	ld [hl], a
@@ -6082,7 +6056,7 @@ Function112840:
 	dec [hl]
 	ld bc, $0001
 	ld de, wMobileSDK_PacketBuffer + 19
-	ld hl, Unknown_1120b0
+	ld hl, MobileSMTPRecipientCommand
 	call MobileSDK_CopyString
 	pop hl
 	ld a, $80
@@ -6108,7 +6082,7 @@ Function112840:
 
 .asm_11289d
 	ld a, $3
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	call Function1128d3
 	ld a, $1
 	ld [wc98a], a
@@ -6126,7 +6100,7 @@ Function112840:
 Function1128bd:
 	ld hl, wc880
 	call Function112b11
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, e
 	ld [hli], a
 	ld [hl], d
@@ -6137,9 +6111,9 @@ Function1128bd:
 	ret
 
 Function1128d3:
-	ld hl, wc821
-	res 0, [hl]
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ret
 
 Function1128db:
@@ -6160,9 +6134,9 @@ Function1128db:
 	or a
 	jr nz, .asm_112901
 	ld a, $3
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 .asm_112901
@@ -6191,7 +6165,7 @@ Function1128db:
 	cp $50
 	jr nz, .asm_11295b
 	ld a, $3
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	call Function1128d3
 	xor a
 	ld [wc98a], a
@@ -6256,9 +6230,9 @@ Function112969:
 	xor a
 	ld [wc86d], a
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	res 7, [hl]
 	set 5, [hl]
 	ret
@@ -6311,7 +6285,7 @@ Function11299c:
 	cp $2b
 	jr nz, .asm_112a0f
 	ld a, $4
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	call Function1128d3
 	set 7, [hl]
 	ret
@@ -6343,21 +6317,21 @@ Function11299c:
 .asm_112a2c
 
 Function112a2c:
-	ld hl, wc821
-	set 1, [hl]
-	res 0, [hl]
-	ld hl, wc80f
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
+	res MOBILE_SDK_BUSY_F, [hl]
+	ld hl, wMobileSDK_ErrorCode
 	ld a, $31
 	ld [hli], a
 	ld a, e
 	ld [hli], a
 	ld [hl], d
 	ld a, $5
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ret
 
 Function112a42:
-	ld hl, wc810
+	ld hl, wMobileSDK_ErrorSubcode
 	xor a
 	ld [hli], a
 	ld [hl], a
@@ -6409,7 +6383,7 @@ Function112a56:
 	ld a, c
 	ld [hli], a
 	ld a, $4
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	jp Function1128d3
 
 .asm_112a95
@@ -6591,7 +6565,7 @@ Function112b71:
 	ld a, c
 	ld [hli], a
 	ld a, $4
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	jp Function1128d3
 
 .asm_112ba3
@@ -6620,7 +6594,7 @@ Function112bbb:
 	cp $2b
 	jr nz, .asm_112be6
 	ld a, $4
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	jp Function1128d3
 
 .asm_112bd4
@@ -6654,8 +6628,8 @@ Function112bec:
 	jr z, .asm_112c0b
 
 .asm_112c03
-	ld a, [wc821]
-	bit 2, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jp z, .asm_112cef
 
 .asm_112c0b
@@ -6786,12 +6760,12 @@ Function112bec:
 	ld [hli], a
 	ld a, d
 	ld [hl], a
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 
 .asm_112cdb
-	ld a, [wc821]
-	bit 2, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr z, .asm_112cea
 	ld a, $2
 	ld [wc86b], a
@@ -6812,7 +6786,7 @@ Function112bec:
 
 .asm_112d01
 	ld a, $4
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	call Function1128d3
 
 .asm_112d09
@@ -6830,7 +6804,7 @@ Function112bec:
 	jp MobileSDK_CopyBytes
 
 Function112d20:
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1a
 	jr nz, .asm_112d2d
 	ld de, $0004
@@ -6860,7 +6834,7 @@ Function112d33:
 	ret
 
 .asm_112d4d
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $23
 	jr z, .asm_112d6d
 	cp $1f
@@ -6887,8 +6861,8 @@ Function112d33:
 	ld hl, wc82b
 	ld [hli], a
 	ld [hl], a
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld hl, wc86b
 	dec [hl]
 	dec [hl]
@@ -6911,8 +6885,8 @@ Function112d33:
 	call Function111f63
 
 .asm_112d9f
-	ld a, [wc821]
-	bit 2, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr z, .asm_112dab
 	ld a, $3
 	ld [hl], a
@@ -6940,7 +6914,7 @@ Function112d33:
 	jr z, .asm_112e38
 	cp $1
 	jr nz, .asm_112df2
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1f
 	jr z, .asm_112de1
 	cp $20
@@ -6963,7 +6937,7 @@ Function112d33:
 	ld a, [wc86e + 1]
 	or l
 	ret z
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $13
 	jr z, .asm_112e21
 	cp $14
@@ -6983,7 +6957,7 @@ Function112d33:
 	ld a, $2
 	cp [hl]
 	ret nz
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 
 .asm_112e21
 	cp $24
@@ -7003,15 +6977,15 @@ Function112d33:
 	jp MobileSDK_CopyBytes
 
 .asm_112e38
-	ld hl, wc821
-	set 1, [hl]
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
+	res MOBILE_SDK_BUSY_F, [hl]
 	ld de, wc98b
 	ld a, $24
 	jr .asm_112e95
 
 .asm_112e46
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1f
 	jr z, .asm_112ea6
 	cp $20
@@ -7019,7 +6993,7 @@ Function112d33:
 	ld a, [wc98a]
 	cp $1
 	jr z, .asm_112e65
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $21
 	jp z, .asm_112eea
 	cp $22
@@ -7042,9 +7016,9 @@ Function112d33:
 	call Function1133fe
 
 .asm_112e7f
-	ld hl, wc821
-	set 1, [hl]
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
+	res MOBILE_SDK_BUSY_F, [hl]
 	ld de, wc98b
 	ld a, [wc990]
 	cp $1
@@ -7055,15 +7029,15 @@ Function112d33:
 	inc a
 
 .asm_112e95
-	ld [wc80f], a
-	ld hl, wc810
+	ld [wMobileSDK_ErrorCode], a
+	ld hl, wMobileSDK_ErrorSubcode
 	ld a, [de]
 	inc de
 	ld [hli], a
 	ld a, [de]
 	ld [hl], a
 	ld a, $5
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ret
 
 .asm_112ea6
@@ -7099,11 +7073,11 @@ Function112d33:
 	or l
 	jr nz, .asm_112efb
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	xor a
 	ld [wc86d], a
-	ld hl, wc821
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 .asm_112eea
@@ -7137,7 +7111,7 @@ Function112d33:
 	ld hl, wc98f
 	inc [hl]
 	ld a, $f
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, $1
 	ld [wc86b], a
 	ld a, [wc86d]
@@ -7163,11 +7137,11 @@ Function112d33:
 
 .asm_112f52
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	xor a
 	ld [wc86d], a
-	ld hl, wc821
-	res 0, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 Function112f61:
@@ -7392,7 +7366,7 @@ Function113095:
 	or b
 	pop bc
 	jr z, .asm_1130b3
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $23
 	jr z, .asm_1130b3
 	cp $20
@@ -7406,9 +7380,9 @@ Function113095:
 	ld hl, wc86e
 	ld [hli], a
 	ld [hl], a
-	ld hl, wc821
-	res 2, [hl]
-	ld a, [wc86a]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
+	ld a, [wMobileSDK_State]
 	cp $13
 	jr z, .asm_1130c8
 	cp $14
@@ -7511,8 +7485,8 @@ Function113095:
 	ld [hli], a
 	ld a, d
 	ld [hl], a
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, $1
 	ld [wc86b], a
 	ld a, $2
@@ -7631,8 +7605,8 @@ Function1131a9:
 	ld a, d
 	cp h
 	jr nz, .asm_1131ef
-	ld hl, wc821
-	res 2, [hl]
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld hl, wc86b
 	dec [hl]
 	dec [hl]
@@ -7643,8 +7617,8 @@ Function113206:
 	ld a, b
 	sub e
 	ld [wc991], a
-	ld a, [wc821]
-	bit 2, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	ld a, c
 	jr nz, .asm_113214
 	xor a
@@ -7670,8 +7644,8 @@ Function113206:
 	ld [hli], a
 	xor a
 	ld [hl], a
-	ld hl, wc821
-	set 2, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, $3
 	ld [wc86b], a
 	ret
@@ -7692,8 +7666,8 @@ Function113245:
 	ld a, $0
 	adc [hl]
 	ld [hl], a
-	ld hl, wc821
-	set 2, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_RECV_BUFFER_FULL_F, [hl]
 	ld a, $3
 	ld [wc86b], a
 	ret
@@ -7787,7 +7761,7 @@ Function113317:
 	ld a, [wc9a5]
 	or a
 	call nz, MobileSDK_CopyString
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $22
 	jr nz, .asm_113344
 	ld a, [wc98a]
@@ -8039,9 +8013,9 @@ Function1134cb:
 	cp $ff
 	jr z, .asm_1134f0
 	ld a, [wc985]
-	ld [wc86a], a
-	ld hl, wc821
-	res 0, [hl]
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
+	res MOBILE_SDK_BUSY_F, [hl]
 	ret
 
 .asm_1134f0
@@ -8068,7 +8042,7 @@ Function1134cb:
 	jp Mobile_EndSession
 
 .asm_11350e
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $1e
 	jp nz, Function112251
 	jp Function1116a0
@@ -8132,16 +8106,16 @@ Function113519:
 	ld d, a
 	ld hl, .asm_11357e
 	push hl
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	cp $25
-	jr z, Function1135ba
+	jr z, MobileSDK_CopyPhoneNumbers
 	cp $26
-	jr z, Function11359d
+	jr z, MobileSDK_CopyUserID
 	cp $27
-	jr z, Function1135ad
+	jr z, MobileSDK_CopyEmailAddress
 .asm_11357e
 	ld a, $1
-	ld [wc835], a
+	ld [wMobileSDK_ConfigLoaded], a
 	jp Function1116a0
 
 .asm_113586
@@ -8166,7 +8140,7 @@ Function113592:
 	pop de
 	ret
 
-Function11359d:
+MobileSDK_CopyUserID:
 	ld b, $20
 	call Function113592
 	ld a, $21
@@ -8176,14 +8150,14 @@ Function11359d:
 	ld [de], a
 	ret
 
-Function1135ad:
+MobileSDK_CopyEmailAddress:
 	ld b, $1e
 	call Function113592
 	ld a, $1f
 	ld hl, wc8ac
 	jp MobileSDK_CopyStringLen
 
-Function1135ba:
+MobileSDK_CopyPhoneNumbers:
 	ld b, $65
 	call Function113592
 	ld hl, wc8f6
@@ -9300,10 +9274,10 @@ endr
 	pop hl
 	pop hl
 .asm_113e26
-	ld hl, wc821
-	set 1, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_ERROR_F, [hl]
 	ld a, $20
-	ld [wc80f], a
+	ld [wMobileSDK_ErrorCode], a
 	ret
 
 .asm_113e31
@@ -9353,8 +9327,8 @@ Function113e42:
 	xor a
 	ld [wc86d], a
 	ld a, $2
-	ld [wc86a], a
-	ld hl, wc821
+	ld [wMobileSDK_State], a
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $10
 	set 5, a
@@ -9382,10 +9356,10 @@ Function113e42:
 	ld [wc86d], a
 	ld [wMobileSDK_SendCommandID], a
 	ld a, $2
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld a, $3
 	ld [wc807], a
-	ld hl, wc821
+	ld hl, wMobileSDK_Status
 	ld a, [hl]
 	and $10
 	set 5, a
@@ -9462,7 +9436,7 @@ Function113ef2:
 	ld a, $26
 	call Function11225d
 	ld a, $2a
-	ld [wc86a], a
+	ld [wMobileSDK_State], a
 	ld hl, wc820
 	ld a, [hld]
 	ld h, [hl]
@@ -9514,8 +9488,8 @@ Function113f2d:
 .asm_113f4f
 	xor a
 	ld [wc86d], a
-	ld hl, wc821
-	set 0, [hl]
+	ld hl, wMobileSDK_Status
+	set MOBILE_SDK_BUSY_F, [hl]
 	ld hl, wc822
 	xor a
 	ld [hl], a

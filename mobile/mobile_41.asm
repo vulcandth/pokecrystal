@@ -875,7 +875,7 @@ Function10635c:
 	ld de, wcd30
 	ld hl, $41
 	ld bc, $41
-	ld a, MOBILEAPI_20
+	ld a, MOBILEAPI_INIT_ALT
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -885,10 +885,10 @@ Function10635c:
 Function106392:
 	xor a
 	ld [wcf64], a
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_1063a2
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	jr z, .asm_1063bf
 	ret
 
@@ -953,10 +953,10 @@ Function1063f3:
 	ret
 
 Function106403:
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_106426
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	jr z, .asm_10640f
 	ret
 
@@ -993,7 +993,7 @@ Function106403:
 	ret
 
 Function106442:
-	ld a, MOBILEAPI_1B
+	ld a, MOBILEAPI_END
 	call MobileAPI
 	xor a
 	ldh [hMobile], a

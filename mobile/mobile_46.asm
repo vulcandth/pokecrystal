@@ -891,12 +891,12 @@ Function118746:
 	dw Function118e76
 
 MobileAdapterCommunication:
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_1187af
-	bit 2, a
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr nz, .asm_1187d1
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	jr nz, .asm_1187aa
 	ld a, [wcd89]
 	and $1
@@ -910,14 +910,14 @@ MobileAdapterCommunication:
 	ret c
 	ret
 .asm_1187af
-	ld a, MOBILEAPI_00
+	ld a, MOBILEAPI_ERRORCHECK
 	call MobileAPI
 	ld [wMobileErrorCodeBuffer], a
 	ld a, l
 	ld [wMobileErrorCodeBuffer + 1], a
 	ld a, h
 	ld [wMobileErrorCodeBuffer + 2], a
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ld a, [wc3f0]
 	ld [wc319], a
@@ -940,16 +940,16 @@ MobileAdapterCommunication:
 	jr c, .asm_1187fd
 	sla a
 	jr c, .asm_1187f5
-	ld a, MOBILEAPI_12
+	ld a, MOBILEAPI_POP3RETR
 	jr .asm_1187ff
 .asm_1187f5
-	ld a, MOBILEAPI_14
+	ld a, MOBILEAPI_POP3HEAD
 	jr .asm_1187ff
 .asm_1187f9
-	ld a, MOBILEAPI_15
+	ld a, MOBILEAPI_HTTPGET
 	jr .asm_1187ff
 .asm_1187fd
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 .asm_1187ff
 	call MobileAPI
 	ret
@@ -961,7 +961,7 @@ SetMobileErrorCode:
 	xor a
 	ld [wMobileErrorCodeBuffer + 1], a
 	ld [wMobileErrorCodeBuffer + 2], a
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ld a, [wc3f0]
 	ld [wc319], a
@@ -978,7 +978,7 @@ Function118821:
 	ldh a, [hJoyDown]
 	cp $5
 	jr nz, .asm_11884a
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ld a, $a
 	ld [wMobileErrorCodeBuffer], a
@@ -996,7 +996,7 @@ Function11884c:
 	ldh a, [hJoyDown]
 	cp $5
 	jr nz, .asm_118864
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ld a, $a
 	ld [wMobileErrorCodeBuffer], a
@@ -1036,20 +1036,20 @@ InitMobileAdapter:
 	ld [wc807], a
 	ld de, wcd81
 	ld hl, $46
-	ld a, MOBILEAPI_01
+	ld a, MOBILEAPI_INIT
 	jp Function119e2b
 
 Function118896: ; unreferenced
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_1188a5
-	bit 2, a
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr nz, .asm_1188a5
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	jr z, .asm_1188aa
 
 .asm_1188a5
-	ld a, MOBILEAPI_1A
+	ld a, MOBILEAPI_STOP
 	jp Function119e2b
 
 .asm_1188aa
@@ -1058,17 +1058,17 @@ Function118896: ; unreferenced
 
 Mobile_ReadPhoneNumber:
 	ld de, wc346
-	ld a, MOBILEAPI_06
+	ld a, MOBILEAPI_READPHONENUMBERS
 	jp Function119e2b
 
 Mobile_ReadLoginID:
 	ld de, wc3ac
-	ld a, MOBILEAPI_07
+	ld a, MOBILEAPI_READUSERID
 	jp Function119e2b
 
 Mobile_ReadEmailAddress:
 	ld de, wEmailAddress
-	ld a, MOBILEAPI_08
+	ld a, MOBILEAPI_READEMAIL
 	jp Function119e2b
 
 Mobile_LoginToISP:
@@ -1085,7 +1085,7 @@ Mobile_LoginToISP:
 	call Function119eb4
 	call Function119ec2
 	ld hl, wc708
-	ld a, MOBILEAPI_03
+	ld a, MOBILEAPI_ISPLOGIN
 	jp Function119e2b
 
 Function1188e7:
@@ -1396,7 +1396,7 @@ Mobile_HTTPGet:
 	call Function118b24
 	pop de
 	pop bc
-	ld a, MOBILEAPI_15
+	ld a, MOBILEAPI_HTTPGET
 	jp Function119e2b
 
 Mobile_HTTPGetIndex:
@@ -1408,7 +1408,7 @@ Mobile_HTTPGetIndex:
 	call Function118b24
 	pop bc
 	pop de
-	ld a, MOBILEAPI_15
+	ld a, MOBILEAPI_HTTPGET
 	jp Function119e2b
 
 Function118b24:
@@ -1603,7 +1603,7 @@ asm_118d9f:
 	ld hl, w3_d800
 	ld de, w3_de00
 	ld bc, $200
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 	jp Function119e2b
 
 Function118ded:
@@ -1698,7 +1698,7 @@ asm_118e3e:
 Mobile_LogoutOfISP:
 	xor a
 	ld [wcd65], a
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	jp Function119e2b
 
 Function118e76:
@@ -1710,7 +1710,7 @@ Function118e76:
 Function118e7e:
 	call BattleTowerRoomMenu2
 	ret c
-	ld a, MOBILEAPI_1B
+	ld a, MOBILEAPI_END
 	jp Function119e2b
 
 BattleTowerRoomMenu_CallRoomMenu2:
@@ -1858,7 +1858,7 @@ Function118f68:
 	ld hl, wc346
 	ld de, w3_de00
 	ld bc, $200
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 	jp Function119e2b
 
 .asm_118fba
@@ -1938,7 +1938,7 @@ Mobile_HTTPPostNewsRankings:
 	ld hl, wc346
 	ld de, w3_d000
 	ld bc, $1000
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 	jp Function119e2b
 
 Mobile_SaveDownloadedNewsRankings:
@@ -2485,7 +2485,7 @@ Function1193a0:
 	ld hl, wc346
 	ld de, w3_de00
 	ld bc, $200
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 	jp Function119e2b
 
 Function1193e3:
@@ -2870,7 +2870,7 @@ Function119648:
 	call Function118b24
 	ld de, w3_d000
 	ld bc, $1000
-	ld a, MOBILEAPI_15
+	ld a, MOBILEAPI_HTTPGET
 	jp Function119e2b
 
 Function119665:
@@ -3163,7 +3163,7 @@ Function1197dc:
 	call Function118b24
 	ld de, w3_d000
 	ld bc, $1000
-	ld a, MOBILEAPI_15
+	ld a, MOBILEAPI_HTTPGET
 	jp Function119e2b
 
 Function119800:
@@ -3303,7 +3303,7 @@ BattleTower_HTTPPostRecord:
 	ld hl, w3_d800
 	ld de, w3_de00
 	ld bc, $200
-	ld a, MOBILEAPI_16
+	ld a, MOBILEAPI_HTTPPOST
 	jp Function119e2b
 
 Function119937:
@@ -3344,7 +3344,7 @@ Mobile_LoginToPOP3:
 	jr nz, .asm_119962
 	call Function119ec2
 	ld hl, wc608
-	ld a, MOBILEAPI_0F
+	ld a, MOBILEAPI_POP3CONNECT
 	jp Function119e2b
 
 Function119973:
@@ -3354,7 +3354,7 @@ Function119973:
 	ld [wcf65], a
 	ld [w3_d090], a
 	ld de, w3_d000
-	ld a, MOBILEAPI_10
+	ld a, MOBILEAPI_POP3STAT
 	jp Function119e2b
 
 Function119987:
@@ -3367,7 +3367,7 @@ Function119987:
 	ld a, [wcf65]
 	ld h, a
 	ld de, wBGPals2
-	ld a, MOBILEAPI_11
+	ld a, MOBILEAPI_POP3LIST
 	jp Function119e2b
 
 .asm_1199a0
@@ -3405,7 +3405,7 @@ Function1199ca:
 	ld h, a
 	ld de, w3_d100
 	ld bc, $0700
-	ld a, MOBILEAPI_14
+	ld a, MOBILEAPI_POP3HEAD
 	jp Function119e2b
 
 Function1199e2:
@@ -3570,7 +3570,7 @@ Function119b0d:
 	ld h, a
 	ld de, w3_d100
 	ld bc, $0700
-	ld a, MOBILEAPI_12
+	ld a, MOBILEAPI_POP3RETR
 	jp Function119e2b
 
 DeleteTradeEmail:
@@ -3587,7 +3587,7 @@ DeleteInvalidTradeEmail:
 	ld h, a
 
 asm_119b4d:
-	ld a, MOBILEAPI_13
+	ld a, MOBILEAPI_POP3DELE
 	jp Function119e2b
 
 Mobile_LogoutOfPOP3:
@@ -3601,7 +3601,7 @@ Mobile_LogoutOfPOP3:
 	call CloseSRAM
 
 .asm_119b66
-	ld a, MOBILEAPI_0E
+	ld a, MOBILEAPI_POP3QUIT
 	jp Function119e2b
 
 DecodeReceivedTradeCornerTrade:

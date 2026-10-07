@@ -1,6 +1,6 @@
 MobileAPI::
-; Mobile
-	cp $2
+; a is a MOBILEAPI_* byte offset; the remaining registers are API arguments.
+	cp MOBILEAPI_INIT
 	ld [wMobileAPIIndex], a
 	ld a, l
 	ld [wc986], a
@@ -83,7 +83,7 @@ MobileTimer::
 	and IF_VBLANK | IF_STAT | IF_SERIAL | IF_JOYPAD
 	ldh [rIF], a
 
-	ld a, [wc86a]
+	ld a, [wMobileSDK_State]
 	or a
 	jr z, .pop_ret
 

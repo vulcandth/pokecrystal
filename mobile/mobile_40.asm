@@ -444,7 +444,7 @@ Function10032e:
 Function100337:
 	call Function10032e
 	ret c
-	ld a, [wc821]
+	ld a, [wMobileSDK_Status]
 	bit 4, a
 	jr z, .asm_100345
 	ld a, e
@@ -459,14 +459,14 @@ Function100337:
 	ret
 
 Function10034d:
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_10036a
-	bit 2, a
+	bit MOBILE_SDK_RECV_BUFFER_FULL_F, a
 	jr nz, .asm_10037e
-	bit 3, a
+	bit MOBILE_SDK_DATA_READY_F, a
 	jr nz, .asm_100366
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	jr nz, .asm_100364
 	ld a, $01
 	and a
@@ -482,7 +482,7 @@ Function10034d:
 	ret
 
 .asm_10036a
-	ld a, MOBILEAPI_00
+	ld a, MOBILEAPI_ERRORCHECK
 	call MobileAPI
 	ld [wcd2c], a
 	ld a, h
@@ -506,13 +506,13 @@ Function100382:
 
 Function10038a:
 	ld hl, wccb4
-	ld a, MOBILEAPI_17
+	ld a, MOBILEAPI_SENDDATA
 	call MobileAPI
 	ret
 
 Function100393:
 	ld hl, wcc60
-	ld a, MOBILEAPI_1D
+	ld a, MOBILEAPI_GETDATA
 	call MobileAPI
 	ret
 
@@ -3153,7 +3153,7 @@ Function101507:
 	ld de, wcd30
 	ld hl, $40
 	ld bc, $40
-	ld a, MOBILEAPI_01
+	ld a, MOBILEAPI_INIT
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -3161,7 +3161,7 @@ Function101507:
 	ret
 
 Function10151d: ; unreferenced
-	ld a, MOBILEAPI_1A
+	ld a, MOBILEAPI_STOP
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -3169,7 +3169,7 @@ Function10151d: ; unreferenced
 	ret
 
 Function10152a:
-	ld a, MOBILEAPI_1B
+	ld a, MOBILEAPI_END
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -3177,7 +3177,7 @@ Function10152a:
 	ret
 
 Function101537:
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -3186,7 +3186,7 @@ Function101537:
 
 Function101544:
 	farcall StartMobileInactivityTimer
-	ld a, MOBILEAPI_09
+	ld a, MOBILEAPI_ANSWER
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
@@ -3196,7 +3196,7 @@ Function101544:
 Function101557:
 	farcall StartMobileInactivityTimer
 	ld hl, wcd53
-	ld a, MOBILEAPI_04
+	ld a, MOBILEAPI_DIAL
 	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a

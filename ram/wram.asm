@@ -1225,8 +1225,8 @@ wc80a:: db
 wc80b:: db
 wc80c:: dw
 wc80e:: db
-wc80f:: db
-wc810:: dw
+wMobileSDK_ErrorCode:: db
+wMobileSDK_ErrorSubcode:: dw
 wMobileSDK_PacketChecksum:: dw
 wc814:: db
 wc815:: db
@@ -1240,7 +1240,7 @@ wc81d:: db
 wMobileSDK_SendCommandID:: db
 wc81f:: db
 wc820:: db
-wc821:: db
+wMobileSDK_Status:: db
 wc822:: db
 wc823:: ds 4
 wc827:: dw
@@ -1252,12 +1252,12 @@ wc82e:: db
 wc82f:: ds 3
 wc832:: db
 wMobileSDK_HTTPDateBuffer:: dw
-wc835:: db
+wMobileSDK_ConfigLoaded:: db
 wc836:: ds 8
 wc83e:: ds 20
 wc852:: ds 20
 wc866:: ds 4
-wc86a:: db
+wMobileSDK_State:: db
 wc86b:: db
 wc86c:: db
 wc86d:: db

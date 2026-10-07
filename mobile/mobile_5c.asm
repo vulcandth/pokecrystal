@@ -363,22 +363,22 @@ Jumptable_171a45:
 	dw Function171c41
 
 Function171a5d:
-	ld a, [wc821]
-	bit 1, a
+	ld a, [wMobileSDK_Status]
+	bit MOBILE_SDK_ERROR_F, a
 	jr nz, .asm_171a6a
-	bit 0, a
+	bit MOBILE_SDK_BUSY_F, a
 	ret nz
 	jp Function171c66
 
 .asm_171a6a
-	ld a, MOBILEAPI_00
+	ld a, MOBILEAPI_ERRORCHECK
 	call MobileAPI
 	ld [wMobileErrorCodeBuffer], a
 	ld a, l
 	ld [wMobileErrorCodeBuffer + 1], a
 	ld a, h
 	ld [wMobileErrorCodeBuffer + 2], a
-	ld a, MOBILEAPI_05
+	ld a, MOBILEAPI_HANGUP
 	call MobileAPI
 	ldh a, [rWBK]
 	push af
@@ -407,7 +407,7 @@ String_171aa7:
 Function171ac9:
 	ld de, wcd81
 	ld hl, $5c
-	ld a, MOBILEAPI_01
+	ld a, MOBILEAPI_INIT
 	call MobileAPI
 	jp Function171c66
 
@@ -417,7 +417,7 @@ Function171ad7:
 	ld bc, $66
 	call ByteFill
 	ld de, wc608
-	ld a, MOBILEAPI_06
+	ld a, MOBILEAPI_READPHONENUMBERS
 	call MobileAPI
 	jp Function171c66
 
