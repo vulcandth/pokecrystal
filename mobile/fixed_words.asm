@@ -2466,9 +2466,9 @@ AnimateEZChatCursor:
 	dw .five
 	dw .PasswordPosition
 	dw .PasswordKeyboard
-	dw .eight
-	dw .nine
-	dw .ten
+	dw .CenterLeft
+	dw .CenterRight
+	dw .CenterConfirm
 
 .zero
 	ld a, [wcd20]
@@ -2622,18 +2622,18 @@ AnimateEZChatCursor:
 	call .UpdateObjectFlags
 	ret
 
-.nine
+.CenterRight
 	ld d, -13 * TILE_WIDTH
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_7
-	jr .eight_nine_load
+	jr .center_position
 
-.eight
+.CenterLeft
 	ld d, 2 * TILE_WIDTH
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_6
-.eight_nine_load
+.center_position
 	push de
 	call ReinitSpriteAnimFrame
-	ld a, [wcd4a]
+	ld a, [wMobileCenterIndex]
 	sla a
 	sla a
 	sla a
@@ -2646,15 +2646,15 @@ AnimateEZChatCursor:
 	ld [hld], a
 	pop af
 	ld [hl], a
-	ld a, $4
+	ld a, MOBILE_CENTER_LIST_CURSOR_MASK
 	ld e, a
 	call .UpdateObjectFlags
 	ret
 
-.ten
+.CenterConfirm
 	ld a, SPRITE_ANIM_FRAMESET_EZCHAT_CURSOR_1
 	call ReinitSpriteAnimFrame
-	ld a, $8
+	ld a, MOBILE_CENTER_CONFIRM_CURSOR_MASK
 	ld e, a
 	call .UpdateObjectFlags
 	ret

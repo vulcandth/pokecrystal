@@ -332,7 +332,7 @@ String_4a1ef:
 Function4a20e:
 	ld a, $1
 	call MenuClickSound
-	farcall Function1719c8
+	farcall MobileCenterMenu
 	call ClearBGPalettes
 	call DelayFrame
 	jr Function4a239

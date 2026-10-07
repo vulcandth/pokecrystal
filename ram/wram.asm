@@ -248,7 +248,7 @@ wMobileMessageBuffer::
 wc320:: ds 38
 wMobilePhoneNumberTable::
 wMobileDownloadFeeQuestion::
-wc346:: ds 102
+wc346:: ds MOBILE_CENTER_TABLE_SIZE
 	assert @ - wMobileMessageBuffer == MOBILE_MESSAGE_BUFFER_LENGTH
 ; The login ID spans the following sprite fields through wc3cc.
 wMobileLoginID::
@@ -719,6 +719,7 @@ wNewsRankingSizesBuffer:: ds MAX_NEWS_RANKINGS * 2
 ENDU
 
 NEXTU
+wMobileCenterTable::
 wc608:: ds 7
 wc60f:: ds 9
 wc618:: ds 48
@@ -1551,17 +1552,21 @@ wMobileDialogCancelConfirmState:: ds 1
 
 wBTTempOTSprite::
 wMobilePasswordJumptableIndex::
+wMobileCenterJumptableIndex::
 wcd49:: db
 
 wBattleTowerLevelMenuItemCount::
 wMobilePasswordLength::
+wMobileCenterIndex::
 wcd4a:: ds 1
 wBattleTowerLevelMenuStringsPointer::
 wMobilePasswordKeyboard::
+wMobileCenterLastIndex::
 wcd4b:: ds 1
 
 wEZChatCursorXCoord::
 wMobilePasswordCursorX::
+wMobileCenterDelay::
 wcd4c:: db
 wEZChatCursorYCoord::
 wMobilePasswordCursorY::
