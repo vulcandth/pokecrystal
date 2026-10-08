@@ -286,6 +286,7 @@ sTrainerRankingsBackup:: ds sTrainerRankingsEnd - sTrainerRankings
 
 	ds $6fa
 
+sMobileTradeState::
 s5_a800:: db
 
 sOfferEmail::      ds MOBILE_EMAIL_LENGTH
@@ -301,9 +302,14 @@ sOfferMonOT::      ds NAME_LENGTH_JAPANESE - 1
 sOfferMonNick::    ds NAME_LENGTH_JAPANESE - 1
 sOfferMonMail::    mailmsg_jp sOfferMonMail
 
+sMobileTradeOfferTime::
+sMobileTradeOfferMinutes::
 s5_a890:: db
+sMobileTradeOfferHours::
 s5_a891:: db
+sMobileTradeOfferDayLo::
 s5_a892:: db
+sMobileTradeOfferDayHi::
 s5_a893:: db
 ; Multi-byte Battle Tower statistics are stored big-endian.
 s5_a894::
@@ -354,8 +360,11 @@ s5_aa8e:: ds 7 * $cc
 
 	ds $1
 
-s5_b023:: ds 105
+sMobileTradeReply::
+s5_b023:: ds TRADE_CORNER_REPLY_LENGTH
+sMobileTradeSaveTime::
 s5_b08c:: ds 4
+sMobileTradeMailIndex::
 s5_b090:: db
 s5_b091:: db
 sNewsEmailAddress:: ds MOBILE_EMAIL_LENGTH + 1
@@ -380,7 +389,10 @@ sNewsPlayerPostalCode:: ds 4
 
 	ds $1
 
+sMobileTradeTimerDay::
 s5_b2f9:: db
+; ClockContinue increments this for clock resets and day-count overflows.
+sMobileTradeTimerResetCount::
 s5_b2fa:: db
 s5_b2fb:: db
 

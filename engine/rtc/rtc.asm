@@ -133,14 +133,14 @@ ClockContinue:
 .time_overflow
 	farcall ClearDailyTimers
 	farcall Function170923
-	ld a, BANK(s5_aa8c) ; aka BANK(s5_b2fa)
+	ld a, BANK(s5_aa8c)
 	call OpenSRAM
 	ld a, [s5_aa8c]
 	inc a
 	ld [s5_aa8c], a
-	ld a, [s5_b2fa]
+	ld a, [sMobileTradeTimerResetCount]
 	inc a
-	ld [s5_b2fa], a
+	ld [sMobileTradeTimerResetCount], a
 	call CloseSRAM
 	ret
 

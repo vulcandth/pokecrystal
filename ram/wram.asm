@@ -718,11 +718,14 @@ wDebugDarkTileColor::  ds 2
 wDebugBlackTileColor:: ds 2
 
 NEXTU
+wMobileTradeReply::
 wMobileMonSender:: ds NAME_LENGTH_JAPANESE - 1
 wMobileMon::       party_struct wMobileMon
 wMobileMonOT::     ds NAME_LENGTH_JAPANESE - 1
 wMobileMonNick::   ds NAME_LENGTH_JAPANESE - 1
 wMobileMonMail::   mailmsg_jp wMobileMonMail
+wMobileTradeReplyEnd::
+	assert wMobileTradeReplyEnd - wMobileTradeReply == TRADE_CORNER_REPLY_LENGTH
 
 NEXTU
 wMobileTradeRequest::
@@ -3748,7 +3751,10 @@ w3_d002:: ds 16
 w3_d012:: ds $6e
 w3_d080:: ds 1
 w3_d081:: ds $f
-w3_d090:: ds $70
+w3_d090::
+wMobileTradeMailResult:: db
+wMobileTradeMailIndex:: dw
+	ds $70 - 3
 
 w3_d100::
 wBT_OTTrainer:: battle_tower_struct wBT_OT
@@ -3769,6 +3775,11 @@ NEXTU
 	ds $be
 wMobileTradeRequestBackup::
 w3_d800:: ds TILEMAP_WIDTH * SCREEN_HEIGHT
+
+NEXTU
+	ds $be
+wMobileTradeReplyBuffer:: ds TRADE_CORNER_REPLY_LENGTH
+wMobileTradeReplyBufferEnd::
 
 NEXTU
 	ds $be

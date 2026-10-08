@@ -2687,7 +2687,7 @@ Function119973:
 	ld [wcf64], a
 	xor a
 	ld [wcf65], a
-	ld [w3_d090], a
+	ld [wMobileTradeMailResult], a
 	ld de, w3_d000
 	ld a, MOBILEAPI_POP3STAT
 	jp Mobile_CallAPIAndAdvanceState
@@ -2706,7 +2706,7 @@ Function119987:
 	jp Mobile_CallAPIAndAdvanceState
 
 .asm_1199a0
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	and a
 	jr z, .asm_1199ae
 	ld a, $16
@@ -2841,16 +2841,16 @@ Function1199e2:
 	jp DeleteInvalidTradeEmail
 
 .asm_119aaf
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	and a
 	jr nz, .asm_119aa7
 	ld a, [w3_d895]
 	sub $30
-	ld [w3_d090], a
+	ld [wMobileTradeMailResult], a
 	ld a, [wcf64]
-	ld [w3_d090 + 1], a
+	ld [wMobileTradeMailIndex], a
 	ld a, [wcf65]
-	ld [w3_d090 + 2], a
+	ld [wMobileTradeMailIndex + 1], a
 
 Function119ac9:
 	ld a, [w3_d000]
@@ -2889,7 +2889,7 @@ Function119b0d:
 	ld a, MOBILE_DIALOG_COMMUNICATING
 	ld [wMobileDialogJumptableIndex], a
 	call MobileConnectionDialog
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	cp $1
 	jr z, .asm_119b23
 	ld a, $19
@@ -2899,9 +2899,9 @@ Function119b0d:
 .asm_119b23
 	ld a, MOBILE_DOWNLOAD_POP3_RETR
 	ld [wMobileDownloadFlags], a
-	ld a, [w3_d090 + 1]
+	ld a, [wMobileTradeMailIndex]
 	ld l, a
-	ld a, [w3_d090 + 2]
+	ld a, [wMobileTradeMailIndex + 1]
 	ld h, a
 	ld de, w3_d100
 	ld bc, $0700
@@ -2909,9 +2909,9 @@ Function119b0d:
 	jp Mobile_CallAPIAndAdvanceState
 
 DeleteTradeEmail:
-	ld a, [w3_d090 + 1]
+	ld a, [wMobileTradeMailIndex]
 	ld l, a
-	ld a, [w3_d090 + 2]
+	ld a, [wMobileTradeMailIndex + 1]
 	ld h, a
 	jr asm_119b4d
 
@@ -2926,13 +2926,13 @@ asm_119b4d:
 	jp Mobile_CallAPIAndAdvanceState
 
 Mobile_LogoutOfPOP3:
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	cp $1
 	jr nz, .asm_119b66
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, $4
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_READY
+	ld [sMobileTradeState], a
 	call CloseSRAM
 
 .asm_119b66
@@ -2940,7 +2940,7 @@ Mobile_LogoutOfPOP3:
 	jp Mobile_CallAPIAndAdvanceState
 
 DecodeReceivedTradeCornerTrade:
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	cp $1
 	jr z, .asm_119b75
 	jp BattleTowerRoomMenu_IncrementJumptable
@@ -2951,7 +2951,7 @@ DecodeReceivedTradeCornerTrade:
 	ld a, [w3_d100 + 1]
 	or b
 	jr z, .asm_119be3
-	ld hl, w3_d800
+	ld hl, wMobileTradeReplyBuffer
 	ld de, w3_d100 + 2
 .asm_119b85
 	ld a, [de]
@@ -3029,13 +3029,13 @@ DecodeReceivedTradeCornerTrade:
 .asm_119be3
 	ld a, $19
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, $1
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_OFFERED
+	ld [sMobileTradeState], a
 	call CloseSRAM
 	xor a
-	ld [w3_d090], a
+	ld [wMobileTradeMailResult], a
 	ret
 
 .asm_119bfa
@@ -3044,27 +3044,27 @@ DecodeReceivedTradeCornerTrade:
 	cp $d
 	jr nz, .asm_119b93
 	ld a, l
-	cp LOW(w3_d869)
+	cp LOW(wMobileTradeReplyBufferEnd)
 	jr nz, .asm_119be3
 	ld a, h
-	cp HIGH(w3_d869)
+	cp HIGH(wMobileTradeReplyBufferEnd)
 	jr nz, .asm_119be3
-	ld a, BANK(s5_b090) ; aka BANK(s5_b091) and BANK(s5_b023)
+	ld a, BANK(sMobileTradeMailIndex)
 	call OpenSRAM
 	ld a, [wcf64]
-	ld [s5_b090], a
+	ld [sMobileTradeMailIndex], a
 	ld a, [wcf65]
-	ld [s5_b091], a
-	ld hl, w3_d800
-	ld de, s5_b023
-	ld bc, 105
+	ld [sMobileTradeMailIndex + 1], a
+	ld hl, wMobileTradeReplyBuffer
+	ld de, sMobileTradeReply
+	ld bc, TRADE_CORNER_REPLY_LENGTH
 	call CopyBytes
-	ld a, $3
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_RECEIVED
+	ld [sMobileTradeState], a
 	call CloseSRAM
-	ld hl, w3_d800
-	ld de, wc608
-	ld bc, 105
+	ld hl, wMobileTradeReplyBuffer
+	ld de, wMobileTradeReply
+	ld bc, TRADE_CORNER_REPLY_LENGTH
 	call CopyBytes
 	jp BattleTowerRoomMenu_IncrementJumptable
 
@@ -3098,13 +3098,13 @@ popc
 .asm_119c68
 	ld a, $19
 	ld [wBattleTowerRoomMenuJumptableIndex], a
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, $1
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_OFFERED
+	ld [sMobileTradeState], a
 	call CloseSRAM
 	xor a
-	ld [w3_d090], a
+	ld [wMobileTradeMailResult], a
 	scf
 	ret
 
@@ -5024,11 +5024,11 @@ Function11b570:
 
 	ld a, $1
 	ldh [rWBK], a
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
 
-	ld de, s5_a800
-	ld a, $1
+	ld de, sMobileTradeState
+	ld a, MOBILE_TRADE_OFFERED
 	ld [de], a
 	inc de
 	ld hl, wc608
@@ -5057,7 +5057,7 @@ TradeCornerHoldMon_RemoveFromParty:
 	xor a ; REMOVE_PARTY
 	ld [wPokemonWithdrawDepositParameter], a
 	farcall RemoveMonFromPartyOrBox
-	farcall BattleTowerAction_16
+	farcall MobileTrade_StartExpirationTimer
 	farcall SaveAfterLinkTrade
 	jp MobileIncJumptableIndex
 
@@ -5080,26 +5080,26 @@ Function11b5e8:
 	ld a, $5
 	call OpenSRAM
 	ld hl, wc608
-	ld de, $b08c
+	ld de, sMobileTradeSaveTime
 	ld bc, 4
 	call CopyBytes
-	ld a, $2
-	ld [$a800], a
-	ld a, [$a81f]
+	ld a, MOBILE_TRADE_CHECKING
+	ld [sMobileTradeState], a
+	ld a, [sOfferTrainerID]
 	ld [wcd2a], a
-	ld a, [$a820]
+	ld a, [sOfferTrainerID + 1]
 	ld [wcd2b], a
-	ld a, [$a821]
+	ld a, [sOfferSecretID]
 	ld [wcd2c], a
-	ld a, [$a822]
+	ld a, [sOfferSecretID + 1]
 	ld [wcd2d], a
-	ld a, [$a823]
+	ld a, [sOfferGender]
 	ld [wcd2e], a
-	ld a, [$a824]
+	ld a, [sOfferSpecies]
 	ld [wcd2f], a
-	ld a, [$a825]
+	ld a, [sOfferReqGender]
 	ld [wcd30], a
-	ld a, [$a826]
+	ld a, [sOfferReqSpecies]
 	ld [wcd31], a
 	call CloseSRAM
 	call Mobile46_InitJumptable
@@ -5130,7 +5130,7 @@ Function11b66d:
 	push af
 	ld a, $3
 	ldh [rWBK], a
-	ld a, [w3_d090]
+	ld a, [wMobileTradeMailResult]
 	ld b, a
 	pop af
 	ldh [rWBK], a
@@ -5143,7 +5143,7 @@ Function11b66d:
 	jr .asm_11b6b0
 
 .asm_11b691
-	farcall BattleTowerAction_17
+	farcall MobileTrade_CheckExpirationTimer
 	ld a, [wScriptVar]
 	and a
 	jr z, .asm_11b6b0
@@ -5154,7 +5154,7 @@ Function11b66d:
 	ld a, $3
 	ldh [rWBK], a
 	ld a, $2
-	ld [w3_d090], a
+	ld [wMobileTradeMailResult], a
 	pop af
 	ldh [rWBK], a
 
@@ -5338,10 +5338,10 @@ Function11b7e5:
 	xor a
 	ld [wLinkMode], a
 	farcall SaveAfterLinkTrade
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, $5
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_COMPLETE
+	ld [sMobileTradeState], a
 	call CloseSRAM
 	ld a, [wMapGroup]
 	ld b, a
@@ -5364,17 +5364,17 @@ Function11b879:
 	ld a, [wScriptVar]
 	and a
 	ret z
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, [s5_a800]
+	ld a, [sMobileTradeState]
 	ld [wScriptVar], a
-	ld a, [s5_a890]
+	ld a, [sMobileTradeOfferTime]
 	ld [wcd49], a
-	ld a, [s5_a891]
+	ld a, [sMobileTradeOfferHours]
 	ld [wcd4a], a
-	ld a, [s5_a892]
+	ld a, [sMobileTradeOfferDayLo]
 	ld [wcd4b], a
-	ld a, [s5_a893]
+	ld a, [sMobileTradeOfferDayHi]
 	ld [wcd4c], a
 	call CloseSRAM
 	ld a, [wScriptVar]
@@ -5464,10 +5464,10 @@ Function11b920:
 	ret
 
 Function11b93b:
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
 	xor a
-	ld [s5_a800], a
+	ld [sMobileTradeState], a
 	ld hl, sOfferGender
 	ld de, wc608
 	ld bc, TRADE_CORNER_REQUEST_LENGTH

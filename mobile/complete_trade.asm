@@ -35,10 +35,10 @@ Mobile_CompleteTrade:
 	xor a
 	ld [wLinkMode], a
 	farcall SaveAfterLinkTrade
-	ld a, BANK(s5_a800)
+	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
-	ld a, BANK(s5_a800)
-	ld [s5_a800], a
+	ld a, MOBILE_TRADE_COMPLETE
+	ld [sMobileTradeState], a
 	call CloseSRAM
 	ld a, [wMapGroup]
 	ld b, a

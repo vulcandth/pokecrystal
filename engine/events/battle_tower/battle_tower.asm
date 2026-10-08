@@ -868,15 +868,15 @@ BattleTowerAction:
 	dw BattleTowerAction_0C
 	dw BattleTowerAction_0D
 	dw BattleTowerAction_EggTicket
-	dw BattleTowerAction_0F
-	dw BattleTowerAction_10
+	dw MobileTrade_GetMailResult
+	dw MobileTrade_RecoverSavedTrade
 	dw BattleTowerAction_11
 	dw BattleTowerAction_12
 	dw BattleTowerAction_13
 	dw BattleTowerAction_14
 	dw BattleTowerAction_15
-	dw BattleTowerAction_16
-	dw BattleTowerAction_17
+	dw MobileTrade_StartExpirationTimer
+	dw MobileTrade_CheckExpirationTimer
 	dw BattleTowerAction_LevelCheck
 	dw BattleTowerAction_UbersCheck
 	dw ResetBattleTowerTrainersSRAM
@@ -1072,59 +1072,7 @@ BattleTowerAction_06:
 	call CloseSRAM
 	ret
 
-BattleTowerAction_16:
-	call UpdateTime
-	ld a, BANK(s5_b2f9) ; aka BANK(s5_b2fa)
-	call OpenSRAM
-	ld a, [wCurDay]
-	ld [s5_b2f9], a
-	xor a
-	ld [s5_b2fa], a
-	call CloseSRAM
-	ret
-
-BattleTowerAction_17:
-	xor a
-	ld [wScriptVar], a
-	ld a, BANK(s5_b2f9) ; aka BANK(s5_b2fa)
-	call OpenSRAM
-	ld a, [s5_b2f9]
-	ld c, a
-	ld a, [s5_b2fa]
-	ld b, a
-	call CloseSRAM
-	cp 2
-	jr nc, .asm_170853
-	push bc
-	call UpdateTime
-	pop bc
-	ld a, [wCurDay]
-	sub c
-	jr c, .asm_170849
-	cp 11
-	jr nc, .asm_170853
-	ld a, b
-	and a
-	jr nz, .asm_170853
-	ret
-
-.asm_170849
-	ld hl, wCurDay
-	ld a, RTC_DAY_CYCLE
-	sub c
-	add [hl]
-	cp 11
-	ret c
-.asm_170853
-	ld a, 1
-	ld [wScriptVar], a
-	ld a, BANK(s5_b2f9) ; aka BANK(s5_b2fa)
-	call OpenSRAM
-	xor a
-	ld [s5_b2f9], a
-	ld [s5_b2fa], a
-	call CloseSRAM
-	ret
+INCLUDE "mobile/trade_corner_timer.asm"
 
 SaveBattleTowerLevelGroup:
 	ld a, BANK(sBTChoiceOfLevelGroup)
@@ -1311,140 +1259,7 @@ endr
 String_MysteryJP:
 	dname "なぞナゾ", NAME_LENGTH_JAPANESE ; "MYSTERY"
 
-BattleTowerAction_0F:
-	ldh a, [rWBK]
-	push af
-	ld a, BANK(w3_d090)
-	ldh [rWBK], a
-	ld a, [w3_d090]
-	ld [wScriptVar], a
-	pop af
-	ldh [rWBK], a
-	ret
-
-BattleTowerAction_10:
-	xor a ; FALSE
-	ld [wScriptVar], a
-	ld a, BANK(s5_a800)
-	call OpenSRAM
-	ld a, [s5_a800]
-	call CloseSRAM
-	cp 6
-	jr nc, .invalid
-	ld e, a
-	ld d, 0
-	ld hl, .Jumptable
-	add hl, de
-	add hl, de
-	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	jp hl
-
-.invalid
-	ld a, BANK(s5_a800)
-	call OpenSRAM
-	xor a
-	ld [s5_a800], a
-	call CloseSRAM
-	ret
-
-.Jumptable:
-	dw .NoAction
-	dw .NoAction
-	dw .DoAction1
-	dw .DoAction1
-	dw .Action4
-	dw .Action5
-
-.DoAction1:
-	ld a, BANK(s5_a800)
-	call OpenSRAM
-	ld a, 1
-	ld [s5_a800], a
-	call CloseSRAM
-
-.NoAction:
-	ret
-
-.Action4:
-	ld a, BANK(s5_b023) ; aka BANK(sOfferReqGender) and BANK(sOfferReqSpecies)
-	call OpenSRAM
-	ld hl, s5_b023
-	ld de, wc608
-	ld bc, 105
-	call CopyBytes
-	ld a, [sOfferReqGender]
-	ld [wcd30], a
-	ld a, [sOfferReqSpecies]
-	ld [wcd31], a
-	call CloseSRAM
-	farcall Function11b6b4
-	farcall Mobile_CompleteTrade
-	ld a, TRUE
-	ld [wScriptVar], a
-	ret
-
-.Action5:
-	ld a, 0 ; ???
-	call OpenSRAM
-	ld hl, wRTC
-	ld de, wc608
-	ld bc, 4
-	call CopyBytes
-	call CloseSRAM
-	ld a, BANK(s5_b08c)
-	call OpenSRAM
-	ld hl, s5_b08c
-	ld de, wc608
-	ld c, 4
-.compare_loop
-	ld a, [de]
-	inc de
-	cp [hl]
-	jr nz, .different
-	inc hl
-	dec c
-	jr nz, .compare_loop
-	call CloseSRAM
-	ld a, [wMapGroup]
-	ld b, a
-	ld a, [wMapNumber]
-	ld c, a
-	call GetMapSceneID
-	ld a, d
-	or e
-	jr z, .no_scene
-	ld a, [de]
-	and a
-	ret nz
-
-.no_scene
-	ld a, TRUE
-	ld [wScriptVar], a
-	ret
-
-.different
-	call CloseSRAM
-	ld a, BANK(s5_a800)
-	call OpenSRAM
-	xor a
-	ld [s5_a800], a
-	call CloseSRAM
-	ld [wScriptVar], a
-	ld a, [wMapGroup]
-	ld b, a
-	ld a, [wMapNumber]
-	ld c, a
-	call GetMapSceneID
-	ld a, d
-	or e
-	jr z, .no_scene_2
-	xor a
-	ld [de], a
-
-.no_scene_2
-	ret
+INCLUDE "mobile/trade_corner_recovery.asm"
 
 BattleTowerAction_11:
 	ld c, FALSE
