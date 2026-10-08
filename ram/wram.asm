@@ -718,6 +718,9 @@ wDebugDarkTileColor::  ds 2
 wDebugBlackTileColor:: ds 2
 
 NEXTU
+wMobileTradeSaveTimeBuffer:: ds MOBILE_TRADE_TIMESTAMP_LENGTH
+
+NEXTU
 wMobileTradeReply::
 wMobileMonSender:: ds NAME_LENGTH_JAPANESE - 1
 wMobileMon::       party_struct wMobileMon
@@ -743,15 +746,15 @@ wOfferMonNick::    ds NAME_LENGTH_JAPANESE - 1
 wOfferMonMail::    mailmsg_jp wOfferMonMail
 
 NEXTU
-wUnknownGender::     db
-wUnknownSpecies::    db
-wUnknownReqGender::  db
-wUnknownReqSpecies:: db
-wUnknownMonSender::  ds NAME_LENGTH_JAPANESE - 1
-wUnknownMon::        party_struct wUnknownMon
-wUnknownMonOT::      ds NAME_LENGTH_JAPANESE - 1
-wUnknownMonNick::    ds NAME_LENGTH_JAPANESE - 1
-wUnknownMonMail::    mailmsg_jp wUnknownMonMail
+wRetrievedOfferGender::     db
+wRetrievedOfferSpecies::    db
+wRetrievedOfferReqGender::  db
+wRetrievedOfferReqSpecies:: db
+wRetrievedOfferMonSender::  ds NAME_LENGTH_JAPANESE - 1
+wRetrievedOfferMon::        party_struct wRetrievedOfferMon
+wRetrievedOfferMonOT::      ds NAME_LENGTH_JAPANESE - 1
+wRetrievedOfferMonNick::    ds NAME_LENGTH_JAPANESE - 1
+wRetrievedOfferMonMail::    mailmsg_jp wRetrievedOfferMonMail
 
 NEXTU
 ; Temporary graphics and metadata used by the Pokémon News viewer.
@@ -917,7 +920,9 @@ NEXTU
 ; mobile data
 wc6d0:: ds 56
 wMobilePasswordBuffer::
+wMobileTradeReceivedGender::
 wc708:: db
+wMobileTradeReceivedSpecies::
 wc709:: db
 wc70a:: db
 wc70b:: db
@@ -1557,18 +1562,24 @@ wcd29:: ds 1
 
 wMobileMonIndex::
 wMobileMonMiscSpecies::
+wMobileTradeTrainerID::
 wcd2a:: db
 
 UNION
 wTempOddEggNickname:: ds MON_NAME_LENGTH
 NEXTU
 wcd2b:: ds 1
+wMobileTradeSecretID::
 wcd2c:: ds 1
 wcd2d:: ds 1
+wMobileTradeOfferGender::
 wcd2e:: ds 1
+wMobileTradeOfferSpecies::
 wcd2f:: ds 1
 wMobileCommsAdapterColor::
+wMobileTradeRequestedGender::
 wcd30:: ds 1
+wMobileTradeRequestedSpecies::
 wcd31:: ds 1
 wMobileSavedIE::
 wcd32:: ds 1
@@ -1614,22 +1625,28 @@ wBTTempOTSprite::
 wMobilePasswordJumptableIndex::
 wMobileCenterJumptableIndex::
 wMobileHTTPDateWeekday::
+wMobileTradeOfferMinutes::
 wcd49:: db
 
 wBattleTowerLevelMenuItemCount::
 wMobilePasswordLength::
 wMobileCenterIndex::
 wMobileHTTPDateHour::
+wMobileTradeOfferHours::
 wcd4a:: ds 1
 wBattleTowerLevelMenuStringsPointer::
 wMobilePasswordKeyboard::
 wMobileCenterLastIndex::
 wMobileHTTPDateMinute::
+wMobileTradeOfferDayLo::
+wMobileTradeCurrentMinutes::
 wcd4b:: ds 1
 
 wEZChatCursorXCoord::
 wMobilePasswordCursorX::
 wMobileCenterDelay::
+wMobileTradeOfferDayHi::
+wMobileTradeCurrentHours::
 wcd4c:: db
 wEZChatCursorYCoord::
 wMobilePasswordCursorY::
@@ -1699,6 +1716,7 @@ wMobileSavedStateFlags:: ds 1
 wcd80:: ds 1
 wMobileAdapterColor::
 wcd81:: ds 1
+wMobileTradePartySelection::
 wcd82:: ds 1
 wMobileStadiumChecksum::
 wcd83:: ds 1

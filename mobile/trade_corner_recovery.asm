@@ -66,12 +66,12 @@ MobileTrade_RecoverSavedTrade:
 	ld bc, TRADE_CORNER_REPLY_LENGTH
 	call CopyBytes
 	ld a, [sOfferReqGender]
-	ld [wcd30], a
+	ld [wMobileTradeRequestedGender], a
 	ld a, [sOfferReqSpecies]
-	ld [wcd31], a
+	ld [wMobileTradeRequestedSpecies], a
 	call CloseSRAM
-	farcall Function11b6b4
-	farcall Mobile_CompleteTrade
+	farcall MobileTrade_AddReceivedMon
+	farcall MobileTrade_ResumeReception
 	ld a, TRUE
 	ld [wScriptVar], a
 	ret
@@ -80,15 +80,15 @@ MobileTrade_RecoverSavedTrade:
 	ld a, 0
 	call OpenSRAM
 	ld hl, wRTC
-	ld de, wc608
-	ld bc, 4
+	ld de, wMobileTradeSaveTimeBuffer
+	ld bc, MOBILE_TRADE_TIMESTAMP_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ld a, BANK(sMobileTradeSaveTime)
 	call OpenSRAM
 	ld hl, sMobileTradeSaveTime
-	ld de, wc608
-	ld c, 4
+	ld de, wMobileTradeSaveTimeBuffer
+	ld c, MOBILE_TRADE_TIMESTAMP_LENGTH
 .compare_loop
 	ld a, [de]
 	inc de

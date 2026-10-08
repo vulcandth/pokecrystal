@@ -75,7 +75,7 @@ Function10803d:
 	mobiletradeanim MobileTradeAnim_GetOddEgg
 	mobiletradeanim EndMobileTradeAnim
 
-Function10804d:
+MobileTradeAnimation_ResumeReceiveGetmonFromGTS:
 	ld a, $0
 	ld [wcf65], a
 	ld de, .TradeAnimScript

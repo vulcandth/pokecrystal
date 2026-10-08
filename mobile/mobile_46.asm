@@ -1,13 +1,13 @@
-Function118000:
+MobileTrade_SendCancellation:
 	ld a, $1
 	ld [wcd38], a
-	jr asm_11800b
+	jr MobileTrade_RunOfferRequest
 
-Function118007:
+MobileTrade_SendOffer:
 	xor a
 	ld [wcd38], a
 
-asm_11800b:
+MobileTrade_RunOfferRequest:
 	call Mobile_InitConnection
 	ld a, $18
 	ld [wMobileConnectionEndState], a
@@ -85,7 +85,7 @@ BattleTower_UploadRecord:
 	call ReturnToMapFromSubmenu
 	ret
 
-Function1180b8:
+MobileTrade_ReceiveReply:
 	call Mobile_InitConnection
 	ld a, $22
 	ld [wMobileConnectionEndState], a
@@ -97,24 +97,24 @@ Function1180b8:
 	push af
 	ld a, $3
 	ldh [rWBK], a
-.asm_1180d1
+.loop
 	call JoyTextDelay
 	call Mobile_UpdateConnectionTimer
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $28
-	jr c, .asm_1180e4
+	jr c, .check_cancel
 	ld a, [wMobileConnectionErrorState]
 	ld [wBattleTowerRoomMenuJumptableIndex], a
 
-.asm_1180e4
+.check_cancel
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	cp $10
-	jr c, .asm_1180f2
+	jr c, .run_state
 	cp $16
-	jr nc, .asm_1180f2
+	jr nc, .run_state
 	call Mobile_CheckConnectionCancel
 
-.asm_1180f2
+.run_state
 	call Function1184ec
 	call Mobile_WriteMessage
 	farcall MobilePhone_Update
@@ -123,7 +123,7 @@ Function1180b8:
 	ld a, [wBattleTowerRoomMenuJumptableIndex]
 	ld hl, wMobileConnectionEndState
 	cp [hl]
-	jr nz, .asm_1180d1
+	jr nz, .loop
 	pop af
 	ldh [rWBK], a
 	call Mobile_CleanupConnection
@@ -1339,7 +1339,7 @@ Function118ded:
 	push af
 	ld a, $1
 	ldh [rWBK], a
-	farcall Function11b93b
+	farcall MobileTrade_RestoreOfferMon
 	pop af
 	ldh [rWBK], a
 
@@ -2793,19 +2793,19 @@ Function1199e2:
 	call Mobile_DecodeMailHexWord
 	call Mobile_DecodeMailHexWord
 	ld hl, w3_d8a0
-	ld a, [wcd2d]
+	ld a, [wMobileTradeSecretID + 1]
 	cp [hl]
 	jr nz, Function119ac9
 	inc hl
-	ld a, [wcd2c]
+	ld a, [wMobileTradeSecretID]
 	cp [hl]
 	jr nz, Function119ac9
 	inc hl
-	ld a, [wcd2b]
+	ld a, [wMobileTradeTrainerID + 1]
 	cp [hl]
 	jr nz, Function119ac9
 	inc hl
-	ld a, [wcd2a]
+	ld a, [wMobileTradeTrainerID]
 	cp [hl]
 	jr nz, Function119ac9
 	xor a
@@ -2819,19 +2819,19 @@ Function1199e2:
 	ld bc, w3_d893
 	call Mobile_DecodeMailHexWord
 	ld hl, w3_d8a0
-	ld a, [wcd2f]
+	ld a, [wMobileTradeOfferSpecies]
 	cp [hl]
 	jr nz, .asm_119aa7
 	inc hl
-	ld a, [wcd2e]
+	ld a, [wMobileTradeOfferGender]
 	cp [hl]
 	jr nz, .asm_119aa7
 	inc hl
-	ld a, [wcd31]
+	ld a, [wMobileTradeRequestedSpecies]
 	cp [hl]
 	jr nz, .asm_119aa7
 	inc hl
-	ld a, [wcd30]
+	ld a, [wMobileTradeRequestedGender]
 	cp [hl]
 	jr z, .asm_119aaf
 
@@ -2890,7 +2890,7 @@ Function119b0d:
 	ld [wMobileDialogJumptableIndex], a
 	call MobileConnectionDialog
 	ld a, [wMobileTradeMailResult]
-	cp $1
+	cp MOBILE_TRADE_MAIL_MATCHED
 	jr z, .asm_119b23
 	ld a, $19
 	ld [wBattleTowerRoomMenuJumptableIndex], a
@@ -2927,7 +2927,7 @@ asm_119b4d:
 
 Mobile_LogoutOfPOP3:
 	ld a, [wMobileTradeMailResult]
-	cp $1
+	cp MOBILE_TRADE_MAIL_MATCHED
 	jr nz, .asm_119b66
 	ld a, BANK(sMobileTradeState)
 	call OpenSRAM
@@ -2941,7 +2941,7 @@ Mobile_LogoutOfPOP3:
 
 DecodeReceivedTradeCornerTrade:
 	ld a, [wMobileTradeMailResult]
-	cp $1
+	cp MOBILE_TRADE_MAIL_MATCHED
 	jr z, .asm_119b75
 	jp BattleTowerRoomMenu_IncrementJumptable
 
@@ -3624,7 +3624,7 @@ Function11ad1b:
 	call ClearTilemap
 	farcall Mobile_LoadTradeCornerOfferBackground
 	ld a, [wMenuCursorY]
-	ld [wcd82], a
+	ld [wMobileTradePartySelection], a
 	dec a
 	ldh [hObjectStructIndex], a
 	ld a, $10
@@ -4787,830 +4787,7 @@ Function11b3d9:
 	ld [hl], a
 	ret
 
-TradeCornerHoldMon:
-; special
-	call Mobile46_InitJumptable
-	call TradeCornerHoldMon_RunJumptable
-	ret
-
-Mobile46_InitJumptable:
-	xor a
-	ld [wJumptableIndex], a
-	ld [wcf64], a
-	ld [wcf65], a
-	ld [wcf66], a
-	call UpdateTime
-	ret
-
-TradeCornerHoldMon_RunJumptable:
-.loop
-	call .IterateJumptable
-	call DelayFrame
-	ld a, [wJumptableIndex]
-	cp 4
-	jr nz, .loop
-	ret
-
-.IterateJumptable:
-	jumptable .Jumptable, wJumptableIndex
-
-.Jumptable:
-	dw TradeCornerHoldMon_PrepareForUpload
-	dw Function11b570
-	dw TradeCornerHoldMon_RemoveFromParty
-	dw TradeCornerHoldMon_Success
-	dw TradeCornerHoldMon_Noop ; unused
-
-TradeCornerHoldMon_PrepareForUpload:
-	call .InitRAM
-	ld hl, wPlayerName
-	ld a, NAME_LENGTH_JAPANESE - 1
-.get_char
-	push af
-	ld a, [hli]
-	ld [bc], a
-	inc bc
-	pop af
-	dec a
-	and a
-	jr nz, .get_char
-
-	ld de, PARTYMON_STRUCT_LENGTH
-	ld hl, wPartyMon1Species
-	ld a, [wcd82]
-	dec a
-	push af
-
-.get_next_party_mon
-	and a
-	jr z, .got_selected_mon
-	add hl, de
-	dec a
-	jr .get_next_party_mon
-
-.got_selected_mon
-	push bc
-	ld a, PARTYMON_STRUCT_LENGTH
-.copy_mon_byte
-	; copies wPartyMon to bc.
-	push af
-	ld a, [hli]
-	ld [bc], a
-	inc bc
-	pop af
-	dec a
-	and a
-	jr nz, .copy_mon_byte
-
-	pop de ; pushed from bc
-	push bc
-	ld a, [de]
-	ld [wCurSpecies], a
-	call GetBaseData
-	ld hl, MON_LEVEL
-	add hl, de
-	ld a, [hl]
-	ld [wCurPartyLevel], a
-	ld hl, MON_MAXHP
-	add hl, de
-	push hl
-	ld hl, MON_STAT_EXP - 1
-	add hl, de
-	pop de
-	push de
-	ld b, TRUE
-	predef CalcMonStats
-	pop de
-	ld h, d
-	ld l, e
-	dec hl
-	dec hl
-	ld a, [de]
-	ld [hli], a
-	inc de
-	ld a, [de]
-	ld [hl], a
-	pop bc
-	ld de, NAME_LENGTH
-	ld hl, wPartyMonOTs
-	pop af
-	push af
-.loop4
-	and a
-	jr z, .okay2
-	add hl, de
-	dec a
-	jr .loop4
-
-.okay2
-	ld a, NAME_LENGTH - 1
-.loop5
-	push af
-	ld a, [hli]
-	ld [bc], a
-	inc bc
-	pop af
-	dec a
-	and a
-	jr nz, .loop5
-	ld de, NAME_LENGTH
-	ld hl, wPartyMonNicknames
-	pop af
-	push af
-.loop6
-	and a
-	jr z, .okay3
-	add hl, de
-	dec a
-	jr .loop6
-
-.okay3
-	ld a, NAME_LENGTH - 1
-.loop7
-	push af
-	ld a, [hli]
-	ld [bc], a
-	inc bc
-	pop af
-	dec a
-	and a
-	jr nz, .loop7
-	ld de, MAIL_STRUCT_LENGTH
-	ld hl, sPartyMail
-	pop af
-.loop8
-	and a
-	jr z, .okay4
-	add hl, de
-	dec a
-	jr .loop8
-
-.okay4
-	ld a, BANK(sPartyMail)
-	call OpenSRAM
-	ld a, MAIL_STRUCT_LENGTH
-.loop9
-	push af
-	ld a, [hli]
-	ld [bc], a
-	inc bc
-	pop af
-	dec a
-	and a
-	jr nz, .loop9
-	call CloseSRAM
-	jp MobileIncJumptableIndex
-
-.InitRAM:
-	ld bc, wOfferTrainerID
-	ld a, [wPlayerID]
-	ld [wcd2a], a
-	ld [bc], a
-	inc bc
-
-	ld a, [wPlayerID + 1]
-	ld [wcd2b], a
-	ld [bc], a
-	inc bc
-
-	ld a, [wSecretID]
-	ld [wcd2c], a
-	ld [bc], a
-	inc bc
-
-	ld a, [wSecretID + 1]
-	ld [wcd2d], a
-	ld [bc], a
-	inc bc
-
-	ld a, [wcd2e] ; offer gender
-	ld [bc], a
-	inc bc
-
-	ld a, [wcd2f] ; offer species
-	ld [bc], a
-	inc bc
-
-	ld a, [wcd30] ; req gender
-	ld [bc], a
-	inc bc
-
-	ld a, [wd265] ; req species
-	ld [bc], a
-	inc bc
-	ret
-
-Function11b570:
-	call Function118007
-	ld a, [wScriptVar]
-	and a
-	jr nz, .exit
-	call .SaveData
-	jp MobileIncJumptableIndex
-
-.exit
-	ld a, $4
-	ld [wJumptableIndex], a
-	ret
-
-.SaveData:
-	ld a, $3
-	ldh [rWBK], a
-
-	ld hl, w3_d800
-	ld de, wc608
-	ld bc, w3_d88f - w3_d800
-	call CopyBytes
-
-	ld a, $1
-	ldh [rWBK], a
-	ld a, BANK(sMobileTradeState)
-	call OpenSRAM
-
-	ld de, sMobileTradeState
-	ld a, MOBILE_TRADE_OFFERED
-	ld [de], a
-	inc de
-	ld hl, wc608
-	ld bc, w3_d88f - w3_d800
-	call CopyBytes
-
-	push de
-	pop hl
-
-	ldh a, [hRTCMinutes]
-	ld [hli], a
-	ldh a, [hRTCHours]
-	ld [hli], a
-	ldh a, [hRTCDayLo]
-	ld [hli], a
-	ldh a, [hRTCDayHi]
-	ld [hl], a
-
-	call CloseSRAM
-	ret
-
-TradeCornerHoldMon_RemoveFromParty:
-	ld a, [wcd82]
-	dec a
-	ld [wCurPartyMon], a
-	xor a ; REMOVE_PARTY
-	ld [wPokemonWithdrawDepositParameter], a
-	farcall RemoveMonFromPartyOrBox
-	farcall MobileTrade_StartExpirationTimer
-	farcall SaveAfterLinkTrade
-	jp MobileIncJumptableIndex
-
-TradeCornerHoldMon_Success:
-	xor a
-	ld [wScriptVar], a
-	jp MobileIncJumptableIndex
-
-TradeCornerHoldMon_Noop:
-	ret
-
-Function11b5e8:
-	ld a, $0
-	call OpenSRAM
-	ld hl, wRTC
-	ld de, wc608
-	ld bc, 4
-	call CopyBytes
-	call CloseSRAM
-	ld a, $5
-	call OpenSRAM
-	ld hl, wc608
-	ld de, sMobileTradeSaveTime
-	ld bc, 4
-	call CopyBytes
-	ld a, MOBILE_TRADE_CHECKING
-	ld [sMobileTradeState], a
-	ld a, [sOfferTrainerID]
-	ld [wcd2a], a
-	ld a, [sOfferTrainerID + 1]
-	ld [wcd2b], a
-	ld a, [sOfferSecretID]
-	ld [wcd2c], a
-	ld a, [sOfferSecretID + 1]
-	ld [wcd2d], a
-	ld a, [sOfferGender]
-	ld [wcd2e], a
-	ld a, [sOfferSpecies]
-	ld [wcd2f], a
-	ld a, [sOfferReqGender]
-	ld [wcd30], a
-	ld a, [sOfferReqSpecies]
-	ld [wcd31], a
-	call CloseSRAM
-	call Mobile46_InitJumptable
-	call .loop
-	ret
-
-.loop
-	call .RunJumptable
-	call DelayFrame
-	ld a, [wJumptableIndex]
-	cp $1
-	jr nz, .loop
-	ret
-
-.RunJumptable:
-	jumptable .Jumptable, wJumptableIndex
-
-.Jumptable:
-	dw Function11b66d
-	dw Function11b6b3
-
-Function11b66d:
-	call Function1180b8
-	ld a, [wScriptVar]
-	and a
-	jr nz, .asm_11b6b0
-	ldh a, [rWBK]
-	push af
-	ld a, $3
-	ldh [rWBK], a
-	ld a, [wMobileTradeMailResult]
-	ld b, a
-	pop af
-	ldh [rWBK], a
-	ld a, b
-	and a
-	jr z, .asm_11b691
-	cp $1
-	jr nz, .asm_11b6b0
-	call Function11b6b4
-	jr .asm_11b6b0
-
-.asm_11b691
-	farcall MobileTrade_CheckExpirationTimer
-	ld a, [wScriptVar]
-	and a
-	jr z, .asm_11b6b0
-	xor a
-	ld [wScriptVar], a
-	ldh a, [rWBK]
-	push af
-	ld a, $3
-	ldh [rWBK], a
-	ld a, $2
-	ld [wMobileTradeMailResult], a
-	pop af
-	ldh [rWBK], a
-
-.asm_11b6b0
-	jp MobileIncJumptableIndex
-
-Function11b6b3:
-	ret
-
-Function11b6b4:
-	ld a, $5
-	call OpenSRAM
-	ld a, [wcd30]
-	ld [wc708], a
-	ld a, [wcd31]
-	ld [wc709], a
-
-	ld a, LOW(wc708)
-	ld [wMobileMonSpeciesPointer], a
-	ld a, HIGH(wc708)
-	ld [wMobileMonSpeciesPointer + 1], a
-
-	ld a, LOW(wMobileMon)
-	ld [wMobileMonStructPointer], a
-	ld a, HIGH(wMobileMon)
-	ld [wMobileMonStructPointer + 1], a
-
-	ld a, LOW(wMobileMonOT)
-	ld [wMobileMonOTPointer], a
-	ld a, HIGH(wMobileMonOT)
-	ld [wMobileMonOTPointer + 1], a
-
-	ld a, LOW(wMobileMonNick)
-	ld [wMobileMonNicknamePointer], a
-	ld a, HIGH(wMobileMonNick)
-	ld [wMobileMonNicknamePointer + 1], a
-
-	ld a, LOW(wMobileMonMail)
-	ld [wMobileMonMailPointer], a
-	ld a, HIGH(wMobileMonMail)
-	ld [wMobileMonMailPointer + 1], a
-
-	ld a, BASE_HAPPINESS
-	ld [wMobileMonHappiness], a
-
-	ld de, wMobileMonOT
-	ld c, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringForErrors
-	jr nc, .length_check_OT
-	farcall Mobile_CopyDefaultOTName
-
-.length_check_OT
-	ld de, wMobileMonOT
-	lb bc, 1, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringContainsLessThanBNextCharacters
-	jr nc, .error_check_nick
-	farcall Mobile_CopyDefaultOTName
-
-.error_check_nick
-	ld de, wMobileMonNick
-	ld c, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringForErrors
-	jr nc, .length_check_nick
-	farcall Mobile_CopyDefaultNickname
-
-.length_check_nick
-	ld de, wMobileMonNick
-	lb bc, 1, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringContainsLessThanBNextCharacters
-	jr nc, .error_check_mail
-	farcall Mobile_CopyDefaultNickname
-
-.error_check_mail
-	ld de, wMobileMonMail
-	ld c, MAIL_MSG_LENGTH + 1
-	farcall CheckStringForErrors
-	jr nc, .length_check_mail
-	farcall Mobile_CopyDefaultMail
-
-.length_check_mail
-	ld de, wMobileMonMail
-	lb bc, 2, MAIL_MSG_LENGTH + 1
-	farcall CheckStringContainsLessThanBNextCharacters
-	jr c, .fix_mail
-	ld a, b
-	cp $2
-	jr nz, .mail_ok
-
-.fix_mail
-	farcall Mobile_CopyDefaultMail
-
-.mail_ok
-	ld de, wMobileMonMailAuthor
-	ld c, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringForErrors
-	jr nc, .length_check_author
-	farcall Mobile_CopyDefaultMailAuthor
-
-.length_check_author
-	ld de, wMobileMonMailAuthor
-	lb bc, 1, NAME_LENGTH_JAPANESE - 1
-	farcall CheckStringContainsLessThanBNextCharacters
-	jr nc, .author_okay
-	farcall Mobile_CopyDefaultMailAuthor
-
-.author_okay
-	ld a, [wMobileMonItem]
-	cp -1
-	jr nz, .item_okay
-	xor a
-	ld [wMobileMonItem], a
-
-.item_okay
-	ld a, [wcd31]
-	ld [wMobileMonSpecies], a
-	ld [wCurSpecies], a
-	call GetBaseData
-
-	ld hl, wMobileMonLevel
-	ld a, [hl]
-	cp MIN_LEVEL
-	ld a, MIN_LEVEL
-	jr c, .replace_level
-	ld a, [hl]
-	cp MAX_LEVEL
-	jr c, .done_level
-	ld a, MAX_LEVEL
-.replace_level
-	ld [hl], a
-.done_level
-	ld [wCurPartyLevel], a
-
-	ld hl, wMobileMonExp + 2
-	ld de, wMobileMonMaxHP
-	ld b, TRUE
-	predef CalcMonStats
-	ld de, wMobileMonMaxHP
-	ld hl, wMobileMonHP
-	ld a, [de]
-	ld [hli], a
-	inc de
-	ld a, [de]
-	ld [hl], a
-	call AddMobileMonToParty
-	ret
-
-Function11b7e5:
-	ld a, [wMobileMonSpecies]
-	ld [wOTTrademonSpecies], a
-	ld [wCurPartySpecies], a
-	ld a, [wMobileAdapterColor]
-	ld [wMobileTradeAdapterColor], a
-	ld hl, wMobileMonOT ; OT
-	ld de, wOTTrademonOTName
-	ld bc, 5
-	call CopyBytes
-	ld a, '@'
-	ld [de], a
-	ld a, [wMobileMonID]
-	ld [wOTTrademonID], a
-	ld a, [wMobileMonID + 1]
-	ld [wOTTrademonID + 1], a
-	ld hl, wMobileMonDVs
-	ld a, [hli]
-	ld [wOTTrademonDVs], a
-	ld a, [hl]
-	ld [wOTTrademonDVs + 1], a
-	ld bc, wMobileMon ; pokemon_data_start
-	farcall GetCaughtGender
-	ld a, c
-	ld [wOTTrademonCaughtData], a
-	call SpeechTextbox
-	call FadeToMenu
-	farcall MobileTradeAnimation_ReceiveGetmonFromGTS
-	farcall Mobile_RegisterTradeMonInPokedex
-	ld a, $1
-	ld [wForceEvolution], a
-	ld a, LINK_TRADECENTER
-	ld [wLinkMode], a
-	farcall EvolvePokemon
-	xor a
-	ld [wLinkMode], a
-	farcall SaveAfterLinkTrade
-	ld a, BANK(sMobileTradeState)
-	call OpenSRAM
-	ld a, MOBILE_TRADE_COMPLETE
-	ld [sMobileTradeState], a
-	call CloseSRAM
-	ld a, [wMapGroup]
-	ld b, a
-	ld a, [wMapNumber]
-	ld c, a
-	call GetMapSceneID
-	ld a, d
-	or e
-	jr z, .asm_11b872
-	ld a, $1
-	ld [de], a
-
-.asm_11b872
-	call CloseSubmenu
-	call RestartMapMusic
-	ret
-
-Function11b879:
-	farcall BattleTower_CheckSaveFileExistsAndIsYours
-	ld a, [wScriptVar]
-	and a
-	ret z
-	ld a, BANK(sMobileTradeState)
-	call OpenSRAM
-	ld a, [sMobileTradeState]
-	ld [wScriptVar], a
-	ld a, [sMobileTradeOfferTime]
-	ld [wcd49], a
-	ld a, [sMobileTradeOfferHours]
-	ld [wcd4a], a
-	ld a, [sMobileTradeOfferDayLo]
-	ld [wcd4b], a
-	ld a, [sMobileTradeOfferDayHi]
-	ld [wcd4c], a
-	call CloseSRAM
-	ld a, [wScriptVar]
-	and a
-	ret z
-	ld hl, wcd4c
-	ldh a, [hRTCDayHi]
-	cp [hl]
-	ret nz
-	dec hl
-	ldh a, [hRTCDayLo]
-	cp [hl]
-	ret nz
-	ld hl, wcd4a
-	ldh a, [hRTCHours]
-	cp [hl]
-	jr nc, .asm_11b8d8
-	ld a, $18
-	sub [hl]
-	ld hl, hRTCHours
-	add [hl]
-	ld [wcd4c], a
-	ldh a, [hRTCMinutes]
-	ld [wcd4b], a
-	xor a
-	ld [wcd4a], a
-	jr .asm_11b8e2
-
-.asm_11b8d8
-	ldh a, [hRTCMinutes]
-	ld [wcd4b], a
-	ldh a, [hRTCHours]
-	ld [wcd4c], a
-
-.asm_11b8e2
-	xor a
-	ld l, a
-	ld h, a
-	ld b, a
-	ld d, a
-	ld a, [wcd4b]
-	ld e, a
-	ld a, [wcd4c]
-	ld c, $3c
-	call AddNTimes
-	add hl, de
-	push hl
-	xor a
-	ld l, a
-	ld h, a
-	ld b, a
-	ld d, a
-	ld a, [wcd49]
-	ld e, a
-	ld a, [wcd4a]
-	ld c, $3c
-	call AddNTimes
-	add hl, de
-	ld a, l
-	cpl
-	add $1
-	ld e, a
-	ld a, h
-	cpl
-	adc 0
-	ld d, a
-	pop hl
-	add hl, de
-	ld de, $ff88
-	add hl, de
-	bit 7, h
-	ret z
-	ld a, $2
-	ld [wScriptVar], a
-	ret
-
-Function11b920:
-	call Mobile46_InitJumptable
-	ld a, BANK(sOfferTrainerID)
-	call OpenSRAM
-	ld hl, sOfferTrainerID
-	ld de, wOfferTrainerID
-	ld bc, 8
-	call CopyBytes
-	call CloseSRAM
-	call Function118000
-	ret
-
-Function11b93b:
-	ld a, BANK(sMobileTradeState)
-	call OpenSRAM
-	xor a
-	ld [sMobileTradeState], a
-	ld hl, sOfferGender
-	ld de, wc608
-	ld bc, TRADE_CORNER_REQUEST_LENGTH
-	call CopyBytes
-	call CloseSRAM
-
-	ld a, LOW(wUnknownGender)
-	ld [wMobileMonSpeciesPointer], a
-	ld a, HIGH(wUnknownGender)
-	ld [wMobileMonSpeciesPointer + 1], a
-
-	ld a, LOW(wUnknownMon)
-	ld [wMobileMonStructPointer], a
-	ld a, HIGH(wUnknownMon)
-	ld [wMobileMonStructPointer + 1], a
-
-	ld a, LOW(wUnknownMonOT)
-	ld [wMobileMonOTPointer], a
-	ld a, HIGH(wUnknownMonOT)
-	ld [wMobileMonOTPointer + 1], a
-
-	ld a, LOW(wUnknownMonNick)
-	ld [wMobileMonNicknamePointer], a
-	ld a, HIGH(wUnknownMonNick)
-	ld [wMobileMonNicknamePointer + 1], a
-
-	ld a, LOW(wUnknownMonMail)
-	ld [wMobileMonMailPointer], a
-	ld a, HIGH(wUnknownMonMail)
-	ld [wMobileMonMailPointer + 1], a
-	call AddMobileMonToParty
-	farcall SaveAfterLinkTrade
-	ret
-
-AddMobileMonToParty:
-	ld hl, wPartyCount
-	ld a, [hl]
-	ld e, a
-	inc [hl]
-
-	ld a, [wMobileMonSpeciesPointer]
-	ld l, a
-	ld a, [wMobileMonSpeciesPointer + 1]
-	ld h, a
-	inc hl
-	ld bc, wPartySpecies
-	ld d, e
-.loop1
-	inc bc
-	dec d
-	jr nz, .loop1
-	ld a, e
-	ld [wCurPartyMon], a
-	ld a, [hl]
-	ld [bc], a
-	inc bc
-	ld a, -1
-	ld [bc], a
-
-	ld hl, wPartyMon1Species
-	ld bc, PARTYMON_STRUCT_LENGTH
-	ld a, e
-	ld [wMobileMonIndex], a
-.loop2
-	add hl, bc
-	dec a
-	and a
-	jr nz, .loop2
-	ld e, l
-	ld d, h
-	ld a, [wMobileMonStructPointer]
-	ld l, a
-	ld a, [wMobileMonStructPointer + 1]
-	ld h, a
-	ld bc, PARTYMON_STRUCT_LENGTH
-	call CopyBytes
-
-	ld hl, wPartyMonOTs
-	ld bc, NAME_LENGTH
-	ld a, [wMobileMonIndex]
-.loop3
-	add hl, bc
-	dec a
-	and a
-	jr nz, .loop3
-	ld e, l
-	ld d, h
-	ld a, [wMobileMonOTPointer]
-	ld l, a
-	ld a, [wMobileMonOTPointer + 1]
-	ld h, a
-	ld bc, MON_NAME_LENGTH - 1
-	call CopyBytes
-	ld a, '@'
-	ld [de], a
-
-	ld hl, wPartyMonNicknames
-	ld bc, MON_NAME_LENGTH
-	ld a, [wMobileMonIndex]
-.loop4
-	add hl, bc
-	dec a
-	and a
-	jr nz, .loop4
-	ld e, l
-	ld d, h
-	ld a, [wMobileMonNicknamePointer]
-	ld l, a
-	ld a, [wMobileMonNicknamePointer + 1]
-	ld h, a
-	ld bc, MON_NAME_LENGTH - 1
-	call CopyBytes
-	ld a, '@'
-	ld [de], a
-
-	ld hl, sPartyMail
-	ld bc, MAIL_STRUCT_LENGTH
-	ld a, [wMobileMonIndex]
-.loop5
-	add hl, bc
-	dec a
-	and a
-	jr nz, .loop5
-	ld a, BANK(sPartyMail)
-	call OpenSRAM
-	ld e, l
-	ld d, h
-	ld a, [wMobileMonMailPointer]
-	ld l, a
-	ld a, [wMobileMonMailPointer + 1]
-	ld h, a
-	ld bc, MAIL_STRUCT_LENGTH
-	call CopyBytes
-
-	call CloseSRAM
-	ret
-
-Function11ba38:
-	farcall CheckCurPartyMonFainted
-	ret c
-	xor a
-	ld [wScriptVar], a
-	ret
+INCLUDE "mobile/trade_corner.asm"
 
 TilemapPack_11ba44:
 	db $47, $30, $0a, $0a, $0a, $0a, $0a, $56 ; 00

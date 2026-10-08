@@ -1,4 +1,4 @@
-Mobile_CompleteTrade:
+MobileTrade_ResumeReception:
 	ld a, [wMobileMonSpecies]
 	ld [wOTTrademonSpecies], a
 	ld [wCurPartySpecies], a
@@ -25,7 +25,7 @@ Mobile_CompleteTrade:
 	ld [wOTTrademonCaughtData], a
 	call SpeechTextbox
 	call FadeToMenu
-	farcall Function10804d
+	farcall MobileTradeAnimation_ResumeReceiveGetmonFromGTS
 	farcall Mobile_RegisterTradeMonInPokedex
 	ld a, TRUE
 	ld [wForceEvolution], a

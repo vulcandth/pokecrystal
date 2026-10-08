@@ -124,11 +124,11 @@ SpecialsPointers::
 ; Crystal only
 	add_special Function11ac3e
 	add_special TradeCornerHoldMon
-	add_special Function11b5e8
-	add_special Function11b7e5
-	add_special Function11b879
-	add_special Function11b920
-	add_special Function11b93b
+	add_special MobileTrade_CheckForTrade
+	add_special MobileTrade_CompleteReception
+	add_special MobileTrade_GetOfferStatus
+	add_special MobileTrade_CancelOffer
+	add_special MobileTrade_RestoreOfferMon
 	add_special BattleTowerRoomMenu
 	add_special Function1700ba
 	add_special BattleTower_UploadChallengeRecord
@@ -136,7 +136,7 @@ SpecialsPointers::
 	add_special Function1704e1
 	add_special UnusedBattleTowerDummySpecial1
 	add_special LoadOpponentTrainerAndPokemonWithOTSprite
-	add_special Function11ba38
+	add_special MobileTrade_CheckPartyCanSpareMon
 	add_special CheckForBattleTowerRules
 	add_special GiveOddEgg
 	add_special Reset ; bank 0

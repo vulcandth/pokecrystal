@@ -363,7 +363,7 @@ s5_aa8e:: ds 7 * $cc
 sMobileTradeReply::
 s5_b023:: ds TRADE_CORNER_REPLY_LENGTH
 sMobileTradeSaveTime::
-s5_b08c:: ds 4
+s5_b08c:: ds MOBILE_TRADE_TIMESTAMP_LENGTH
 sMobileTradeMailIndex::
 s5_b090:: db
 s5_b091:: db
